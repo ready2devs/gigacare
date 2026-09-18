@@ -1,0 +1,135 @@
+{
+  "common": {
+    "appName": "GigaCare",
+    "tagline": "System Optimization Suite for Windows 11 & Android",
+    "version": "v1.0.0",
+    "cancel": "Cancel",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "export": "Export",
+    "import": "Import",
+    "status": "Status",
+    "ready": "Ready",
+    "scanning": "Scanning...",
+    "analyzing": "Analyzing...",
+    "restoring": "Restoring...",
+    "confirm": "Confirm",
+    "close": "Close",
+    "all": "All",
+    "items": "items",
+    "files": "files",
+    "bytes": "bytes",
+    "lightTheme": "Light Theme",
+    "darkTheme": "Dark Theme"
+  },
+  "modules": {
+    "smartcare": {
+      "title": "SmartCare",
+      "subtitle": "System Cleanup"
+    },
+    "quarantine": {
+      "title": "Quarantine",
+      "subtitle": "Safe Isolation"
+    },
+    "photos": {
+      "title": "Photo Curator",
+      "subtitle": "AI & Local Sharpness"
+    },
+    "uninstaller": {
+      "title": "Uninstaller",
+      "subtitle": "Deep Cleaning"
+    },
+    "startup": {
+      "title": "Windows Startup",
+      "subtitle": "Optimize Boot"
+    },
+    "space_map": {
+      "title": "Space Map",
+      "subtitle": "Visual Explorer"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Preferences & License"
+    }
+  },
+  "smartcare": {
+    "scanButton": "Smart Care",
+    "scanSubtitle": "Scan System",
+    "cancelScan": "Cancel Scan",
+    "scanned": "Items scanned",
+    "recoverable": "Recoverable",
+    "lastScan": "Last scan completed",
+    "cleanSuccess": "Cleanup successful"
+  },
+  "preview": {
+    "title": "Cleanup Preview",
+    "subtitle": "Review and select files before sending them to quarantine.",
+    "selectedFiles": "Selected files",
+    "totalSpace": "Total space",
+    "selectAll": "Select all",
+    "confirmClean": "Confirm Cleanup",
+    "dialogTitle": "Confirm Quarantine Cleanup",
+    "dialogDesc": "You are about to isolate selected items:",
+    "dialogNotice": "Files will be moved to reversible quarantine (7 days retention). You can restore them anytime.",
+    "dialogConfirmBtn": "Confirm & Move"
+  },
+  "quarantine": {
+    "title": "Reversible Quarantine Panel",
+    "subtitle": "Secure isolation with SHA-256 cryptographic integrity verification.",
+    "spaceUsed": "Space consumed",
+    "spaceWarning": "Quarantine is exceeding 80% of its allocated limit.",
+    "searchPlaceholder": "Search by name or path...",
+    "purgeExpired": "Purge Expired",
+    "restore": "Restore",
+    "restoreSelected": "Restore",
+    "empty": "No quarantined files match current filters."
+  },
+  "photos": {
+    "title": "Intelligent Photo Curator",
+    "subtitle": "pHash perceptual clustering and multimodal quality / local sharpness ranking.",
+    "keepCount": "Keep per group:",
+    "detectSimilar": "Detect Similar",
+    "analyzeAi": "Analyze with AI",
+    "groupTitle": "Group",
+    "similarPhotos": "similar photos",
+    "avgDistance": "Average distance",
+    "localFallback": "Local analysis (approximate)",
+    "provider": "Provider",
+    "keep": "Keep",
+    "discard": "Discard",
+    "sharpness": "Sharpness",
+    "eyesOpen": "Eyes open",
+    "composition": "Composition",
+    "noiseAbsence": "Noise free",
+    "totalScore": "Total Score",
+    "sendToQuarantine": "Send Discarded to Quarantine"
+  },
+  "spaceMap": {
+    "back": "Back",
+    "total": "Total",
+    "scanning": "Scanning storage hierarchy...",
+    "folder": "Folder",
+    "file": "File"
+  },
+  "settings": {
+    "title": "System Settings",
+    "subtitle": "Global parameters for scanning, quarantine, privacy, and AI models.",
+    "scanThresholds": "Cleanup & Scanning Thresholds",
+    "minTempAge": "Minimum temp age",
+    "devInactiveDays": "Dev projects inactivity",
+    "previewThreshold": "Space Map preview threshold",
+    "quarantinePolicy": "Reversible Quarantine Policy",
+    "retentionDays": "Retention days (1 to 90 days)",
+    "maxSizeGb": "Quarantine space limit",
+    "photoCurator": "Photo Curator & Artificial Intelligence",
+    "keepCount": "Photos to keep per group",
+    "phashThreshold": "pHash similarity threshold (Hamming distance)",
+    "byokKey": "Google AI Studio API Key (BYOK)",
+    "validate": "Validate",
+    "validating": "Validating...",
+    "systemPrefs": "System & Preferences",
+    "shizukuRoot": "Shizuku / Root Mode (Android)",
+    "language": "Application Language",
+    "theme": "Visual Theme"
+  }
+}

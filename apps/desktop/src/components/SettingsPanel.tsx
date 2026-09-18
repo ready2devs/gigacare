@@ -404,9 +404,12 @@ export const SettingsPanel: React.FC = () => {
           </div>
           <Dropdown
             value={config.language === "es" ? "Español" : "English"}
-            onOptionSelect={(_, data) =>
-              setConfig({ ...config, language: (data.optionValue as "es" | "en") || "es" })
-            }
+            onOptionSelect={async (_, data) => {
+              const lang = (data.optionValue as "es" | "en") || "es";
+              const { default: i18n } = await import("../i18n");
+              await i18n.changeLanguage(lang);
+              setConfig({ ...config, language: lang });
+            }}
           >
             <Option value="es">Español</Option>
             <Option value="en">English</Option>

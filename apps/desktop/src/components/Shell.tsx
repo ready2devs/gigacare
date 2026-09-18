@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@fluentui/react-components";
 import {
   BroomRegular,
@@ -29,6 +30,7 @@ export const Shell: React.FC<ShellProps> = ({
   onModuleChange,
   children,
 }) => {
+  const { t } = useTranslation();
   const [internalActive, setInternalActive] = useState<string>("smartcare");
   const activeModule = propActiveModule ?? internalActive;
   const setActiveModule = onModuleChange ?? setInternalActive;
@@ -36,44 +38,44 @@ export const Shell: React.FC<ShellProps> = ({
   const modules = [
     {
       id: "smartcare",
-      title: "SmartCare",
-      subtitle: "Limpieza del Sistema",
+      title: t("modules.smartcare.title", "SmartCare"),
+      subtitle: t("modules.smartcare.subtitle", "Limpieza del Sistema"),
       icon: <BroomRegular />,
     },
     {
       id: "quarantine",
-      title: "Cuarentena",
-      subtitle: "Aislamiento Seguro",
+      title: t("modules.quarantine.title", "Cuarentena"),
+      subtitle: t("modules.quarantine.subtitle", "Aislamiento Seguro"),
       icon: <ShieldCheckmarkRegular />,
     },
     {
       id: "photos",
-      title: "Curador de Fotos",
-      subtitle: "IA & Nitidez Local",
+      title: t("modules.photos.title", "Curador de Fotos"),
+      subtitle: t("modules.photos.subtitle", "IA & Nitidez Local"),
       icon: <ImageMultipleRegular />,
     },
     {
       id: "uninstaller",
-      title: "Desinstalador",
-      subtitle: "Limpieza Profunda",
+      title: t("modules.uninstaller.title", "Desinstalador"),
+      subtitle: t("modules.uninstaller.subtitle", "Limpieza Profunda"),
       icon: <AppsListDetailRegular />,
     },
     {
       id: "startup",
-      title: "Inicio de Windows",
-      subtitle: "Optimizar Arranque",
+      title: t("modules.startup.title", "Inicio de Windows"),
+      subtitle: t("modules.startup.subtitle", "Optimizar Arranque"),
       icon: <PowerRegular />,
     },
     {
       id: "space_map",
-      title: "Space Map",
-      subtitle: "Explorador Visual",
+      title: t("modules.space_map.title", "Space Map"),
+      subtitle: t("modules.space_map.subtitle", "Explorador Visual"),
       icon: <DataPieRegular />,
     },
     {
       id: "settings",
-      title: "Configuración",
-      subtitle: "Ajustes y Licencia",
+      title: t("modules.settings.title", "Configuración"),
+      subtitle: t("modules.settings.subtitle", "Ajustes y Licencia"),
       icon: <SettingsRegular />,
     },
   ];
@@ -91,7 +93,7 @@ export const Shell: React.FC<ShellProps> = ({
           icon={isDark ? <WeatherSunnyRegular /> : <WeatherMoonRegular />}
           onClick={onToggleTheme}
         >
-          {isDark ? "Tema Claro" : "Tema Oscuro"}
+          {isDark ? t("common.lightTheme", "Tema Claro") : t("common.darkTheme", "Tema Oscuro")}
         </Button>
       </header>
 
@@ -127,7 +129,7 @@ export const Shell: React.FC<ShellProps> = ({
 
       {/* Status Bar */}
       <footer className="gc-status-bar">
-        <span>Estado: Listo</span>
+        <span>{t("common.status", "Estado")}: {t("common.ready", "Listo")}</span>
         <span>Windows 11 Mica Enabled • GigaCare Core v1.0.0</span>
       </footer>
     </div>

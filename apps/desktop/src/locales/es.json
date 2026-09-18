@@ -1,0 +1,135 @@
+{
+  "common": {
+    "appName": "GigaCare",
+    "tagline": "Suite de Optimización para Windows 11 & Android",
+    "version": "v1.0.0",
+    "cancel": "Cancelar",
+    "save": "Guardar Cambios",
+    "saving": "Guardando...",
+    "export": "Exportar",
+    "import": "Importar",
+    "status": "Estado",
+    "ready": "Listo",
+    "scanning": "Escaneando...",
+    "analyzing": "Analizando...",
+    "restoring": "Restaurando...",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "all": "Todos",
+    "items": "elementos",
+    "files": "archivos",
+    "bytes": "bytes",
+    "lightTheme": "Tema Claro",
+    "darkTheme": "Tema Oscuro"
+  },
+  "modules": {
+    "smartcare": {
+      "title": "SmartCare",
+      "subtitle": "Limpieza del Sistema"
+    },
+    "quarantine": {
+      "title": "Cuarentena",
+      "subtitle": "Aislamiento Seguro"
+    },
+    "photos": {
+      "title": "Curador de Fotos",
+      "subtitle": "IA & Nitidez Local"
+    },
+    "uninstaller": {
+      "title": "Desinstalador",
+      "subtitle": "Limpieza Profunda"
+    },
+    "startup": {
+      "title": "Inicio de Windows",
+      "subtitle": "Optimizar Arranque"
+    },
+    "space_map": {
+      "title": "Space Map",
+      "subtitle": "Explorador Visual"
+    },
+    "settings": {
+      "title": "Configuración",
+      "subtitle": "Ajustes y Licencia"
+    }
+  },
+  "smartcare": {
+    "scanButton": "Smart Care",
+    "scanSubtitle": "Escanear Sistema",
+    "cancelScan": "Cancelar Escaneo",
+    "scanned": "Elementos analizados",
+    "recoverable": "Recuperable",
+    "lastScan": "Último escaneo completado",
+    "cleanSuccess": "Limpieza exitosa"
+  },
+  "preview": {
+    "title": "Vista Previa de Limpieza",
+    "subtitle": "Revisa y selecciona los archivos antes de enviarlos a cuarentena.",
+    "selectedFiles": "Archivos elegidos",
+    "totalSpace": "Espacio total",
+    "selectAll": "Seleccionar todo",
+    "confirmClean": "Confirmar Limpieza",
+    "dialogTitle": "Confirmar Limpieza a Cuarentena",
+    "dialogDesc": "Estás a punto de limpiar los elementos seleccionados:",
+    "dialogNotice": "Los archivos se moverán a la cuarentena reversible (retención por 7 días). Podrás restaurarlos en cualquier momento.",
+    "dialogConfirmBtn": "Confirmar y Mover"
+  },
+  "quarantine": {
+    "title": "Panel de Cuarentena Reversible",
+    "subtitle": "Aislamiento seguro con verificación de integridad criptográfica SHA-256.",
+    "spaceUsed": "Espacio ocupado",
+    "spaceWarning": "La cuarentena está superando el 80% de su límite asignado.",
+    "searchPlaceholder": "Buscar por nombre o ruta...",
+    "purgeExpired": "Purgar Expirados",
+    "restore": "Restaurar",
+    "restoreSelected": "Restaurar",
+    "empty": "No hay archivos en cuarentena que coincidan con los filtros."
+  },
+  "photos": {
+    "title": "Curador de Fotos Inteligente",
+    "subtitle": "Agrupación perceptual por pHash y ranking de calidad multimodal / nitidez local.",
+    "keepCount": "Conservar por grupo:",
+    "detectSimilar": "Detectar Similares",
+    "analyzeAi": "Analizar con IA",
+    "groupTitle": "Grupo",
+    "similarPhotos": "fotos similares",
+    "avgDistance": "Distancia media",
+    "localFallback": "Análisis local (aproximado)",
+    "provider": "Proveedor",
+    "keep": "Conservar",
+    "discard": "Descartar",
+    "sharpness": "Nitidez",
+    "eyesOpen": "Ojos abiertos",
+    "composition": "Composición",
+    "noiseAbsence": "Sin ruido",
+    "totalScore": "Score Total",
+    "sendToQuarantine": "Enviar Descartadas a Cuarentena"
+  },
+  "spaceMap": {
+    "back": "Atrás",
+    "total": "Total",
+    "scanning": "Escaneando jerarquía de almacenamiento...",
+    "folder": "Carpeta",
+    "file": "Archivo"
+  },
+  "settings": {
+    "title": "Configuración del Sistema",
+    "subtitle": "Parámetros globales de escaneo, cuarentena, privacidad y modelos de IA.",
+    "scanThresholds": "Umbrales de Limpieza y Escaneo",
+    "minTempAge": "Antigüedad mínima de temporales",
+    "devInactiveDays": "Inactividad de proyectos dev",
+    "previewThreshold": "Umbral de previsualización Space Map",
+    "quarantinePolicy": "Política de Cuarentena Reversible",
+    "retentionDays": "Días de retención (1 a 90 días)",
+    "maxSizeGb": "Límite de espacio de cuarentena",
+    "photoCurator": "Curador de Fotos e Inteligencia Artificial",
+    "keepCount": "Fotos a conservar por grupo",
+    "phashThreshold": "Umbral de similitud pHash (Distancia Hamming)",
+    "byokKey": "API Key Google AI Studio (BYOK)",
+    "validate": "Validar",
+    "validating": "Validando...",
+    "systemPrefs": "Sistema y Preferencias",
+    "shizukuRoot": "Modo Shizuku / Root (Android)",
+    "language": "Idioma de la aplicación",
+    "theme": "Tema visual"
+  }
+}
