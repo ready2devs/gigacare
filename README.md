@@ -3,7 +3,7 @@
 # GigaCare 🚀
 
 **Suite de Optimización de Alto Rendimiento, Limpieza Reversible y Curaduría Visual con IA.**  
-*Diseñada exclusivamente para **Windows 11** y **Android** con arquitectura nativa en Rust.*
+*Diseñada para **Windows 11** y **Android** con arquitectura nativa en Rust.*
 
 [![CI](https://github.com/ready2devs/gigacare/actions/workflows/ci.yml/badge.svg)](https://github.com/ready2devs/gigacare/actions/workflows/ci.yml)
 [![GitHub release](https://img.shields.io/github/v/release/ready2devs/gigacare?color=00E5FF&logo=github)](https://github.com/ready2devs/gigacare/releases/latest)
@@ -29,23 +29,37 @@
   </a>
 </p>
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  GigaCare v1.0.0                      [ SmartCare ] [ Cuarentena ] [ Fotos ] │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│                                (   Smart Care   )                            │
-│                                  Escanear Sistema                           │
-│                                                                             │
-│   ┌──────────────────────┐  ┌──────────────────────┐  ┌───────────────────┐  │
-│   │ Archivos Temporales  │  │ Caché de Mensajería  │  │ Curador de Fotos  │  │
-│   │ 1.45 GB recuperable  │  │ WhatsApp & Telegram  │  │ 12 grupos pHash   │  │
-│   └──────────────────────┘  └──────────────────────┘  └───────────────────┘  │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+### 🖥️ Interfaz Principal (SmartCare & Obsidian Dark Mica)
+
+<img src="docs/assets/screenshot-smartcare.png" alt="GigaCare SmartCare Interface" width="95%" style="border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.5);">
 
 </div>
+
+---
+
+## 📸 Demostración Visual de Módulos Reales
+
+<table align="center" width="100%">
+  <tr>
+    <td width="50%" align="center">
+      <b>🔍 Curador de Fotos Inteligente (pHash + IA)</b><br><br>
+      <img src="docs/assets/screenshot-photos.png" alt="Curador de Fotos Inteligente" width="100%" style="border-radius: 8px;">
+      <p align="left"><sub>Detecta ráfagas similares, calcula nitidez local mediante transformada FFT 2D / varianza Laplaciana y evalúa ojos abiertos y composición mediante IA multimodal.</sub></p>
+    </td>
+    <td width="50%" align="center">
+      <b>🛡️ Cuarentena Reversible Criptográfica (SHA-256)</b><br><br>
+      <img src="docs/assets/screenshot-quarantine.png" alt="Cuarentena Reversible" width="100%" style="border-radius: 8px;">
+      <p align="left"><sub>Aislamiento seguro con verificación de hash SHA-256 previo y posterior a la restauración. Restauración en 1 clic y control estricto de cuota (5 GB / 80% advertencia).</sub></p>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <b>🌌 Space Map Interactivo (Navegación Proporcional de Disco)</b><br><br>
+      <img src="docs/assets/screenshot-spacemap.png" alt="Space Map Interactivo" width="95%" style="border-radius: 8px;">
+      <p align="center"><sub>Explora visualmente carpetas pesadas mediante burbujas proporcionales con navegación jerárquica y previsualización flotante (&lt;300ms).</sub></p>
+    </td>
+  </tr>
+</table>
 
 ---
 

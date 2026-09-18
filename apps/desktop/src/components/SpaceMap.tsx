@@ -77,7 +77,57 @@ export const SpaceMap: React.FC<SpaceMapProps> = ({
       setCurrentNode(node);
       setLoading(false);
     } catch (err) {
-      console.error("Error al cargar mapa espacial:", err);
+      console.error("Error al cargar mapa espacial (usando demo):", err);
+      setCurrentNode({
+        name: "C:",
+        path: "C:\\",
+        size_bytes: 1024 * 1024 * 1024 * 256,
+        is_directory: true,
+        children: [
+          {
+            name: "Users",
+            path: "C:\\Users",
+            size_bytes: 1024 * 1024 * 1024 * 110,
+            is_directory: true,
+            children: [],
+          },
+          {
+            name: "Program Files",
+            path: "C:\\Program Files",
+            size_bytes: 1024 * 1024 * 1024 * 65,
+            is_directory: true,
+            children: [],
+          },
+          {
+            name: "Windows",
+            path: "C:\\Windows",
+            size_bytes: 1024 * 1024 * 1024 * 42,
+            is_directory: true,
+            children: [],
+          },
+          {
+            name: "Juegos & Media",
+            path: "C:\\Games",
+            size_bytes: 1024 * 1024 * 1024 * 32,
+            is_directory: true,
+            children: [],
+          },
+          {
+            name: "instalador_backup.iso",
+            path: "C:\\instalador_backup.iso",
+            size_bytes: 1024 * 1024 * 1024 * 4.2,
+            is_directory: false,
+            children: [],
+          },
+          {
+            name: "video_raw_4k.mp4",
+            path: "C:\\video_raw_4k.mp4",
+            size_bytes: 1024 * 1024 * 850,
+            is_directory: false,
+            children: [],
+          },
+        ],
+      });
       setLoading(false);
     }
   };

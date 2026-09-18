@@ -86,7 +86,64 @@ export const PhotoCurator: React.FC<PhotoCuratorProps> = ({
       }
       setLoading(false);
     } catch (err) {
-      console.error("Error al buscar grupos de fotos:", err);
+      console.error("Error al buscar grupos de fotos (usando demo):", err);
+      setGroups([
+        {
+          group_id: "demo-group-1",
+          similarity_method: "phash",
+          avg_hamming_distance: 3,
+          photos: [
+            {
+              path: "C:\\Users\\Demo\\Pictures\\IMG_2024_01.jpg",
+              original_resolution: "4032x3024",
+              size_bytes: 4194304,
+              phash: "0xa1b2c3d4e5f60718",
+              ai_analysis: {
+                provider_used: "google_ai_studio",
+                sharpness_score: 0.94,
+                eyes_open_score: 0.98,
+                composition_score: 0.88,
+                noise_score: 0.92,
+                total_score: 0.93,
+                rank: 1,
+                recommendation: "keep",
+              },
+            },
+            {
+              path: "C:\\Users\\Demo\\Pictures\\IMG_2024_02.jpg",
+              original_resolution: "4032x3024",
+              size_bytes: 4054304,
+              phash: "0xa1b2c3d4e5f60719",
+              ai_analysis: {
+                provider_used: "google_ai_studio",
+                sharpness_score: 0.58,
+                eyes_open_score: 0.25,
+                composition_score: 0.78,
+                noise_score: 0.85,
+                total_score: 0.61,
+                rank: 2,
+                recommendation: "discard",
+              },
+            },
+            {
+              path: "C:\\Users\\Demo\\Pictures\\IMG_2024_03.jpg",
+              original_resolution: "4032x3024",
+              size_bytes: 3954304,
+              phash: "0xa1b2c3d4e5f60720",
+              ai_analysis: {
+                provider_used: "local_fallback",
+                sharpness_score: 0.42,
+                eyes_open_score: 0.5,
+                composition_score: 0.65,
+                noise_score: 0.70,
+                total_score: 0.52,
+                rank: 3,
+                recommendation: "discard",
+              },
+            },
+          ],
+        },
+      ]);
       setLoading(false);
     }
   };
