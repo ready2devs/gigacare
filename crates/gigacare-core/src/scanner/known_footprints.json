@@ -1,0 +1,81 @@
+{
+  "$schema": "known_footprints_schema",
+  "version": "1.0.0",
+  "footprints": [
+    {
+      "app_name": "Visual Studio Code",
+      "folders": [
+        ".vscode",
+        "Code"
+      ],
+      "registry_patterns": [
+        "Microsoft Visual Studio Code"
+      ]
+    },
+    {
+      "app_name": "Discord",
+      "folders": [
+        "discord",
+        "Discord"
+      ],
+      "registry_patterns": [
+        "Discord"
+      ]
+    },
+    {
+      "app_name": "Slack",
+      "folders": [
+        "Slack"
+      ],
+      "registry_patterns": [
+        "Slack"
+      ]
+    },
+    {
+      "app_name": "Spotify",
+      "folders": [
+        "Spotify"
+      ],
+      "registry_patterns": [
+        "Spotify"
+      ]
+    },
+    {
+      "app_name": "Steam",
+      "folders": [
+        "Steam"
+      ],
+      "registry_patterns": [
+        "Steam"
+      ]
+    },
+    {
+      "app_name": "Zoom",
+      "folders": [
+        "Zoom",
+        "ZoomVDI"
+      ],
+      "registry_patterns": [
+        "Zoom"
+      ]
+    },
+    {
+      "app_name": "OBS Studio",
+      "folders": [
+        "obs-studio"
+      ],
+      "registry_patterns": [
+        "OBS Studio"
+      ]
+    },
+    {
+      "app_name": "VLC",
+      "folders": [
+        "vlc"
+      ],
+      "registry_patterns": [
+        "VLC media player"
+      ]
+    }
+  ]
+}

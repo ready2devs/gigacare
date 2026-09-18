@@ -1,0 +1,19 @@
+[package]
+name = "gigacare-quarantine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+description = "Quarantine subsystem for GigaCare: reversible file moving, JSON manifest, restoration with SHA-256 integrity check, space limit, and auto-purge."
+
+[dependencies]
+gigacare-hash = { path = "../gigacare-hash" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,17 @@
+[package]
+name = "gigacare-vision"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+description = "Vision subsystem for GigaCare: Laplacian sharpness, FFT frequency analysis, and thumbnail generation."
+
+[dependencies]
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "bmp"] }
+rustfft = "6"
+num-complex = "0.4"
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"

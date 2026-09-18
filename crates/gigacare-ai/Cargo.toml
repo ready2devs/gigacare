@@ -1,0 +1,23 @@
+[package]
+name = "gigacare-ai"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+description = "AI routing and vision provider client for GigaCare: round-robin, rate-limiting, and fallbacks"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+governor = "0.8"
+nonzero_ext = "0.3"
+tokio = { version = "1", features = ["sync", "time", "macros", "rt"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2"
+async-trait = "0.1"
+
+[dev-dependencies]
+wiremock = "0.6"
+tokio = { version = "1", features = ["full"] }

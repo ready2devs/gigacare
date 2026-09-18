@@ -4,6 +4,11 @@
 //! y la struct `Scanner` que coordina la ejecución de múltiples módulos
 //! con soporte de cancelación y eventos de progreso.
 
+pub mod messaging;
+pub mod system;
+
+pub mod dev_deps;
+
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
@@ -16,6 +21,12 @@ use gigacare_config::AppConfig;
 use crate::error::{CoreError, Result};
 use crate::events::{ScanModule, ScanProgress};
 use crate::models::{ModuleScanResult, ModuleStatus, Platform, ScanFilters, ScanResult};
+
+pub mod installers;
+
+pub mod startup;
+
+pub mod uninstaller;
 
 // ─────────────────────────── Trait ScannerModule ──────────────────
 

@@ -6,6 +6,9 @@ members = [
     "gigacare-fs",
     "gigacare-hash",
     "gigacare-license",
+    "gigacare-quarantine",
+    "gigacare-vision",
+    "gigacare-ai",
 ]
 
 [workspace.package]
