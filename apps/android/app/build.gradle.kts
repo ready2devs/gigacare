@@ -25,13 +25,41 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            // Placeholder seguro para firma en CI/Release
+            storeFile = file("keystore/release.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "gigacare_dev"
+            keyAlias = System.getenv("KEY_ALIAS") ?: "gigacare"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "gigacare_dev"
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            isDebuggable = true
+        }
+    }
+
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
         }
     }
 
