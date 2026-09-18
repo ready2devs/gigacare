@@ -1,0 +1,131 @@
+/* Estilos de SpaceMap y burbujas proporcionales */
+
+.space-map-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 16px;
+  animation: gc-fade-slide 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.space-map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px 20px;
+  backdrop-filter: blur(12px);
+}
+
+.space-map-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #94A3B8;
+  overflow-x: auto;
+}
+
+.space-map-crumb {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.space-map-crumb:hover {
+  background: rgba(0, 229, 255, 0.15);
+  color: #00E5FF;
+}
+
+.space-map-crumb.active {
+  color: #F8FAFC;
+  font-weight: 600;
+}
+
+.space-map-viewport {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-content: flex-start;
+  overflow-y: auto;
+  min-height: 400px;
+  position: relative;
+}
+
+/* Burbujas proporcionales inspiradas en CleanMyMac Space Lens */
+.space-map-bubble {
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  box-sizing: border-box;
+  cursor: pointer;
+  background: radial-gradient(circle at 30% 30%, rgba(0, 229, 255, 0.25) 0%, rgba(124, 58, 237, 0.2) 70%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(0, 229, 255, 0.1);
+  transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+  user-select: none;
+  overflow: hidden;
+}
+
+.space-map-bubble:hover {
+  transform: scale(1.06);
+  border-color: #00E5FF;
+  box-shadow: 0 8px 28px rgba(0, 229, 255, 0.35), inset 0 0 20px rgba(0, 229, 255, 0.25);
+  z-index: 10;
+}
+
+.space-map-bubble-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #F8FAFC;
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.space-map-bubble-size {
+  font-size: 11px;
+  color: #38BDF8;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Tooltip flotante con latencia <= 300ms */
+.space-map-tooltip {
+  position: fixed;
+  width: 260px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 229, 255, 0.2);
+  border-radius: 10px;
+  padding: 14px;
+  backdrop-filter: blur(16px);
+  pointer-events: none;
+  z-index: 1000;
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+  animation: tooltip-fade 180ms ease-out;
+}
+
+@keyframes tooltip-fade {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
