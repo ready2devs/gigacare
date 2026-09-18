@@ -1,0 +1,382 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`GigaCare Windows E2E UI Flow > (d) Snapshot test de estructura visual contra Obsidian Dark Theme 1`] = `
+<DocumentFragment>
+  <div
+    class="fui-FluentProvider fui-FluentProviderr9 ___jdtuxv0_17k0bs4 f19n0e5 fxugw4r f1o700av fk6fouc fkhj508 figsok6 f1i3iumi"
+    dir="ltr"
+    style="height: 100vh;"
+  >
+    <div
+      class="gc-shell-layout"
+    >
+      <header
+        class="gc-shell-header"
+      >
+        <div
+          class="gc-shell-brand"
+        >
+          <span
+            class="gc-brand-title"
+          >
+            GigaCare
+          </span>
+          <span
+            class="gc-brand-badge"
+          >
+            v1.0.0
+          </span>
+        </div>
+        <button
+          class="fui-Button r1f29ykk ___1bjt1as_12idop7 fhovq9v f1p3nwhy f11589ue f1q5o8ev f1pdflbu fkfq4zb f1t94bn6 f1s2uweq fr80ssc f1ukrpxl fecsdlb fnwyq0v ft1hn21 fuxngvv fy5bs14 f1q1yqic fhvnf4x fb6swo4 f1klyf7k f232fm2 fwga7ee f1nhwcv0 f1gm6xmp f1xxsver f1v3eptx fivsta0 fd4bjan f3m6zum"
+          type="button"
+        >
+          <span
+            class="fui-Button__icon rywnvv2 ___963sj20_1qpm2bl f1nizpg2"
+          >
+            <svg
+              aria-hidden="true"
+              class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+              data-fui-icon=""
+              fill="currentColor"
+              height="1em"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10 2c.28 0 .5.22.5.5v1a.5.5 0 0 1-1 0v-1c0-.28.22-.5.5-.5m0 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0-1a3 3 0 1 1 0-6 3 3 0 0 1 0 6m7.5-2.5a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1zM10 16c.28 0 .5.22.5.5v1a.5.5 0 0 1-1 0v-1c0-.28.22-.5.5-.5m-6.5-5.5a.5.5 0 0 0 0-1H2.46a.5.5 0 0 0 0 1zm.65-6.35c.2-.2.5-.2.7 0l1 1a.5.5 0 1 1-.7.7l-1-1a.5.5 0 0 1 0-.7m.7 11.7a.5.5 0 0 1-.7-.7l1-1a.5.5 0 0 1 .7.7zm11-11.7a.5.5 0 0 0-.7 0l-1 1a.5.5 0 0 0 .7.7l1-1a.5.5 0 0 0 0-.7m-.7 11.7a.5.5 0 0 0 .7-.7l-1-1a.5.5 0 0 0-.7.7z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+          Tema Claro
+        </button>
+      </header>
+      <div
+        class="gc-shell-body"
+      >
+        <nav
+          class="gc-shell-sidebar"
+        >
+          <div
+            class="gc-module-card selected"
+          >
+            <div
+              class="gc-card-icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                data-fui-icon=""
+                fill="currentColor"
+                height="1em"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M17.91 2.18c.2.2.2.51 0 .7l-5.32 5.33a4.5 4.5 0 0 1-.34 6l-.66.66-2.09 3.48a.5.5 0 0 1-.78.1l-7.07-7.08a.5.5 0 0 1 .1-.78L5.22 8.5l.66-.66a4.5 4.5 0 0 1 5.99-.34l5.32-5.32c.2-.2.51-.2.71 0M6.24 8.9l4.95 4.95.36-.35A3.5 3.5 0 1 0 6.6 8.55zm-.78.63L2.8 11.12l6.16 6.17 1.6-2.66z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div
+              class="gc-card-text"
+            >
+              <span
+                class="gc-card-title"
+              >
+                SmartCare
+              </span>
+              <span
+                class="gc-card-subtitle"
+              >
+                Limpieza del Sistema
+              </span>
+            </div>
+          </div>
+          <div
+            class="gc-module-card "
+          >
+            <div
+              class="gc-card-icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                data-fui-icon=""
+                fill="currentColor"
+                height="1em"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9.72 2.08a.5.5 0 0 1 .56 0q2.9 1.94 6.3 2.43A.5.5 0 0 1 17 5v4.6q-.48-.25-1-.4V5.44a16 16 0 0 1-5.6-2.08L10 3.1l-.4.25A16 16 0 0 1 4 5.43V9.5c0 3.24 1.8 5.64 5.48 7.25q.3.65.74 1.2l-.04.02a.5.5 0 0 1-.36 0C5.31 16.23 3 13.39 3 9.5V5a.5.5 0 0 1 .43-.5 15 15 0 0 0 6.3-2.42M19 14.5a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0m-2.15-1.85a.5.5 0 0 0-.7 0l-2.65 2.64-.65-.64a.5.5 0 0 0-.7.7l1 1c.2.2.5.2.7 0l3-3a.5.5 0 0 0 0-.7"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div
+              class="gc-card-text"
+            >
+              <span
+                class="gc-card-title"
+              >
+                Cuarentena
+              </span>
+              <span
+                class="gc-card-subtitle"
+              >
+                Aislamiento Seguro
+              </span>
+            </div>
+          </div>
+          <div
+            class="gc-module-card "
+          >
+            <div
+              class="gc-card-icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                data-fui-icon=""
+                fill="currentColor"
+                height="1em"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11.5 7.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2M3 6a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3zm3-2a2 2 0 0 0-2 2v6q0 .56.28 1.02l3.3-3.31a2 2 0 0 1 2.83 0l3.31 3.3A2 2 0 0 0 14 12V6a2 2 0 0 0-2-2zm3.7 6.41a1 1 0 0 0-1.4 0l-3.32 3.31A2 2 0 0 0 6 14h6a2 2 0 0 0 1.02-.28zM8 17a3 3 0 0 1-2.24-1h6.74a3.5 3.5 0 0 0 3.5-3.5V5.76A3 3 0 0 1 17 8v4.5a4.5 4.5 0 0 1-4.5 4.5z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div
+              class="gc-card-text"
+            >
+              <span
+                class="gc-card-title"
+              >
+                Curador de Fotos
+              </span>
+              <span
+                class="gc-card-subtitle"
+              >
+                IA & Nitidez Local
+              </span>
+            </div>
+          </div>
+          <div
+            class="gc-module-card "
+          >
+            <div
+              class="gc-card-icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                data-fui-icon=""
+                fill="currentColor"
+                height="1em"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3.5 4C2.67 4 2 4.67 2 5.5v2C2 8.33 2.67 9 3.5 9h2C6.33 9 7 8.33 7 7.5v-2C7 4.67 6.33 4 5.5 4zM3 5.5c0-.28.22-.5.5-.5h2c.28 0 .5.22.5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5zM9.5 5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-6 4c-.83 0-1.5.67-1.5 1.5v2c0 .83.67 1.5 1.5 1.5h2c.83 0 1.5-.67 1.5-1.5v-2c0-.83-.67-1.5-1.5-1.5zM3 12.5c0-.28.22-.5.5-.5h2c.28 0 .5.22.5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5zm6.5-.5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div
+              class="gc-card-text"
+            >
+              <span
+                class="gc-card-title"
+              >
+                Desinstalador
+              </span>
+              <span
+                class="gc-card-subtitle"
+              >
+                Limpieza Profunda
+              </span>
+            </div>
+          </div>
+          <div
+            class="gc-module-card "
+          >
+            <div
+              class="gc-card-icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                data-fui-icon=""
+                fill="currentColor"
+                height="1em"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M10.5 2.5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0zM13.74 4a.5.5 0 1 0-.5.87 6.5 6.5 0 1 1-6.49 0 .5.5 0 1 0-.5-.87 7.5 7.5 0 1 0 7.5 0"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div
+              class="gc-card-text"
+            >
+              <span
+                class="gc-card-title"
+              >
+                Inicio de Windows
+              </span>
+              <span
+                class="gc-card-subtitle"
+              >
+                Optimizar Arranque
+              </span>
+            </div>
+          </div>
+          <div
+            class="gc-module-card "
+          >
+            <div
+              class="gc-card-icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                data-fui-icon=""
+                fill="currentColor"
+                height="1em"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M18 9.14c-.01.5-.44.86-.94.86H11a1 1 0 0 1-1-1V2.94c0-.5.37-.93.86-.94H11a7 7 0 0 1 7 7.14M11 3v6h6a6 6 0 0 0-6-6M9 4.52a.5.5 0 0 0-.54-.5 7 7 0 1 0 7.52 7.52.5.5 0 0 0-.5-.54H10.5A1.5 1.5 0 0 1 9 9.5zM3 11a6 6 0 0 1 5-5.92V9.5a2.5 2.5 0 0 0 2.5 2.5h4.42A6 6 0 0 1 3 11"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div
+              class="gc-card-text"
+            >
+              <span
+                class="gc-card-title"
+              >
+                Space Map
+              </span>
+              <span
+                class="gc-card-subtitle"
+              >
+                Explorador Visual
+              </span>
+            </div>
+          </div>
+          <div
+            class="gc-module-card "
+          >
+            <div
+              class="gc-card-icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                data-fui-icon=""
+                fill="currentColor"
+                height="1em"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M1.91 7.38A8.5 8.5 0 0 1 3.7 4.3a.5.5 0 0 1 .54-.13l1.92.68a1 1 0 0 0 1.32-.76l.36-2a.5.5 0 0 1 .4-.4 9 9 0 0 1 3.55 0q.32.08.38.4l.37 2a1 1 0 0 0 1.32.76l1.92-.68a.5.5 0 0 1 .54.13 8.5 8.5 0 0 1 1.78 3.08q.08.31-.15.54l-1.56 1.32a1 1 0 0 0 0 1.52l1.56 1.32a.5.5 0 0 1 .15.54 8.5 8.5 0 0 1-1.78 3.08.5.5 0 0 1-.54.13l-1.92-.68a1 1 0 0 0-1.32.76l-.37 2a.5.5 0 0 1-.38.4 8.5 8.5 0 0 1-3.56 0 .5.5 0 0 1-.39-.4l-.36-2a1 1 0 0 0-1.32-.76l-1.92.68a.5.5 0 0 1-.54-.13 8.5 8.5 0 0 1-1.78-3.08.5.5 0 0 1 .15-.54l1.56-1.32a1 1 0 0 0 0-1.52L2.06 7.92a.5.5 0 0 1-.15-.54m1.06 0 1.3 1.1a2 2 0 0 1 0 3.04l-1.3 1.1q.45 1.19 1.25 2.16l1.6-.58a2 2 0 0 1 2.63 1.53l.3 1.67a8 8 0 0 0 2.5 0l.3-1.67a2 2 0 0 1 2.64-1.53l1.6.58a8 8 0 0 0 1.24-2.16l-1.3-1.1a2 2 0 0 1 0-3.04l1.3-1.1a8 8 0 0 0-1.25-2.16l-1.6.58a2 2 0 0 1-2.63-1.53l-.3-1.67a8 8 0 0 0-2.5 0l-.3 1.67A2 2 0 0 1 5.81 5.8l-1.6-.58a8 8 0 0 0-1.24 2.16M7.5 10a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0m1 0a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div
+              class="gc-card-text"
+            >
+              <span
+                class="gc-card-title"
+              >
+                Configuración
+              </span>
+              <span
+                class="gc-card-subtitle"
+              >
+                Ajustes y Licencia
+              </span>
+            </div>
+          </div>
+        </nav>
+        <main
+          class="gc-main-content"
+        >
+          <div
+            class="gc-transition-container"
+          >
+            <div
+              style="display: flex; flex-direction: column; align-items: center;"
+            >
+              <div
+                class="smartcare-container"
+              >
+                <button
+                  class="smartcare-button "
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                    data-fui-icon=""
+                    fill="currentColor"
+                    height="1em"
+                    style="font-size: 40px;"
+                    viewBox="0 0 20 20"
+                    width="1em"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M17.91 2.18c.2.2.2.51 0 .7l-5.32 5.33a4.5 4.5 0 0 1-.34 6l-.66.66-2.09 3.48a.5.5 0 0 1-.78.1l-7.07-7.08a.5.5 0 0 1 .1-.78L5.22 8.5l.66-.66a4.5 4.5 0 0 1 5.99-.34l5.32-5.32c.2-.2.51-.2.71 0M6.24 8.9l4.95 4.95.36-.35A3.5 3.5 0 1 0 6.6 8.55zm-.78.63L2.8 11.12l6.16 6.17 1.6-2.66z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <span
+                    class="smartcare-btn-title"
+                  >
+                    Smart Care
+                  </span>
+                  <span
+                    class="smartcare-btn-subtitle"
+                  >
+                    Escanear Sistema
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+      <footer
+        class="gc-status-bar"
+      >
+        <span>
+          Estado: Listo
+        </span>
+        <span>
+          Windows 11 Mica Enabled • GigaCare Core v1.0.0
+        </span>
+      </footer>
+    </div>
+  </div>
+</DocumentFragment>
+`;
