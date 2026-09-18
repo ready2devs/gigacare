@@ -5,4 +5,20 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 
+description = "Core orchestrator for GigaCare: Scanner, events, and scan_smart_care API"
+
 [dependencies]
+gigacare-config = { path = "../gigacare-config" }
+gigacare-fs = { path = "../gigacare-fs" }
+gigacare-hash = { path = "../gigacare-hash" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["sync", "rt", "macros"] }
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2"
+async-trait = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["sync", "rt", "macros", "rt-multi-thread"] }
+tempfile = "3"
