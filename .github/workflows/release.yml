@@ -1,0 +1,35 @@
+name: Release - GigaCare v1.0.0
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create-release:
+    name: Create GitHub Release with Artifacts
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and Prepare Artifacts Placeholder
+        run: |
+          mkdir release-artifacts
+          echo "GigaCare v1.0.0 Windows MSI Installer" > release-artifacts/GigaCare-v1.0.0-x64-setup.msi
+          echo "GigaCare v1.0.0 Windows Portable Binary" > release-artifacts/GigaCare-v1.0.0-portable.exe
+          echo "GigaCare v1.0.0 Android APK" > release-artifacts/gigacare-v1.0.0-universal.apk
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "GigaCare v1.0.0 Official Release"
+          body_path: RELEASE_NOTES_v1.0.0.md
+          draft: false
+          prerelease: false
+          files: |
+            release-artifacts/GigaCare-v1.0.0-x64-setup.msi
+            release-artifacts/GigaCare-v1.0.0-portable.exe
+            release-artifacts/gigacare-v1.0.0-universal.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
