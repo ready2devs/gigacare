@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GigaCare</string>
+    <string name="smartcare_title">GigaCare Smart Care</string>
+    <string name="smartcare_subtitle">Optimización integral del dispositivo</string>
+    <string name="scan">Escanear</string>
+    <string name="stop">Detener</string>
+    <string name="scanning">Analizando...</string>
+    <string name="clean_selected">Limpiar Seleccionados</string>
+    <string name="cancel">Cancelar</string>
+    <string name="confirm">Confirmar</string>
+    <string name="back">Atrás</string>
+    <string name="settings">Configuración</string>
+    <string name="quarantine">Cuarentena</string>
+    <string name="photo_curator">Curador de Fotos</string>
+    <string name="space_map">Space Map</string>
+    <string name="uninstaller">Desinstalador</string>
+    <string name="startup">Optimización de Inicio</string>
+    <string name="clean_success">Limpieza completada con éxito</string>
+    <string name="quarantine_notice">Los archivos se aislarán en cuarentena reversible por 7 días.</string>
 </resources>

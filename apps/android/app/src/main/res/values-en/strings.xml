@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GigaCare</string>
+    <string name="smartcare_title">GigaCare Smart Care</string>
+    <string name="smartcare_subtitle">Complete device optimization suite</string>
+    <string name="scan">Scan</string>
+    <string name="stop">Stop</string>
+    <string name="scanning">Scanning...</string>
+    <string name="clean_selected">Clean Selected</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="back">Back</string>
+    <string name="settings">Settings</string>
+    <string name="quarantine">Quarantine</string>
+    <string name="photo_curator">Photo Curator</string>
+    <string name="space_map">Space Map</string>
+    <string name="uninstaller">Uninstaller</string>
+    <string name="startup">Startup Optimization</string>
+    <string name="clean_success">Cleanup completed successfully</string>
+    <string name="quarantine_notice">Files will be safely isolated in reversible quarantine for 7 days.</string>
+</resources>
