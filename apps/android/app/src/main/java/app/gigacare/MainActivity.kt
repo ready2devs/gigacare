@@ -3,29 +3,55 @@ package app.gigacare
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import app.gigacare.ui.screens.*
+import app.gigacare.ui.theme.GigaCareTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFF0B0F19)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "GigaCare Android v1.0.0",
-                    color = Color(0xFF00E5FF)
-                )
+            GigaCareTheme {
+                var currentScreen by remember { mutableStateOf("smartcare") }
+
+                when (currentScreen) {
+                    "smartcare" -> SmartCareScreen(
+                        onNavigateToModule = { moduleId -> currentScreen = moduleId },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    "photo_duplicates" -> PhotoCuratorScreen(
+                        onCleanDiscarded = { currentScreen = "quarantine" },
+                        onBack = { currentScreen = "smartcare" },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    "quarantine" -> QuarantineScreen(
+                        onRestore = { currentScreen = "smartcare" },
+                        onBack = { currentScreen = "smartcare" },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    "space_map" -> SpaceMapScreen(
+                        onBack = { currentScreen = "smartcare" },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    "settings" -> SettingsScreen(
+                        currentTier = "Free",
+                        onBack = { currentScreen = "smartcare" },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    else -> ModuleScreen(
+                        title = "Limpieza de Módulo",
+                        description = "Archivos y cachés detectados en $currentScreen",
+                        items = listOf(
+                            ItemEntry("1", "/storage/emulated/0/Android/data/temp1.dat", 10485760L, "temp"),
+                            ItemEntry("2", "/storage/emulated/0/Android/data/temp2.dat", 20971520L, "cache")
+                        ),
+                        onCleanSelected = { currentScreen = "smartcare" },
+                        onBack = { currentScreen = "smartcare" },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }
