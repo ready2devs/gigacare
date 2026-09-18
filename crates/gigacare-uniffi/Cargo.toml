@@ -1,0 +1,27 @@
+[package]
+name = "gigacare-uniffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+description = "UniFFI bindings for GigaCare Core (Android Kotlin and C FFI)"
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+name = "gigacare_uniffi"
+
+[dependencies]
+uniffi = { version = "0.28", features = ["tokio", "cli"] }
+tokio = { version = "1", features = ["sync", "rt", "macros", "rt-multi-thread"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2"
+gigacare-core = { path = "../gigacare-core" }
+gigacare-config = { path = "../gigacare-config" }
+gigacare-quarantine = { path = "../gigacare-quarantine" }
+gigacare-license = { path = "../gigacare-license" }
+
+[build-dependencies]
+uniffi = { version = "0.28", features = ["build"] }

@@ -9,6 +9,7 @@ members = [
     "gigacare-quarantine",
     "gigacare-vision",
     "gigacare-ai",
+    "gigacare-uniffi",
 ]
 
 [workspace.package]
