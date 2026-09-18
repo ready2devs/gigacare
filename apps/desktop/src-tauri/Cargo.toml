@@ -17,5 +17,13 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["sync", "rt", "macros"] }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
 gigacare-core = { path = "../../../crates/gigacare-core" }
 gigacare-config = { path = "../../../crates/gigacare-config" }
+gigacare-quarantine = { path = "../../../crates/gigacare-quarantine" }
+gigacare-license = { path = "../../../crates/gigacare-license" }
+gigacare-fs = { path = "../../../crates/gigacare-fs" }
+gigacare-vision = { path = "../../../crates/gigacare-vision" }
+gigacare-ai = { path = "../../../crates/gigacare-ai" }
+dirs = "5"
