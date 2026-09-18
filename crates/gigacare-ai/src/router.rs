@@ -39,6 +39,10 @@ impl AiRouter {
         self
     }
 
+    pub fn providers_count(&self) -> usize {
+        self.providers.len()
+    }
+
     async fn is_in_cooldown(&self, id: AiProviderId) -> bool {
         let lock = self.cooldowns.lock().await;
         if let Some(until) = lock.get(&id) {

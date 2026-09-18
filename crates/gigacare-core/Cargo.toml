@@ -26,8 +26,13 @@ async-trait = "0.1"
 dirs = "5"
 walkdir = "2"
 
+[features]
+default = []
+integration = []
+
 [dev-dependencies]
 tokio = { version = "1", features = ["sync", "rt", "macros", "rt-multi-thread"] }
 tempfile = "3"
 filetime = "0.2"
 mockall = "0.13"
+wiremock = "0.6"

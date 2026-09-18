@@ -804,6 +804,7 @@ dependencies = [
  "tokio",
  "uuid",
  "walkdir",
+ "wiremock",
 ]
 
 [[package]]
