@@ -74,7 +74,7 @@ pub async fn clean_items(
     let mut errors = Vec::new();
     let total = items.len() as u64;
 
-    for (idx, item) in items.iter().enumerate() {
+    for (_idx, item) in items.iter().enumerate() {
         if let Some(c) = cancel {
             if c.load(Ordering::Relaxed) {
                 break;
