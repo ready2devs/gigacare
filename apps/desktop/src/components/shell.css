@@ -1,0 +1,149 @@
+/* Estilos para Shell y ModuleCard con animaciones Fluent Motion */
+
+.gc-shell-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: transparent;
+}
+
+.gc-shell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(11, 15, 25, 0.6);
+  backdrop-filter: blur(12px);
+}
+
+.gc-shell-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gc-brand-title {
+  color: #00E5FF;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+.gc-brand-badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(124, 58, 237, 0.2);
+  color: #A78BFA;
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  font-weight: 600;
+}
+
+.gc-shell-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.gc-shell-sidebar {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 12px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(12px);
+  overflow-y: auto;
+}
+
+.gc-module-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background-color: rgba(255, 255, 255, 0.03);
+  transition: all 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+  user-select: none;
+}
+
+.gc-module-card:hover {
+  background-color: rgba(0, 229, 255, 0.08);
+  border-color: rgba(0, 229, 255, 0.3);
+  transform: translateX(3px);
+}
+
+.gc-module-card.selected {
+  background-color: rgba(0, 229, 255, 0.14);
+  border-color: #00E5FF;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+}
+
+.gc-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #00E5FF;
+}
+
+.gc-card-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.gc-card-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.gc-card-subtitle {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.gc-main-content {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Transición animada fluida: Fluent Motion <= 400ms @ 60 FPS */
+.gc-transition-container {
+  animation: gc-fade-slide 300ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes gc-fade-slide {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.gc-status-bar {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background-color: rgba(11, 15, 25, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  opacity: 0.75;
+}
