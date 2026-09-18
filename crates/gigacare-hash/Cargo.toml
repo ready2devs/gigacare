@@ -1,0 +1,15 @@
+[package]
+name = "gigacare-hash"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "SHA-256 and perceptual hashing (pHash, dHash) for GigaCare"
+
+[dependencies]
+sha2 = "0.10"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "bmp", "gif"] }
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"

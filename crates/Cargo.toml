@@ -2,6 +2,10 @@
 resolver = "2"
 members = [
     "gigacare-core",
+    "gigacare-config",
+    "gigacare-fs",
+    "gigacare-hash",
+    "gigacare-license",
 ]
 
 [workspace.package]
