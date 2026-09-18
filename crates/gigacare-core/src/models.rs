@@ -260,6 +260,44 @@ pub struct CategorySummary {
     pub total_bytes: u64,
 }
 
+
+// ─────────────────────────── Photo Curator ────────────────────────
+
+/// Análisis visual por IA o fallback para una foto individual.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PhotoAiAnalysis {
+    pub provider_used: String,
+    pub sharpness_score: f64,
+    pub eyes_open_score: f64,
+    pub composition_score: f64,
+    pub noise_score: f64,
+    pub total_score: f64,
+    pub rank: usize,
+    pub recommendation: String,
+}
+
+/// Foto perteneciente a un grupo de imágenes similares.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PhotoItem {
+    pub path: String,
+    pub original_resolution: String,
+    pub size_bytes: u64,
+    pub phash: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub thumbnail_path: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ai_analysis: Option<PhotoAiAnalysis>,
+}
+
+/// Grupo de fotos similares detectadas mediante hashing perceptual.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PhotoGroup {
+    pub group_id: String,
+    pub similarity_method: String,
+    pub avg_hamming_distance: u32,
+    pub photos: Vec<PhotoItem>,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

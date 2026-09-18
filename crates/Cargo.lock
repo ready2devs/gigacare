@@ -576,12 +576,17 @@ name = "gigacare-core"
 version = "1.0.0"
 dependencies = [
  "async-trait",
+ "base64",
  "chrono",
  "dirs",
  "filetime",
+ "gigacare-ai",
  "gigacare-config",
  "gigacare-fs",
  "gigacare-hash",
+ "gigacare-quarantine",
+ "gigacare-vision",
+ "image",
  "mockall",
  "serde",
  "serde_json",

@@ -11,6 +11,11 @@ description = "Core orchestrator for GigaCare: Scanner, events, and scan_smart_c
 gigacare-config = { path = "../gigacare-config" }
 gigacare-fs = { path = "../gigacare-fs" }
 gigacare-hash = { path = "../gigacare-hash" }
+gigacare-quarantine = { path = "../gigacare-quarantine" }
+gigacare-vision = { path = "../gigacare-vision" }
+gigacare-ai = { path = "../gigacare-ai" }
+base64 = "0.22"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["sync", "rt", "macros"] }
