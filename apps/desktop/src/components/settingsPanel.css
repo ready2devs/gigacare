@@ -1,0 +1,82 @@
+/* Estilos de SettingsPanel */
+
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  gap: 20px;
+  overflow-y: auto;
+  padding-bottom: 40px;
+  animation: gc-fade-slide 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.settings-section-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(12px);
+}
+
+.settings-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #00E5FF;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+}
+
+.settings-field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.settings-field-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.settings-field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #F8FAFC;
+}
+
+.settings-field-desc {
+  font-size: 11px;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+
+.settings-input-control {
+  min-width: 140px;
+}
+
+.byok-validation-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.byok-status-valid {
+  color: #10B981;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.byok-status-invalid {
+  color: #EF4444;
+  font-size: 12px;
+  font-weight: 600;
+}

@@ -5,10 +5,15 @@ import { obsidianDarkTheme, gigacareLightTheme } from "./theme";
 import { Shell } from "./components/Shell";
 import { SmartCareButton } from "./components/SmartCareButton";
 import { PreviewPanel } from "./components/PreviewPanel";
+import { SpaceMap } from "./components/SpaceMap";
+import { PhotoCurator } from "./components/PhotoCurator";
+import { QuarantinePanel } from "./components/QuarantinePanel";
+import { SettingsPanel } from "./components/SettingsPanel";
 import { ScanResult, CleanResult } from "./types/models";
 
 export default function App() {
   const [isDark, setIsDark] = useState(true);
+  const [activeModule, setActiveModule] = useState<string>("smartcare");
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [cleanResult, setCleanResult] = useState<CleanResult | null>(null);
 
@@ -33,19 +38,19 @@ export default function App() {
     ? scanResult.modules.flatMap((m) => m.items)
     : [];
 
-  return (
-    <FluentProvider
-      theme={isDark ? obsidianDarkTheme : gigacareLightTheme}
-      style={{ height: "100vh" }}
-    >
-      <Shell isDark={isDark} onToggleTheme={() => setIsDark(!isDark)}>
-        {scanResult && allScanItems.length > 0 ? (
-          <PreviewPanel
-            items={allScanItems}
-            onConfirmClean={handleConfirmClean}
-            onCancel={() => setScanResult(null)}
-          />
-        ) : (
+  const renderActiveModule = () => {
+    switch (activeModule) {
+      case "smartcare":
+        if (scanResult && allScanItems.length > 0) {
+          return (
+            <PreviewPanel
+              items={allScanItems}
+              onConfirmClean={handleConfirmClean}
+              onCancel={() => setScanResult(null)}
+            />
+          );
+        }
+        return (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <SmartCareButton onScanComplete={handleScanComplete} />
             {cleanResult && (
@@ -65,7 +70,52 @@ export default function App() {
               </div>
             )}
           </div>
-        )}
+        );
+
+      case "quarantine":
+        return <QuarantinePanel />;
+
+      case "photos":
+        return (
+          <PhotoCurator
+            onCleanDiscarded={async (paths) => {
+              try {
+                await invoke("clean_items", { item_ids: paths });
+                setActiveModule("quarantine");
+              } catch (err) {
+                console.error("Error al enviar fotos a cuarentena:", err);
+              }
+            }}
+          />
+        );
+
+      case "space_map":
+        return <SpaceMap />;
+
+      case "settings":
+        return <SettingsPanel />;
+
+      default:
+        return (
+          <div style={{ padding: "32px", textAlign: "center", color: "#94A3B8" }}>
+            Módulo {activeModule} en desarrollo.
+          </div>
+        );
+    }
+  };
+
+  return (
+    <FluentProvider
+      theme={isDark ? obsidianDarkTheme : gigacareLightTheme}
+      style={{ height: "100vh" }}
+    >
+      <Shell
+        isDark={isDark}
+        onToggleTheme={() => setIsDark(!isDark)}
+        activeModule={activeModule}
+        onModuleChange={setActiveModule}
+      >
+        {renderActiveModule()}
       </Shell>
     </FluentProvider>
   );

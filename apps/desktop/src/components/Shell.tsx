@@ -17,11 +17,21 @@ import "./shell.css";
 export interface ShellProps {
   isDark: boolean;
   onToggleTheme: () => void;
+  activeModule?: string;
+  onModuleChange?: (id: string) => void;
   children?: React.ReactNode;
 }
 
-export const Shell: React.FC<ShellProps> = ({ isDark, onToggleTheme, children }) => {
-  const [activeModule, setActiveModule] = useState<string>("smartcare");
+export const Shell: React.FC<ShellProps> = ({
+  isDark,
+  onToggleTheme,
+  activeModule: propActiveModule,
+  onModuleChange,
+  children,
+}) => {
+  const [internalActive, setInternalActive] = useState<string>("smartcare");
+  const activeModule = propActiveModule ?? internalActive;
+  const setActiveModule = onModuleChange ?? setInternalActive;
 
   const modules = [
     {
