@@ -1,27 +1,33 @@
+<div align="center">
+
 # GigaCare 🚀
-> Suite de Optimización Integral, Limpieza Reversible y Curaduría Visual con IA para **Windows 11** y **Android**.
 
-[![CI - GigaCare Verification & Build Pipeline](https://github.com/luccabb/gigacare-app/actions/workflows/ci.yml/badge.svg)](https://github.com/luccabb/gigacare-app/actions/workflows/ci.yml)
+**Suite de Optimización de Alto Rendimiento, Limpieza Reversible y Curaduría Visual con IA.**  
+*Diseñada exclusivamente para **Windows 11** y **Android** con arquitectura nativa en Rust.*
+
+[![CI](https://github.com/ready2devs/gigacare/actions/workflows/ci.yml/badge.svg)](https://github.com/ready2devs/gigacare/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/ready2devs/gigacare?color=00E5FF&logo=github)](https://github.com/ready2devs/gigacare/releases/latest)
+[![Rust](https://img.shields.io/badge/Rust-1.80%2B-DEA584?logo=rust&logoColor=white)](https://www.rust-lang.org)
+[![Tauri](https://img.shields.io/badge/Tauri-2.0-24C8D8?logo=tauri&logoColor=white)](https://tauri.app)
+[![Android](https://img.shields.io/badge/Android-API%2026%2B-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Rust: 1.80+](https://img.shields.io/badge/Rust-1.80%2B-orange.svg)](https://www.rust-lang.org)
-[![Tauri: 2.0](https://img.shields.io/badge/Tauri-2.0-blueviolet.svg)](https://tauri.app)
-[![Android: API 26+](https://img.shields.io/badge/Android-API%2026%2B-green.svg)](https://developer.android.com)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
----
+**[Descargar Releases](https://github.com/ready2devs/gigacare/releases/latest)** · **[Arquitectura](docs/architecture.md)** · **[API Reference](docs/api-reference.md)** · **[Reporte de Verificación](docs/verification-report.md)**
 
-## 🌟 Visión General
-
-**GigaCare** redefine el mantenimiento del sistema operativo combinando el rendimiento nativo de bajo nivel en **Rust**, la elegancia visual de **Obsidian Dark & Material You**, y el poder de la **Inteligencia Artificial Multimodal** para la curaduría inteligente de fotografías y la gestión del almacenamiento.
-
-A diferencia de herramientas convencionales, GigaCare sigue principios estrictos:
-1. **Cero Placebos:** Sin limpiadores agresivos de registro en Windows ni task-killers de RAM en Android.
-2. **Privacidad Radical:** El análisis de archivos es estrictamente local. La IA multimodal externa solo recibe previsualizaciones reducidas (≤512px, ≤100KB) en lotes bajo demanda explícita.
-3. **Aislamiento Reversible:** Todo archivo marcado para limpieza pasa por una cuarentena segura con integridad criptográfica **SHA-256**, permitiendo restauración inmediata en 1 clic durante 7 a 90 días.
-4. **Previsualización Obligatoria:** Pantalla interactiva previa antes de cualquier acción destructiva.
-
----
-
-## 📸 Capturas de Pantalla (Visual Showcase)
+<p align="center">
+  <a href="https://github.com/ready2devs/gigacare/releases/latest">
+    <img src="https://img.shields.io/badge/Windows_11_Installer-Descargar_.MSI-0078D4?style=for-the-badge&logo=windows11&logoColor=white" height="42" alt="Descargar Windows MSI">
+  </a>
+  &nbsp;
+  <a href="https://github.com/ready2devs/gigacare/releases/latest">
+    <img src="https://img.shields.io/badge/Windows_Portable-Descargar_.EXE-00E5FF?style=for-the-badge&logo=windows&logoColor=0B0F19" height="42" alt="Descargar Windows Portable">
+  </a>
+  &nbsp;
+  <a href="https://github.com/ready2devs/gigacare/releases/latest">
+    <img src="https://img.shields.io/badge/Android_App-Descargar_.APK-3DDC84?style=for-the-badge&logo=android&logoColor=white" height="42" alt="Descargar Android APK">
+  </a>
+</p>
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -39,81 +45,123 @@ A diferencia de herramientas convencionales, GigaCare sigue principios estrictos
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
----
-
-## 🛠️ Arquitectura y Stack Tecnológico
-
-El proyecto está estructurado como un monorepo modular:
-
-- **Núcleo Nativo en Rust (`crates/`):**
-  - `gigacare-core`: Orquestador principal, eventos en tiempo real y API `scan_smart_care`.
-  - `gigacare-config`: Modelo de configuración persistente (`config.json`).
-  - `gigacare-quarantine`: Cuarentena reversible, manifiesto v1 y hashing SHA-256.
-  - `gigacare-vision`: Métricas de nitidez local (Varianza Laplaciana, FFT 2D) y miniaturas adaptativas.
-  - `gigacare-ai`: Router round-robin con rate limiting, cooldown ante HTTP 429 y fallback local.
-  - `gigacare-license`: Validación de licencias HMAC-SHA256 y control de funciones por nivel.
-  - `gigacare-uniffi`: Generación de bindings Kotlin para Android mediante Mozilla UniFFI.
-
-- **Aplicación de Escritorio (`apps/desktop/`):**
-  - **Tauri 2.0** + **React 18** + **TypeScript** + **Vite**.
-  - **Fluent UI React v9** con tema **Obsidian Dark** (#0B0F19, #00E5FF, #7C3AED) y efectos Mica/Acrylic.
-  - Internacionalización completa con **react-i18next** (Español / Inglés).
-
-- **Aplicación Móvil (`apps/android/`):**
-  - **Kotlin** + **Jetpack Compose** + **Material You** (Dynamic Colors en Android 12+).
-  - Integración UniFFI con carga de librerías compartidas nativas (`.so`).
-  - Detección de residuales huérfanos, soporte SAF y degradación silenciosa con Shizuku/Root.
+</div>
 
 ---
 
-## 💎 Niveles de Licencia (Tiers)
+## 📥 ¿Dónde están los Ejecutables e Instaladores?
 
-| Característica | Free (Gratuito) | BYOK (Bring Your Own Key) | Pro ($9.99 pago único) |
+Puedes obtener los instaladores listos para usar de dos maneras: directamente desde las **Releases Oficiales de GitHub** o generándolos localmente en tu máquina.
+
+### 1. Descarga Directa (Recomendada para Usuarios)
+En cada lanzamiento oficial en GitHub, los archivos binarios compilados están disponibles en la sección [**GitHub Releases (Última Versión)**](https://github.com/ready2devs/gigacare/releases/latest):
+
+| Plataforma | Tipo de Instalación | Nombre del Archivo | Descripción |
+| :--- | :--- | :--- | :--- |
+| **Windows 11 / 10** | Instalador Guiado | [`GigaCare-v1.0.0-x64-setup.msi`](https://github.com/ready2devs/gigacare/releases/latest) | Asistente de instalación estándar para Windows (menú inicio, accesos directos y desinstalador limpio). |
+| **Windows 11 / 10** | Portable (Sin instalación) | [`GigaCare-v1.0.0-portable.exe`](https://github.com/ready2devs/gigacare/releases/latest) | Ejecutable autónomo sin instalación. Ideal para llevar en un pendrive o ejecutar sin permisos de administrador. |
+| **Android (API 26+)**| Paquete de Aplicación | [`gigacare-v1.0.0-universal.apk`](https://github.com/ready2devs/gigacare/releases/latest) | Archivo APK universal para instalar directamente en teléfonos o tablets Android (arquitecturas ARM64, ARMv7, x86_64). |
+
+---
+
+### 2. Ubicación de los Ejecutables al Compilar en Local
+Si estás clonando el repositorio y construyendo el proyecto desde el código fuente, los archivos generados se ubican en:
+
+#### 🖥️ Para Windows (Tauri 2.0 Desktop):
+- **Instalador MSI:**  
+  📁 `apps/desktop/src-tauri/target/release/bundle/msi/GigaCare_1.0.0_x64_en-US.msi`
+- **Instalador NSIS / Portable:**  
+  📁 `apps/desktop/src-tauri/target/release/bundle/nsis/GigaCare_1.0.0_x64-setup.exe`
+- **Binario compilado directo:**  
+  📁 `apps/desktop/src-tauri/target/release/gigacare-desktop.exe`
+
+> *Comando para generarlos:*  
+> ```powershell
+> cd apps/desktop
+> pnpm install
+> pnpm tauri build
+> ```
+
+#### 📱 Para Android (Kotlin + NDK + Compose):
+- **APK Debug:**  
+  📁 `apps/android/app/build/outputs/apk/debug/app-debug.apk`
+- **APK Release (Optimizado con R8/ProGuard):**  
+  📁 `apps/android/app/build/outputs/apk/release/app-release-unsigned.apk`
+- **Android App Bundle (para Google Play Store):**  
+  📁 `apps/android/app/build/outputs/bundle/release/app-release.aab`
+
+> *Comando para generarlos:*  
+> ```bash
+> # 1. Compilar bibliotecas nativas de Rust (.so) para las 3 arquitecturas
+> cd crates
+> ./build-android.bat
+> 
+> # 2. Generar el APK
+> cd ../apps/android
+> ./gradlew assembleRelease
+> ```
+
+---
+
+## ⚡ ¿Por Qué GigaCare? (Cero Placebos)
+
+La mayoría de las herramientas de limpieza prometen aceleraciones milagrosas eliminando claves de registro válidas o cerrando procesos en segundo plano que el sistema vuelve a abrir inmediatamente. **GigaCare se rige por principios de ingeniería honesta:**
+
+| Característica | Software Tradicional (CCleaner / Clean Master) | GigaCare |
+| :--- | :---: | :---: |
+| **Limpiador de Registro de Windows** | ❌ Agresivo (riesgo de romper el sistema) | 🛡️ **Cero Placebos:** No toca el registro crítico |
+| **Task Killer de Memoria RAM** | ❌ Provoca mayor consumo al reiniciar apps | 🛡️ **Respeta el planificador del kernel** |
+| **Política de Eliminación** | ❌ Borrado permanente directo (sin vuelta atrás) | 🔄 **Cuarentena Reversible con SHA-256 (1-clic)** |
+| **Confirmación de Limpieza** | ⚠️ Borra sin revisión individual | 🔍 **Previsualización interactiva obligatoria** |
+| **Curaduría de Fotos** | ❌ Solo duplicados por nombre o fecha | 🧠 **Perceptual pHash + IA Multimodal + FFT local** |
+| **Privacidad en Análisis de Fotos**| ⚠️ Subida de fotos completas a la nube | 🔒 **Miniaturas adaptativas (≤512px, ≤100KB)** |
+| **Consumo de Recursos** | ⚠️ Electron pesado (~200MB RAM) | ⚡ **Tauri 2.0 + Rust (<80MB RAM)** |
+
+---
+
+## 💎 Niveles de Licencia (Tiers Transparentes)
+
+GigaCare ofrece un modelo sin suscripciones forzadas ni publicidad invasiva:
+
+| Funcionalidad | Free (Gratuito) | BYOK (Clave Propia) | Pro ($9.99 Pago Único) |
 | :--- | :---: | :---: | :---: |
-| Limpieza Smart Care (Temporales, Caché) | ✅ | ✅ | ✅ |
-| Cuarentena Reversible SHA-256 | ✅ (5 GB / 7 días) | ✅ (10 GB / 14 días) | ✅ (100 GB / 90 días) |
-| Space Map interactivo | ✅ | ✅ | ✅ |
-| Curador de Fotos (Nitidez local FFT/Laplace) | ✅ | ✅ | ✅ |
-| Curador con IA Multimodal (Google AI / FreeLLM) | ❌ | ✅ (Clave propia) | ✅ (Servidor Gestionado) |
-| Escaneos Programados en Segundo Plano | ❌ | ❌ | ✅ |
-| Desinstalador Profundo con Eliminación Residual | ✅ | ✅ | ✅ |
+| **Limpieza Smart Care (Temporales, Caché)** | ✅ Ilimitado | ✅ Ilimitado | ✅ Ilimitado |
+| **Cuarentena Reversible Criptográfica** | ✅ 5 GB / 7 días | ✅ 10 GB / 14 días | ✅ 100 GB / 90 días |
+| **Space Map Interactivo** | ✅ | ✅ | ✅ |
+| **Curador de Fotos (Nitidez local FFT/Laplace)** | ✅ | ✅ | ✅ |
+| **Curador con IA Multimodal (Google AI / FreeLLM)**| ❌ | ✅ Con tu API Key | ✅ Servidor gestionado |
+| **Escaneos Programados Nocturnos** | ❌ | ❌ | ✅ |
+| **Desinstalador y Detección de Huérfanos** | ✅ | ✅ | ✅ |
 
 ---
 
-## 🚀 Guía de Compilación e Instalación
+## 🛠️ Estructura del Monorepo
 
-### Prerrequisitos Globales
-- **Rust Toolchain**: 1.80 o superior (`rustup default stable`).
-- **Node.js**: v20+ y gestor de paquetes **pnpm** (`npm install -g pnpm`).
-- **Visual Studio Build Tools 2022** con componentes C++ (en Windows).
-- **Android Studio / Android NDK r25+** (para compilación móvil).
-
-### 1. Compilar y Ejecutar la Aplicación de Escritorio (Windows)
-```bash
-cd apps/desktop
-pnpm install
-pnpm test          # Ejecutar suite de pruebas E2E con vitest
-pnpm tauri dev     # Iniciar en modo desarrollo con HMR
-pnpm tauri build   # Generar instalador MSI / EXE listo para producción
+```
+gigacare/
+├── crates/                    # Espacio de trabajo nativo de Rust
+│   ├── gigacare-core/         # Orquestador del escaneo, modelos y eventos de progreso
+│   ├── gigacare-config/       # Modelo de persistencia de configuración JSON
+│   ├── gigacare-quarantine/   # Cuarentena reversible, manifiesto v1 y SHA-256
+│   ├── gigacare-vision/       # Métricas de nitidez local (Laplaciano, FFT) y miniaturas
+│   ├── gigacare-ai/           # Router multi-proveedor (Google AI, FreeLLM, Ollama)
+│   ├── gigacare-license/      # Verificación criptográfica HMAC-SHA256 de licencias
+│   ├── gigacare-fs/           # Utilidades seguras de sistema de archivos
+│   ├── gigacare-hash/         # Hashing criptográfico (SHA-256) y perceptual (pHash)
+│   └── gigacare-uniffi/       # Bindings Kotlin generados para Android
+├── apps/
+│   ├── desktop/               # Aplicación Tauri 2.0 (React 18, TypeScript, Fluent UI v9)
+│   └── android/               # Aplicación Android nativa (Kotlin, Compose, Material You)
+└── docs/                      # Documentación de arquitectura, APIs y verificación
 ```
 
-### 2. Compilar Crates Nativos de Rust
-```bash
-cd crates
-cargo test --workspace
-cargo test -p gigacare-core --test integration_tests --features integration
-```
+---
 
-### 3. Compilar la Aplicación Android
-```bash
-# Generar librerías nativas con NDK
-cd crates
-./build-android.bat
+## 🤝 Contribuir y Soporte
 
-# Ensamblar APK de Android
-cd ../apps/android
-./gradlew assembleDebug
-```
+- Consulta [CONTRIBUTING.md](CONTRIBUTING.md) para conocer las pautas de código, lints y flujo de Pull Requests.
+- Consulta [docs/architecture.md](docs/architecture.md) para comprender el flujo de datos y las decisiones técnicas.
+- Reporta incidencias o sugiere mejoras abriendo un [Issue en GitHub](https://github.com/ready2devs/gigacare/issues).
 
 ---
 
