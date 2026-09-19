@@ -16,16 +16,16 @@
 **[Descargar Releases](https://github.com/ready2devs/gigacare/releases/latest)** · **[Arquitectura](docs/architecture.md)** · **[API Reference](docs/api-reference.md)** · **[Reporte de Verificación](docs/verification-report.md)**
 
 <p align="center">
-  <a href="https://github.com/ready2devs/gigacare/releases/latest">
+  <a href="https://github.com/ready2devs/gigacare/releases/download/v1.0.0/GigaCare-v1.0.0-x64-setup.msi">
     <img src="https://img.shields.io/badge/Windows_11_Installer-Descargar_.MSI-0078D4?style=for-the-badge&logo=windows11&logoColor=white" height="42" alt="Descargar Windows MSI">
   </a>
   &nbsp;
-  <a href="https://github.com/ready2devs/gigacare/releases/latest">
+  <a href="https://github.com/ready2devs/gigacare/releases/download/v1.0.0/GigaCare-v1.0.0-portable.exe">
     <img src="https://img.shields.io/badge/Windows_Portable-Descargar_.EXE-00E5FF?style=for-the-badge&logo=windows&logoColor=0B0F19" height="42" alt="Descargar Windows Portable">
   </a>
   &nbsp;
-  <a href="https://github.com/ready2devs/gigacare/releases/latest">
-    <img src="https://img.shields.io/badge/Android_App-Descargar_.APK-3DDC84?style=for-the-badge&logo=android&logoColor=white" height="42" alt="Descargar Android APK">
+  <a href="https://github.com/ready2devs/gigacare/releases/download/v1.0.0/GigaCare-v1.0.0-setup.exe">
+    <img src="https://img.shields.io/badge/Windows_Setup-Descargar_.EXE-7C3AED?style=for-the-badge&logo=windows&logoColor=white" height="42" alt="Descargar Windows Setup">
   </a>
 </p>
 
@@ -72,9 +72,10 @@ En cada lanzamiento oficial en GitHub, los archivos binarios compilados están d
 
 | Plataforma | Tipo de Instalación | Nombre del Archivo | Descripción |
 | :--- | :--- | :--- | :--- |
-| **Windows 11 / 10** | Instalador Guiado | [`GigaCare-v1.0.0-x64-setup.msi`](https://github.com/ready2devs/gigacare/releases/latest) | Asistente de instalación estándar para Windows (menú inicio, accesos directos y desinstalador limpio). |
-| **Windows 11 / 10** | Portable (Sin instalación) | [`GigaCare-v1.0.0-portable.exe`](https://github.com/ready2devs/gigacare/releases/latest) | Ejecutable autónomo sin instalación. Ideal para llevar en un pendrive o ejecutar sin permisos de administrador. |
-| **Android (API 26+)**| Paquete de Aplicación | [`gigacare-v1.0.0-universal.apk`](https://github.com/ready2devs/gigacare/releases/latest) | Archivo APK universal para instalar directamente en teléfonos o tablets Android (arquitecturas ARM64, ARMv7, x86_64). |
+| **Windows 11 / 10** | Instalador Guiado MSI | [📥 `GigaCare-v1.0.0-x64-setup.msi` (4.37 MB)](https://github.com/ready2devs/gigacare/releases/download/v1.0.0/GigaCare-v1.0.0-x64-setup.msi) | Asistente de instalación estándar para Windows (menú inicio, accesos directos y desinstalador limpio). |
+| **Windows 11 / 10** | Instalador NSIS (.exe) | [📥 `GigaCare-v1.0.0-setup.exe` (2.81 MB)](https://github.com/ready2devs/gigacare/releases/download/v1.0.0/GigaCare-v1.0.0-setup.exe) | Instalador ejecutable ligero de Windows empaquetado con NSIS. |
+| **Windows 11 / 10** | Versión Portable (.exe) | [📥 `GigaCare-v1.0.0-portable.exe` (11.48 MB)](https://github.com/ready2devs/gigacare/releases/download/v1.0.0/GigaCare-v1.0.0-portable.exe) | Ejecutable autónomo listo para correr sin instalación ni permisos administrativos. |
+| **Página de la Versión**| GitHub Release v1.0.0 | [🔗 Ver Release v1.0.0 con Checksums SHA-256](https://github.com/ready2devs/gigacare/releases/tag/v1.0.0) | Notas de la versión, registro de cambios y sumas de verificación criptográficas. |
 
 ---
 
