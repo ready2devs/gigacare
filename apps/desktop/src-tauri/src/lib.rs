@@ -34,6 +34,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .manage(state)
         .invoke_handler(tauri::generate_handler![
             commands::scan::scan_smart_care,
@@ -46,6 +47,7 @@ pub fn run() {
             commands::quarantine::purge_expired,
             commands::quarantine::quarantine_stats,
             commands::photos::find_photo_groups,
+            commands::photos::find_photo_groups_recursive,
             commands::photos::analyze_group_ai,
             commands::photos::analyze_all_groups_ai,
             commands::apps::list_installed_apps,
@@ -54,6 +56,9 @@ pub fn run() {
             commands::startup::list_startup_items,
             commands::startup::toggle_startup_item,
             commands::space_map::build_space_map,
+            commands::space_map::get_disk_info,
+            commands::space_map::get_file_preview,
+            commands::drives::list_storage_devices,
             commands::config::get_config,
             commands::config::update_config,
             commands::config::export_config,
@@ -61,6 +66,15 @@ pub fn run() {
             commands::license::validate_api_key,
             commands::license::get_license_tier,
             commands::license::activate_pro,
+            commands::treemap::compute_treemap_layout,
+            commands::treemap::compute_sunburst_layout,
+            commands::ai_query::nl_query_files,
+            commands::ai_query::suggest_auto_rules,
+            commands::devcleaning::dev_clean_scan,
+            commands::devcleaning::ml_model_scan,
+            commands::devcleaning::python_env_scan,
+            commands::devcleaning::dev_clean_remove,
+            commands::devcleaning::dev_clean_reveal,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

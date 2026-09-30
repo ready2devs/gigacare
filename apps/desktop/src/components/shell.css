@@ -123,6 +123,9 @@
 .gc-transition-container {
   animation: gc-fade-slide 300ms cubic-bezier(0.1, 0.9, 0.2, 1) both;
   will-change: transform, opacity;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes gc-fade-slide {

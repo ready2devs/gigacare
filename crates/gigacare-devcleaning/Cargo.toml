@@ -1,0 +1,18 @@
+[package]
+name = "gigacare-devcleaning"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+description = "Developer cache, ML model, and Python environment cleaning engine for GigaCare"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+jwalk = "0.8"
+dirs = "5"
+sysinfo = "0.33"
+
+[dev-dependencies]
+tempfile = "3"

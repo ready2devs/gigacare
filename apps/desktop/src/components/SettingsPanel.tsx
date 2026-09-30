@@ -33,6 +33,30 @@ export const SettingsPanel: React.FC = () => {
   const [byokKey, setByokKey] = useState<string>("");
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [validating, setValidating] = useState<boolean>(false);
+  const [isCustomQuarantine, setIsCustomQuarantine] = useState<boolean>(false);
+
+  const handleQuarantineSizeChange = async (val: number) => {
+    if (!config) return;
+    const updated = {
+      ...config,
+      quarantine: {
+        ...config.quarantine,
+        max_size_gb: val,
+      },
+    };
+    setConfig(updated);
+    try {
+      await invoke("update_config", {
+        config: {
+          quarantine: {
+            max_size_gb: val,
+          },
+        },
+      });
+    } catch (err) {
+      console.error("Error al actualizar límite de cuarentena:", err);
+    }
+  };
 
   useEffect(() => {
     loadConfig();
@@ -57,7 +81,7 @@ export const SettingsPanel: React.FC = () => {
         },
         quarantine: {
           retention_days: 7,
-          max_size_gb: 5,
+          max_size_gb: 50,
         },
         photos: {
           keep_count: 1,
@@ -282,22 +306,65 @@ export const SettingsPanel: React.FC = () => {
           />
         </div>
 
-        <div className="settings-field-row">
+        <div className="settings-field-row" style={{ alignItems: "flex-start" }}>
           <div className="settings-field-info">
             <span className="settings-field-label">Límite de espacio de cuarentena</span>
-            <span className="settings-field-desc">Capacidad máxima en Gigabytes asignada a la cuarentena.</span>
+            <span className="settings-field-desc">
+              Capacidad máxima asignada a la cuarentena (50 GB por defecto para cachés y modelos ML).
+            </span>
           </div>
-          <SpinButton
-            value={config.quarantine.max_size_gb}
-            min={1}
-            max={100}
-            onChange={(_, data) =>
-              setConfig({
-                ...config,
-                quarantine: { ...config.quarantine, max_size_gb: data.value ?? 5 },
-              })
-            }
-          />
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
+            <div style={{ display: "flex", gap: "6px" }}>
+              {[50, 100, 200].map((preset) => {
+                const isSelected = config.quarantine.max_size_gb === preset && !isCustomQuarantine;
+                return (
+                  <Button
+                    key={preset}
+                    size="small"
+                    appearance={isSelected ? "primary" : "secondary"}
+                    style={{
+                      backgroundColor: isSelected ? "#00E5FF" : "rgba(255, 255, 255, 0.06)",
+                      color: isSelected ? "#0B0F19" : "#F8FAFC",
+                      fontWeight: isSelected ? 700 : 500,
+                      minWidth: "68px",
+                    }}
+                    onClick={() => {
+                      setIsCustomQuarantine(false);
+                      handleQuarantineSizeChange(preset);
+                    }}
+                  >
+                    {preset} GB
+                  </Button>
+                );
+              })}
+              <Button
+                size="small"
+                appearance={isCustomQuarantine ? "primary" : "secondary"}
+                style={{
+                  backgroundColor: isCustomQuarantine ? "#00E5FF" : "rgba(255, 255, 255, 0.06)",
+                  color: isCustomQuarantine ? "#0B0F19" : "#F8FAFC",
+                  fontWeight: isCustomQuarantine ? 700 : 500,
+                }}
+                onClick={() => setIsCustomQuarantine(true)}
+              >
+                Personalizado
+              </Button>
+            </div>
+            {isCustomQuarantine && (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <SpinButton
+                  value={config.quarantine.max_size_gb}
+                  min={1}
+                  max={500}
+                  onChange={(_, data) => {
+                    const val = data.value ?? 50;
+                    handleQuarantineSizeChange(val);
+                  }}
+                />
+                <Text size={200} style={{ color: "#94A3B8" }}>GB</Text>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -406,6 +473,9 @@ export const SettingsPanel: React.FC = () => {
             value={config.language === "es" ? "Español" : "English"}
             onOptionSelect={async (_, data) => {
               const lang = (data.optionValue as "es" | "en") || "es";
+              if (typeof window !== "undefined" && window.localStorage) {
+                window.localStorage.setItem("gigacare_lang", lang);
+              }
               const { default: i18n } = await import("../i18n");
               await i18n.changeLanguage(lang);
               setConfig({ ...config, language: lang });

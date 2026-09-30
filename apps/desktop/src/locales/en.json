@@ -2,7 +2,7 @@
   "common": {
     "appName": "GigaCare",
     "tagline": "System Optimization Suite for Windows 11 & Android",
-    "version": "v1.0.0",
+    "version": "v1.0.1",
     "cancel": "Cancel",
     "save": "Save Changes",
     "saving": "Saving...",
@@ -46,6 +46,10 @@
     "space_map": {
       "title": "Space Map",
       "subtitle": "Visual Explorer"
+    },
+    "dev_cleaning": {
+      "title": "Dev Cleaning",
+      "subtitle": "Caches, models & envs"
     },
     "settings": {
       "title": "Settings",
@@ -131,5 +135,210 @@
     "shizukuRoot": "Shizuku / Root Mode (Android)",
     "language": "Application Language",
     "theme": "Visual Theme"
+  },
+  "spacelens": {
+    "title": "SpaceLens",
+    "scanning": "Scanning storage...",
+    "scanComplete": "Scan complete",
+    "selectNone": "None",
+    "selectAll": "All",
+    "selectOver100MB": "Files > 100MB",
+    "selectOver1GB": "Files > 1GB",
+    "reviewAndDelete": "Review and delete",
+    "elementsSelected": "items selected",
+    "diskUsed": "used",
+    "diskFree": "free",
+    "others": "Others",
+    "systemFolder": "System folder (Protected)",
+    "userFolder": "User folder",
+    "mtpReadOnly": "MTP Device — Read only",
+    "refreshDevices": "Refresh devices",
+    "internalDisks": "INTERNAL DISKS",
+    "externalDevices": "EXTERNAL DEVICES",
+    "mtpDevices": "MTP DEVICES",
+    "selectDevice": "Select drive",
+    "phoneStorage": "Phone storage",
+    "backButton": "Go back (previous level)",
+    "forwardButton": "Go forward",
+    "openInExplorer": "Open in Windows File Explorer",
+    "bytesFreed": "Freed {{size}} to Quarantine",
+    "noItems": "This folder contains no items"
+  },
+  "spacemap": {
+    "welcome": {
+      "title": "Visualizing your space",
+      "subtitle": "Select a drive or folder to start the analysis",
+      "pickFolder": "Choose folder..."
+    },
+    "scanning": {
+      "title": "Visualizing your space...",
+      "gbAnalyzed": "GB analyzed",
+      "foldersExamined": "folders examined"
+    },
+    "filter": {
+      "photosOnly": "Photos Only",
+      "videosOnly": "Videos Only"
+    },
+    "curate": {
+      "best1": "Best photo",
+      "best2": "Best 2 photos",
+      "best3": "Best 3 photos"
+    },
+    "mtp": {
+      "notReady": "To scan this device, connect it in File Transfer (Mass Storage) mode or select a synced folder"
+    },
+    "device": {
+      "disconnected": "The drive is no longer available"
+    },
+    "modes": {
+      "treemap": "Treemap",
+      "sunburst": "Sunburst"
+    },
+    "tabs": {
+      "map": "Space Map",
+      "duplicates": "Duplicates Curator",
+      "quarantine": "Quarantine"
+    },
+    "inspector": {
+      "title": "Item Inspection",
+      "dimensions": "Dimensions",
+      "codec": "Codec",
+      "modifiedAt": "Modified",
+      "size": "Size",
+      "openInExplorer": "Open in Explorer",
+      "sendToQuarantine": "Send to Quarantine",
+      "exclude": "Exclude from Scans",
+      "copyFullPath": "Copy full path",
+      "directoryItems": "contained items"
+    },
+    "nlbar": {
+      "placeholder": "Tell GigaCare what you want to remove...",
+      "analyzing": "Analyzing query...",
+      "missingApiKey": "Configure your Google AI Studio API Key in Settings"
+    },
+    "savings": {
+      "folderSavings": "You will free {{size}} in this folder",
+      "diskSavings": "{{size}} of {{total}} on {{disk}}",
+      "freePercent": "+{{percent}}% free space"
+    },
+    "autoRules": {
+      "badgeLabel": "suggestions",
+      "title": "Smart Adaptive Suggestion",
+      "prompt": "Do you want to automatically isolate the {{count}} identified files ({{desc}})?",
+      "skip": "Skip",
+      "isolate": "Isolate automatically",
+      "screenshotsDesc": "Screenshots older than 90 days",
+      "tempDesc": "Orphaned temporary files or backups"
+    }
+  },
+  "dev_cleaning": {
+    "headerSubtitle": "Developer caches, ML models, and Python environments",
+    "tabs": {
+      "caches": "Dev Caches",
+      "models": "ML Models",
+      "python": "Python Envs"
+    },
+    "common": {
+      "rescan": "Rescan",
+      "scanning": "Scanning...",
+      "explore": "Explore",
+      "show": "Show",
+      "clean": "Clean",
+      "remove": "Remove",
+      "dismiss": "Dismiss",
+      "openedExplorer": "Opened in Windows Explorer (and path copied): {{path}}"
+    },
+    "caches": {
+      "loading": "Scanning developer caches...",
+      "banner": "Reclaim space from package caches, build artifacts, and development tools safely.",
+      "reclaimableNow": "Reclaimable now",
+      "reclaimableSub": "Safe to delete without breaking builds",
+      "mlModelData": "ML model data",
+      "mlModelSub": "Ollama, Hugging Face, Torch & Keras",
+      "devCaches": "Dev caches",
+      "devCachesSub": "npm, pip, cargo, gradle & package stores",
+      "diskUsedTotal": "Disk used / total",
+      "diskUsedSub": "of {{total}} available",
+      "storageBreakdown": "Storage Breakdown",
+      "freeSpace": "{{free}} free space",
+      "legendOther": "Other ({{size}})",
+      "legendMl": "ML Models ({{size}})",
+      "legendDev": "Dev Caches ({{size}})",
+      "legendApp": "App Data ({{size}})",
+      "legendFree": "Free ({{size}})",
+      "findingsTitle": "Detected Developer Findings ({{count}})",
+      "empty": "No developer caches or models found on this system.",
+      "catMl": "ML Models",
+      "catDev": "Dev Cache",
+      "catApp": "App Data",
+      "safetySafe": "Safe",
+      "safetyCaution": "Caution",
+      "safetyRisky": "Risky",
+      "activeToday": "Active today",
+      "staleDays": "{{days}}d stale",
+      "filesCount": "{{count}} files",
+      "topSubdirs": "Top Subdirectories"
+    },
+    "models": {
+      "loading": "Discovering local ML models and weights...",
+      "banner": "Inspect local LLM weights, diffusion checkpoints, and shared layers.",
+      "allModels": "All models",
+      "allModelsSub": "Across Ollama, Hugging Face & caches",
+      "neverLoaded": "Downloaded but never loaded",
+      "unusedCount": "{{count}} unused model(s)",
+      "atimeUnsupported": "Access time not supported on this filesystem",
+      "modelsFound": "Models found",
+      "modelsFoundSub": "Indexed in manifest and hub caches",
+      "ollamaInfo": "Ollama models store weights as deduplicated layers. Removing an Ollama model only frees layers exclusive to it; shared base layers are safely preserved.",
+      "filterAll": "All ({{count}})",
+      "filterNeverLoaded": "Never loaded ({{count}})",
+      "selectAllNeverLoaded": "Select all never-loaded",
+      "removeSelected": "Remove {{count}} selected ({{size}})",
+      "emptyNeverLoaded": "No unused models found. All detected models have been loaded.",
+      "emptyAll": "No ML models found on this system.",
+      "statusLoaded": "Loaded",
+      "statusNeverLoaded": "Never loaded",
+      "downloadedToday": "Downloaded today",
+      "downloadedDays": "Downloaded {{days}}d ago",
+      "lastUsedToday": "• Last used today",
+      "lastUsedDays": "• Last used {{days}}d ago",
+      "reclaimable": "({{size}} reclaimable)"
+    },
+    "python": {
+      "loading": "Scanning virtual environments and Conda packages...",
+      "banner": "Where your virtualenvs and conda environments go, and what they duplicate.",
+      "allEnvs": "All environments",
+      "allEnvsSub": "Total size across virtualenvs & conda",
+      "wastedDuplicates": "Wasted on duplicates",
+      "wastedSub": "Identical packages duplicated across envs",
+      "envsCount": "Environments",
+      "envsCountSub": "Active Conda and venv directories",
+      "duplicatesTitle": "PACKAGES INSTALLED IN MORE THAN ONE ENVIRONMENT",
+      "wastedHeader": "{{size}} wasted",
+      "copiesBadge": "{{count}} copies",
+      "totalLabel": "{{size}} total",
+      "duplicatedLabel": "{{size}} duplicated",
+      "duplicatesFootnote": "Duplicated size is what you would save if each package existed only once. Removing an environment you no longer use is the safe way to reclaim it.",
+      "envsTitle": "ENVIRONMENTS ({{count}})",
+      "empty": "No virtualenv or Conda environments found in your home folder.",
+      "packagesCount": "{{count}} packages",
+      "installedPackages": "Installed Packages (Top {{count}})"
+    },
+    "confirm": {
+      "titleClean": "Clean {{name}}?",
+      "titleRemove": "Remove {{name}}?",
+      "riskyAlert": "Caution! This item contains state or container data that may not regenerate automatically.",
+      "consequenceCache": "These cached files will regenerate automatically next time you run the corresponding package manager or tool.",
+      "consequenceModel": "Selected model weights will be moved to quarantine. You will need to restore or re-download them to run inference again.",
+      "consequenceEnv": "The entire virtual environment and its installed packages will be moved to quarantine. You will need to recreate the environment to run that project.",
+      "itemsHeader": "Items to move to quarantine",
+      "totalLabel": "Total: {{size}}",
+      "moreItems": "...and {{count}} more",
+      "quarantineNotice": "All files are moved to GigaCare Reversible Quarantine and can be restored anytime before the retention period expires.",
+      "keepBtn": "No, keep it",
+      "confirmCleanBtn": "Yes, clean ({{size}})",
+      "confirmRemoveBtn": "Yes, remove ({{size}})",
+      "movingBtn": "Moving to quarantine..."
+    }
   }
 }

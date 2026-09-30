@@ -3,15 +3,19 @@ import { initReactI18next } from "react-i18next";
 import es from "./locales/es.json";
 import en from "./locales/en.json";
 
-// Detección automática del idioma del sistema operativo
-const systemLang = navigator.language.toLowerCase().startsWith("es") ? "es" : "en";
+const savedLang =
+  typeof window !== "undefined" && window.localStorage
+    ? window.localStorage.getItem("gigacare_lang")
+    : null;
+
+const defaultLang = savedLang === "en" || savedLang === "es" ? savedLang : "es";
 
 i18n.use(initReactI18next).init({
   resources: {
     es: { translation: es },
     en: { translation: en },
   },
-  lng: systemLang,
+  lng: defaultLang,
   fallbackLng: "es",
   interpolation: {
     escapeValue: false,

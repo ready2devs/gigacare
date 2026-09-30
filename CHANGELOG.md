@@ -5,6 +5,25 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [1.0.1] - 2026-09-19
+
+### Añadido y Mejorado
+- **Overhaul UX de SpaceMap / SpaceLens**:
+  - Layout unificado de 4 zonas con barra superior de navegación e historial (Atrás/Adelante), lista de archivos filtrable, lienzo interactivo y barra de estado tipo CleanMyMac.
+  - Visualizaciones interactivas **Treemap** (squarified), **Sunburst** (radial) y **Bubbles** (burbujas proporcionales) sincronizadas en tiempo real con filtros de selección (`Todos`, `Seleccionados`, `No seleccionados`) y checkboxes.
+  - **Consultas en Lenguaje Natural (NLBar)** e **Inspector de Archivos** con barra de ahorro potencial (`SavingsBar`), triaje de duplicados y pestaña integrada de Cuarentena.
+  - **Detección Nativa de Dispositivos MTP (WPD COM)** para explorar teléfonos y cámaras conectadas por USB en Windows, junto con selector nativo de carpetas.
+- **Curador de Fotos y Videos con IA**:
+  - Rediseño visual con anillos de calidad (`QualityRing`), barras de métricas (`MetricBar`), persistencia de `keep_count` (conservar 1, 2 o 3 mejores tomas) y detección de videos similares (`video_hasher`).
+- **Nuevos Módulos y Crates Nativos en Rust**:
+  - `gigacare-treemap`: Construcción jerárquica de árboles de almacenamiento y layouts de alta velocidad.
+  - `gigacare-devcleaning`: Escaneo y limpieza especializada de cachés de compilación, modelos de IA locales, contenedores y entornos Python/Node/Rust.
+  - `gigacare-registry`: Gestión segura de entradas de inicio de Windows (`StartupPanel`) y desinstalador profundo (`UninstallerPanel`).
+- **Calidad y Testing**:
+  - Suite ampliada a **41 archivos de test y 106 tests automatizados** (Vitest + React Testing Library) cubriendo flujos E2E, SpaceLens, Treemap, Sunburst, Curador de Fotos y Cuarentena.
+
+---
+
 ## [1.0.0] - 2026-09-18
 
 ### Añadido

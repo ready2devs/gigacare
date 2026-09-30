@@ -31,6 +31,7 @@ pub async fn scan_smart_care(
                 "photo_duplicates" => Some(gigacare_core::events::ScanModule::PhotoDuplicates),
                 "uninstall_residuals" => Some(gigacare_core::events::ScanModule::UninstallResiduals),
                 "startup_items" => Some(gigacare_core::events::ScanModule::StartupItems),
+                "similar_videos" => Some(gigacare_core::events::ScanModule::SimilarVideos),
                 _ => None,
             })
             .collect()
@@ -54,6 +55,7 @@ pub async fn scan_module(
         "photo_duplicates" => gigacare_core::events::ScanModule::PhotoDuplicates,
         "uninstall_residuals" => gigacare_core::events::ScanModule::UninstallResiduals,
         "startup_items" => gigacare_core::events::ScanModule::StartupItems,
+        "similar_videos" => gigacare_core::events::ScanModule::SimilarVideos,
         _ => return Err(format!("Módulo desconocido: {}", module_id)),
     };
 

@@ -154,6 +154,7 @@ export interface PhotoAiAnalysis {
   total_score: number;
   rank: number;
   recommendation: "keep" | "discard" | string;
+  discard_reason?: string;
 }
 
 export interface PhotoItem {
@@ -170,6 +171,16 @@ export interface PhotoGroup {
   similarity_method: string;
   avg_hamming_distance: number;
   photos: PhotoItem[];
+}
+
+export type OverrideMap = Record<string, Record<string, 'keep' | 'discard'>>;
+
+export interface RecursivePhotoScanResult {
+  groups: PhotoGroup[];
+  total_photos_found: number;
+  photos_processed: number;
+  truncated: boolean;
+  scan_path: string;
 }
 
 // ─────────────────────────── Desinstalador & Startup ──────────────
@@ -213,7 +224,7 @@ export interface StartupItem {
   protected: boolean;
 }
 
-// ─────────────────────────── Space Map ────────────────────────────
+// ─────────────────────────── Space Map & SpaceLens ───────────────
 
 export interface SpaceMapNode {
   name: string;
@@ -221,6 +232,40 @@ export interface SpaceMapNode {
   size_bytes: number;
   is_directory: boolean;
   children: SpaceMapNode[];
+  item_count?: number;        // Cantidad de items dentro (archivos + carpetas)
+  modified_at?: string;       // Fecha de última modificación (ISO-8601)
+  extension?: string;         // Extensión del archivo (solo para archivos)
+  is_system?: boolean;        // true si es carpeta del sistema (no seleccionable)
+}
+
+// Tipo de dispositivo de almacenamiento
+export type StorageDeviceType = "local_disk" | "usb_drive" | "mtp_device" | "network_drive";
+
+// Información de una unidad/dispositivo disponible
+export interface StorageDevice {
+  id: string;                   // Identificador único ("C:", "D:", "mtp://Samsung-Galaxy-S24")
+  label: string;                // Nombre amigable ("Disco Local (C:)", "USB Kingston 64GB", "Dispositivo MTP")
+  device_type: StorageDeviceType;
+  root_path: string;            // Ruta raíz para escanear ("C:\", "E:\", "mtp://device-id/")
+  total_bytes: number;          // Capacidad total del dispositivo
+  used_bytes: number;           // Espacio usado
+  free_bytes: number;           // Espacio libre
+  is_removable: boolean;        // true para USB, MTP, SD cards
+  icon_hint: string;            // "hard_drive" | "usb" | "phone" | "sd_card" | "network"
+  is_ready: boolean;            // false si el dispositivo no está listo (ej: lector de CD vacío)
+}
+
+export interface DiskInfo {
+  total_bytes: number;
+  used_bytes: number;
+  free_bytes: number;
+  drive_label: string;
+}
+
+export interface SpaceLensScanProgress {
+  scanned_dirs: number;
+  total_size: number;
+  current_path: string;
 }
 
 // ─────────────────────────── Configuración ────────────────────────
@@ -312,4 +357,102 @@ export interface AiAnalysisProgress {
   groups_total: number;
   current_provider: string;
   current_group_id: string;
+}
+
+// ─── §3.6 Interfaces SpaceMap & Smart Adaptive Rules ───
+
+export interface TreemapRect {
+  path: string;
+  name: string;
+  rect: { x: number; y: number; w: number; h: number };
+  size_bytes: number;
+  depth: number;
+  is_directory: boolean;
+  extension?: string;
+  is_system: boolean;
+}
+
+export interface SunburstArc {
+  path: string;
+  name: string;
+  center: { x: number; y: number };
+  r_inner: number;
+  r_outer: number;
+  start_angle: number;
+  end_angle: number;
+  depth: number;
+  size_bytes: number;
+  is_directory: boolean;
+}
+
+export type SpaceMapMode = "treemap" | "sunburst";
+
+// ─── NL Query ───
+
+export interface FilterCondition {
+  field: string;
+  operator: string;
+  value: unknown;
+}
+
+export interface FileFilterQuery {
+  conditions: FilterCondition[];
+  logical_operator: "AND" | "OR";
+}
+
+export interface FileFilterResult {
+  query_parsed: FileFilterQuery;
+  matched_paths: string[];
+  total_matched: number;
+  total_bytes: number;
+  summary: string;
+}
+
+// ─── Inspector State ───
+
+export interface InspectorState {
+  selected_path: string | null;
+  node: SpaceMapNode | null;
+  preview_url: string | null; // Blob URL for image/video preview
+  media_type: "image" | "video" | "other" | null;
+  metadata: {
+    dimensions?: string;
+    bitrate?: string;
+    codec?: string;
+    modified_at?: string;
+    full_path: string;
+    size_bytes: number;
+  } | null;
+}
+
+// ─── Savings Bar ───
+
+export interface SavingsInfo {
+  folder_savings_bytes: number;
+  folder_name: string;
+  disk_savings_bytes: number;
+  disk_label: string;
+  disk_total_bytes: number;
+  percentage: number;
+}
+
+// ─── Smart Adaptive Rules ───
+
+export interface AutoQuarantineRule {
+  id: string;
+  description: string; // "Capturas de pantalla > 90 días"
+  condition: FileFilterQuery;
+  matched_count: number;
+  matched_bytes: number;
+  user_approved: boolean;
+}
+
+// ─── User Pattern Learning ───
+
+export interface DetectedPattern {
+  pattern_id: string;
+  description: string; // "Siempre descartas videos < 1080p"
+  confidence: number; // 0.0 - 1.0
+  remaining_matches: number;
+  toast_message: string; // "¿Deseas aislar automáticamente los 14 archivos restantes?"
 }

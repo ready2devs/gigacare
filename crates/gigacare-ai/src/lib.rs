@@ -4,6 +4,9 @@
 //! rate limiting, reintentos en 429 y fallback local.
 
 pub mod error;
+pub mod gemini_client;
+pub mod nl_query;
+pub mod photo_curator;
 pub mod models;
 pub mod prompts;
 pub mod providers;
@@ -125,3 +128,4 @@ mod tests {
         assert!((weighted - 0.867).abs() < 1e-4);
     }
 }
+pub use gemini_client::GeminiClient;

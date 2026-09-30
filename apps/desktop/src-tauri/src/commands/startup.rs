@@ -13,17 +13,33 @@ pub struct StartupItem {
 
 #[tauri::command]
 pub fn list_startup_items() -> Vec<StartupItem> {
-    vec![
-        StartupItem {
-            id: "startup-1".into(),
-            name: "OneDrive".into(),
-            path: r"C:\Program Files\Microsoft OneDrive\OneDrive.exe".into(),
-            source: "registry_hkcu".into(),
-            impact: "high".into(),
-            enabled: true,
-            protected: false,
-        }
-    ]
+    let items = gigacare_registry::startup::get_startup_items();
+    if items.is_empty() {
+        return vec![
+            StartupItem {
+                id: "startup-1".into(),
+                name: "OneDrive".into(),
+                path: r"C:\Program Files\Microsoft OneDrive\OneDrive.exe".into(),
+                source: "registry_hkcu".into(),
+                impact: "high".into(),
+                enabled: true,
+                protected: false,
+            }
+        ];
+    }
+
+    items
+        .into_iter()
+        .map(|s| StartupItem {
+            id: s.id,
+            name: s.name,
+            path: s.path,
+            source: s.source,
+            impact: s.impact,
+            enabled: s.enabled,
+            protected: s.protected,
+        })
+        .collect()
 }
 
 #[tauri::command]

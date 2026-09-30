@@ -17,6 +17,9 @@ pub mod error;
 pub mod events;
 pub mod models;
 pub mod scanner;
+pub mod hasher;
+pub mod video_hasher;
+pub mod sharpness;
 
 // Re-exports de conveniencia
 pub use error::{CoreError, Result};

@@ -2,7 +2,7 @@
   "common": {
     "appName": "GigaCare",
     "tagline": "Suite de Optimización para Windows 11 & Android",
-    "version": "v1.0.0",
+    "version": "v1.0.1",
     "cancel": "Cancelar",
     "save": "Guardar Cambios",
     "saving": "Guardando...",
@@ -46,6 +46,10 @@
     "space_map": {
       "title": "Space Map",
       "subtitle": "Explorador Visual"
+    },
+    "dev_cleaning": {
+      "title": "Dev Cleaning",
+      "subtitle": "Cachés, modelos y entornos"
     },
     "settings": {
       "title": "Configuración",
@@ -131,5 +135,210 @@
     "shizukuRoot": "Modo Shizuku / Root (Android)",
     "language": "Idioma de la aplicación",
     "theme": "Tema visual"
+  },
+  "spacelens": {
+    "title": "SpaceLens",
+    "scanning": "Escaneando almacenamiento...",
+    "scanComplete": "Escaneo completado",
+    "selectNone": "Ninguno",
+    "selectAll": "Todo",
+    "selectOver100MB": "Archivos > 100MB",
+    "selectOver1GB": "Archivos > 1GB",
+    "reviewAndDelete": "Revisar y eliminar",
+    "elementsSelected": "elementos seleccionados",
+    "diskUsed": "usado",
+    "diskFree": "libre",
+    "others": "Otros",
+    "systemFolder": "Carpeta del sistema (Protegida)",
+    "userFolder": "Carpeta de usuario",
+    "mtpReadOnly": "Dispositivo MTP — Solo lectura",
+    "refreshDevices": "Actualizar dispositivos",
+    "internalDisks": "DISCOS INTERNOS",
+    "externalDevices": "DISPOSITIVOS EXTERNOS",
+    "mtpDevices": "DISPOSITIVOS MTP",
+    "selectDevice": "Seleccionar unidad",
+    "phoneStorage": "Almacenamiento del teléfono",
+    "backButton": "Ir atrás (nivel anterior)",
+    "forwardButton": "Ir adelante",
+    "openInExplorer": "Abrir en el Explorador de archivos de Windows",
+    "bytesFreed": "Se liberaron {{size}} a Cuarentena",
+    "noItems": "Esta carpeta no contiene elementos"
+  },
+  "spacemap": {
+    "welcome": {
+      "title": "Visualizando tu espacio",
+      "subtitle": "Selecciona una unidad o carpeta para comenzar el análisis",
+      "pickFolder": "Elegir carpeta..."
+    },
+    "scanning": {
+      "title": "Visualizando tu espacio...",
+      "gbAnalyzed": "GB analizados",
+      "foldersExamined": "carpetas examinadas"
+    },
+    "filter": {
+      "photosOnly": "Solo Fotos",
+      "videosOnly": "Solo Videos"
+    },
+    "curate": {
+      "best1": "Mejor foto",
+      "best2": "Mejores 2 fotos",
+      "best3": "Mejores 3 fotos"
+    },
+    "mtp": {
+      "notReady": "Para escanear este dispositivo, conéctalo en modo Transferencia de Archivos (Almacenamiento Masivo) o selecciona una carpeta sincronizada"
+    },
+    "device": {
+      "disconnected": "La unidad ya no está disponible"
+    },
+    "modes": {
+      "treemap": "Treemap",
+      "sunburst": "Sunburst"
+    },
+    "tabs": {
+      "map": "Mapa de Espacio",
+      "duplicates": "Curador de Duplicados",
+      "quarantine": "Cuarentena"
+    },
+    "inspector": {
+      "title": "Inspección de Elemento",
+      "dimensions": "Dimensiones",
+      "codec": "Códec",
+      "modifiedAt": "Modificado",
+      "size": "Tamaño",
+      "openInExplorer": "Abrir en Explorador",
+      "sendToQuarantine": "Enviar a Cuarentena",
+      "exclude": "Excluir de Escaneos",
+      "copyFullPath": "Copiar ruta completa",
+      "directoryItems": "elementos contenidos"
+    },
+    "nlbar": {
+      "placeholder": "Dile a GigaCare qué quieres eliminar...",
+      "analyzing": "Analizando consulta...",
+      "missingApiKey": "Configura tu API Key de Google AI Studio en Configuración"
+    },
+    "savings": {
+      "folderSavings": "Liberarás {{size}} en esta carpeta",
+      "diskSavings": "{{size}} de {{total}} en {{disk}}",
+      "freePercent": "+{{percent}}% de espacio libre"
+    },
+    "autoRules": {
+      "badgeLabel": "sugerencias",
+      "title": "Sugerencia inteligente adaptativa",
+      "prompt": "¿Deseas aislar automáticamente los {{count}} archivos identificados ({{desc}})?",
+      "skip": "Omitir",
+      "isolate": "Aislar automáticamente",
+      "screenshotsDesc": "Capturas de pantalla con más de 90 días de antigüedad",
+      "tempDesc": "Archivos temporales o respaldos huérfanos"
+    }
+  },
+  "dev_cleaning": {
+    "headerSubtitle": "Cachés de desarrollo, modelos de IA y entornos Python",
+    "tabs": {
+      "caches": "Cachés Dev",
+      "models": "Modelos IA",
+      "python": "Entornos Python"
+    },
+    "common": {
+      "rescan": "Reescanear",
+      "scanning": "Escaneando...",
+      "explore": "Explorar",
+      "show": "Mostrar",
+      "clean": "Limpiar",
+      "remove": "Eliminar",
+      "dismiss": "Cerrar",
+      "openedExplorer": "Abierto en el Explorador de Windows (y ruta copiada): {{path}}"
+    },
+    "caches": {
+      "loading": "Escaneando cachés de desarrollo...",
+      "banner": "Recupera espacio de cachés de paquetes, artefactos de compilación y herramientas de desarrollo de forma segura.",
+      "reclaimableNow": "Recuperable ahora",
+      "reclaimableSub": "Seguro de limpiar sin romper compilaciones",
+      "mlModelData": "Datos de modelos IA",
+      "mlModelSub": "Ollama, Hugging Face, Torch y Keras",
+      "devCaches": "Cachés de desarrollo",
+      "devCachesSub": "npm, pip, cargo, gradle y gestores",
+      "diskUsedTotal": "Disco usado / total",
+      "diskUsedSub": "de {{total}} disponibles",
+      "storageBreakdown": "Desglose de Almacenamiento",
+      "freeSpace": "{{free}} de espacio libre",
+      "legendOther": "Otros ({{size}})",
+      "legendMl": "Modelos IA ({{size}})",
+      "legendDev": "Cachés Dev ({{size}})",
+      "legendApp": "Datos Apps ({{size}})",
+      "legendFree": "Libre ({{size}})",
+      "findingsTitle": "Hallazgos de Desarrollo Detectados ({{count}})",
+      "empty": "No se detectaron cachés ni modelos de desarrollo en este sistema.",
+      "catMl": "Modelos IA",
+      "catDev": "Caché Dev",
+      "catApp": "Datos App",
+      "safetySafe": "Seguro",
+      "safetyCaution": "Precaución",
+      "safetyRisky": "Riesgoso",
+      "activeToday": "Activo hoy",
+      "staleDays": "{{days}}d inactivo",
+      "filesCount": "{{count}} archivos",
+      "topSubdirs": "Subdirectorios Principales"
+    },
+    "models": {
+      "loading": "Descubriendo modelos locales de IA y pesos...",
+      "banner": "Inspecciona pesos locales de LLMs, checkpoints de difusión y capas compartidas.",
+      "allModels": "Todos los modelos",
+      "allModelsSub": "En Ollama, Hugging Face y cachés",
+      "neverLoaded": "Descargados pero nunca cargados",
+      "unusedCount": "{{count}} modelo(s) sin uso",
+      "atimeUnsupported": "Tiempo de acceso no soportado en el sistema de archivos",
+      "modelsFound": "Modelos encontrados",
+      "modelsFoundSub": "Indexados en manifiestos y cachés de hub",
+      "ollamaInfo": "Los modelos de Ollama almacenan pesos como capas deduplicadas. Eliminar un modelo de Ollama solo libera las capas exclusivas de él; las capas base compartidas se conservan de forma segura.",
+      "filterAll": "Todos ({{count}})",
+      "filterNeverLoaded": "Nunca cargados ({{count}})",
+      "selectAllNeverLoaded": "Seleccionar nunca cargados",
+      "removeSelected": "Eliminar {{count}} seleccionados ({{size}})",
+      "emptyNeverLoaded": "No se encontraron modelos sin uso. Todos los modelos detectados han sido cargados.",
+      "emptyAll": "No se encontraron modelos de IA en este sistema.",
+      "statusLoaded": "Cargado",
+      "statusNeverLoaded": "Nunca cargado",
+      "downloadedToday": "Descargado hoy",
+      "downloadedDays": "Descargado hace {{days}}d",
+      "lastUsedToday": "• Último uso hoy",
+      "lastUsedDays": "• Último uso hace {{days}}d",
+      "reclaimable": "({{size}} recuperables)"
+    },
+    "python": {
+      "loading": "Escaneando entornos virtuales y paquetes Conda...",
+      "banner": "Audita entornos de Python, paquetes instalados y dependencias duplicadas entre proyectos.",
+      "allEnvs": "Todos los entornos",
+      "allEnvsSub": "Tamaño total en virtualenvs y conda",
+      "wastedDuplicates": "Desperdiciado en duplicados",
+      "wastedSub": "Paquetes idénticos repetidos entre entornos",
+      "envsCount": "Entornos detectados",
+      "envsCountSub": "Directorios activos de Conda y venv",
+      "duplicatesTitle": "PAQUETES INSTALADOS EN MÁS DE UN ENTORNO",
+      "wastedHeader": "{{size}} desperdiciados",
+      "copiesBadge": "{{count}} copias",
+      "totalLabel": "{{size}} total",
+      "duplicatedLabel": "{{size}} duplicado",
+      "duplicatesFootnote": "El tamaño duplicado es lo que ahorrarías si cada paquete existiera una sola vez. Eliminar un entorno que ya no usas es la forma segura de recuperarlo.",
+      "envsTitle": "ENTORNOS DESCUBIERTOS ({{count}})",
+      "empty": "No se encontraron entornos virtualenv ni Conda en tu carpeta de usuario.",
+      "packagesCount": "{{count}} paquetes",
+      "installedPackages": "Paquetes Instalados (Top {{count}})"
+    },
+    "confirm": {
+      "titleClean": "¿Limpiar {{name}}?",
+      "titleRemove": "¿Eliminar {{name}}?",
+      "riskyAlert": "¡Precaución! Este elemento contiene datos de estado o contenedores que podrían no regenerarse automáticamente.",
+      "consequenceCache": "Estos archivos de caché se regenerarán automáticamente la próxima vez que ejecutes el gestor de paquetes o herramienta correspondiente.",
+      "consequenceModel": "Los pesos de los modelos seleccionados se moverán a cuarentena. Para volver a usarlos deberás restaurarlos o descargarlos nuevamente.",
+      "consequenceEnv": "El entorno virtual completo y sus paquetes instalados se moverán a cuarentena. Deberás recrear el entorno si deseas ejecutar ese proyecto.",
+      "itemsHeader": "Elementos a mover a cuarentena",
+      "totalLabel": "Total: {{size}}",
+      "moreItems": "...y {{count}} más",
+      "quarantineNotice": "Todos los archivos se mueven a la Cuarentena Reversible de GigaCare y pueden restaurarse en cualquier momento antes de que expire el período de retención.",
+      "keepBtn": "No, conservar",
+      "confirmCleanBtn": "Sí, limpiar ({{size}})",
+      "confirmRemoveBtn": "Sí, eliminar ({{size}})",
+      "movingBtn": "Moviendo a cuarentena..."
+    }
   }
 }

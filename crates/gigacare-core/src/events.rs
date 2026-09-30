@@ -26,6 +26,8 @@ pub enum ScanModule {
     UninstallResiduals,
     /// Elementos de inicio (startup items)
     StartupItems,
+    /// Videos similares (extracción de frames y matching)
+    SimilarVideos,
 }
 
 impl ScanModule {
@@ -39,6 +41,7 @@ impl ScanModule {
             ScanModule::PhotoDuplicates => "photo_duplicates",
             ScanModule::UninstallResiduals => "uninstall_residuals",
             ScanModule::StartupItems => "startup_items",
+            ScanModule::SimilarVideos => "similar_videos",
         }
     }
 
@@ -52,6 +55,7 @@ impl ScanModule {
             ScanModule::PhotoDuplicates,
             ScanModule::UninstallResiduals,
             ScanModule::StartupItems,
+            ScanModule::SimilarVideos,
         ]
     }
 }
@@ -124,12 +128,13 @@ mod tests {
         assert_eq!(ScanModule::PhotoDuplicates.as_str(), "photo_duplicates");
         assert_eq!(ScanModule::UninstallResiduals.as_str(), "uninstall_residuals");
         assert_eq!(ScanModule::StartupItems.as_str(), "startup_items");
+        assert_eq!(ScanModule::SimilarVideos.as_str(), "similar_videos");
     }
 
     #[test]
     fn test_scan_module_all() {
         let all = ScanModule::all();
-        assert_eq!(all.len(), 7);
+        assert_eq!(all.len(), 8);
     }
 
     #[test]

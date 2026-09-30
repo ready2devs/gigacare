@@ -69,7 +69,7 @@ impl Default for QuarantineConfig {
     fn default() -> Self {
         Self {
             retention_days: 7,
-            max_size_gb: 5.0,
+            max_size_gb: 50.0,
         }
     }
 }
@@ -525,7 +525,7 @@ mod tests {
 
         // quarantine
         assert_eq!(config.quarantine.retention_days, 7);
-        assert!((config.quarantine.max_size_gb - 5.0).abs() < f64::EPSILON);
+        assert!((config.quarantine.max_size_gb - 50.0).abs() < f64::EPSILON);
 
         // scanning
         assert_eq!(config.scanning.dev_inactive_threshold_days, 90);
@@ -655,7 +655,7 @@ mod tests {
         // El campo cambiado debe actualizarse
         assert_eq!(config.quarantine.retention_days, 30);
         // El resto de quarantine mantiene defaults
-        assert!((config.quarantine.max_size_gb - 5.0).abs() < f64::EPSILON);
+        assert!((config.quarantine.max_size_gb - 50.0).abs() < f64::EPSILON);
         // Otros módulos intactos
         assert_eq!(config.photos.keep_count, 1);
         assert_eq!(config.version, 1);
@@ -757,6 +757,19 @@ mod tests {
         let mut config = AppConfig::default();
         config.quarantine.max_size_gb = -1.0;
         assert!(config.validate().is_err());
+    }
+
+    #[test]
+    fn test_quarantine_config_accepts_100_and_200_gb() {
+        let mut config = AppConfig::default();
+        assert!((config.quarantine.max_size_gb - 50.0).abs() < f64::EPSILON);
+        assert!(config.validate().is_ok());
+
+        config.quarantine.max_size_gb = 100.0;
+        assert!(config.validate().is_ok());
+
+        config.quarantine.max_size_gb = 200.0;
+        assert!(config.validate().is_ok());
     }
 
     // ── Test: Validación - keep_count fuera de rango ──

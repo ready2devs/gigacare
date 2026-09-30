@@ -1,163 +1,505 @@
-/* Estilos de PhotoCurator */
+/* Estilos de PhotoCurator — Rediseño UX CleanMyMac Style (006-photo-curator-ux-overhaul) */
+
+@keyframes gc-fade-slide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes pulseKeepBorder {
+  0%, 100% {
+    border-color: #10B981;
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.28), inset 0 0 12px rgba(0, 229, 255, 0.08);
+  }
+  50% {
+    border-color: #00E5FF;
+    box-shadow: 0 0 22px rgba(0, 229, 255, 0.38), inset 0 0 16px rgba(16, 185, 129, 0.12);
+  }
+}
+
+@keyframes pulseActionBtn {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 6px 24px rgba(249, 115, 22, 0.65);
+  }
+}
+
+@keyframes sparklePulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.2) rotate(12deg);
+    opacity: 1;
+  }
+}
 
 .photo-curator-container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-width: 1050px;
+  max-width: 1120px;
   margin: 0 auto;
-  gap: 16px;
+  gap: 18px;
   animation: gc-fade-slide 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+  position: relative;
 }
 
+/* Header con gradiente radial y glassmorphism (RF-003.1) */
 .photo-curator-header {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 16px 20px;
+  background: radial-gradient(
+      ellipse at 30% 50%,
+      rgba(124, 58, 237, 0.18),
+      rgba(0, 229, 255, 0.09),
+      transparent 75%
+    ),
+    rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.photo-curator-header-top {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.curator-title-gradient {
+  background: linear-gradient(135deg, #00E5FF 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  display: inline-block;
+}
+
+.curator-subtitle {
+  display: flex;
   align-items: center;
-  backdrop-filter: blur(12px);
+  gap: 6px;
+  color: #94A3B8;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.sparkle-icon {
+  color: #00E5FF;
+  display: inline-flex;
+  animation: sparklePulse 2.4s infinite ease-in-out;
 }
 
 .photo-curator-controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.photo-curator-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Grid de grupos */
 .photo-groups-grid {
   display: flex;
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
   flex: 1;
+  padding-bottom: 16px;
 }
 
 .photo-group-card {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 16px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .photo-group-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.group-gradient-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 229, 255, 0.35) 30%,
+    rgba(124, 58, 237, 0.35) 70%,
+    transparent 100%
+  );
+  margin: 4px 0;
+}
+
+/* Carousel horizontal (RF-005.1) */
+.photo-carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .photo-compare-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 14px;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 8px 4px 12px 4px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 
+.carousel-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(15, 23, 42, 0.85);
+  color: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.photo-carousel-wrapper:hover .carousel-nav-btn {
+  opacity: 1;
+}
+
+.carousel-nav-btn:hover {
+  background: rgba(0, 229, 255, 0.25);
+  border-color: #00E5FF;
+}
+
+.carousel-nav-btn.left {
+  left: -8px;
+}
+
+.carousel-nav-btn.right {
+  right: -8px;
+}
+
+/* Photo Card con glassmorphism y hover (RF-003.2) */
 .photo-card {
-  background: rgba(11, 15, 25, 0.5);
+  min-width: 235px;
+  max-width: 265px;
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
+  border-radius: 14px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: all 0.2s ease;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.25s ease,
+              border-color 0.25s ease;
+}
+
+.photo-card-enter {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeSlideUp 400ms ease-out forwards;
+}
+
+.photo-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
 .photo-card.recommended {
-  border-color: #00E5FF;
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.2);
+  border: 2px solid #10B981;
+  animation: fadeSlideUp 400ms ease-out forwards, pulseKeepBorder 2.8s infinite ease-in-out;
 }
 
 .photo-card.discarded {
-  opacity: 0.75;
-  border-color: rgba(239, 68, 68, 0.3);
+  opacity: 0.7;
+  border: 1px solid rgba(239, 68, 68, 0.35);
 }
 
-.photo-badge-status {
+.photo-card.discarded:hover {
+  opacity: 0.92;
+}
+
+.photo-card.manual-override {
+  border: 2px solid #F59E0B !important;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
+  opacity: 1;
+}
+
+/* Badges Ribbon & Stamp (RF-003.5) */
+.photo-badge-ribbon {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  padding: 4px 8px;
+  top: 10px;
+  left: 0;
+  z-index: 4;
+  padding: 5px 12px 5px 10px;
+  border-radius: 0 8px 8px 0;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.photo-badge-ribbon.keep {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(0, 229, 255, 0.8));
+  color: #030712;
+  border-right: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.photo-badge-ribbon.unique {
+  background: rgba(56, 189, 248, 0.85);
+  color: #030712;
+}
+
+.photo-badge-stamp {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  z-index: 4;
+  padding: 4px 10px;
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 4px;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  transform: rotate(-4deg);
+  letter-spacing: 0.03em;
 }
 
-.photo-badge-status.keep {
-  background: rgba(0, 229, 255, 0.25);
-  color: #00E5FF;
-  border: 1px solid #00E5FF;
+.photo-badge-stamp.discard {
+  background: rgba(239, 68, 68, 0.28);
+  color: #FCA5A5;
+  border: 1.5px dashed rgba(239, 68, 68, 0.75);
 }
 
-.photo-badge-status.discard {
-  background: rgba(239, 68, 68, 0.25);
-  color: #EF4444;
-  border: 1px solid #EF4444;
-}
-
-.photo-thumb-container {
-  width: 100%;
-  height: 140px;
-  background: rgba(0, 0, 0, 0.4);
+.photo-badge-manual {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  z-index: 4;
+  padding: 5px 12px 5px 10px;
+  border-radius: 0 8px 8px 0;
+  font-size: 11px;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 5px;
+  backdrop-filter: blur(10px);
+  background: rgba(245, 158, 11, 0.9);
+  color: #030712;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+/* Ring posicionado arriba a la derecha (RF-003.4) */
+.photo-ring-corner {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 4;
+  background: rgba(11, 15, 25, 0.75);
+  border-radius: 50%;
+  padding: 2px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Barras de progreso de métrica (RF-003.3) */
+.metric-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-bar-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
   overflow: hidden;
 }
 
-.photo-scores-panel {
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 11px;
+.metric-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 600ms ease-out;
 }
 
-.score-bar-row {
+.metric-bar-fill.green {
+  background: #10B981;
+}
+
+.metric-bar-fill.amber {
+  background: #F59E0B;
+}
+
+.metric-bar-fill.red {
+  background: #EF4444;
+}
+
+/* Skeleton Loader con Shimmer (RF-003.8) */
+.skeleton-card,
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+/* Sticky Bottom Action Bar (RF-003.6) */
+.curator-action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 14px 22px;
+  backdrop-filter: blur(20px);
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 14px;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.45);
+  animation: slideUp 300ms ease-out;
+  font-variant-numeric: tabular-nums;
 }
 
-.score-bar-bg {
-  width: 60%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
+.curator-quarantine-cta {
+  background: linear-gradient(135deg, #EF4444 0%, #F97316 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  border: none !important;
+  padding: 8px 18px !important;
+  border-radius: 10px !important;
+  animation: pulseActionBtn 2.2s infinite ease-in-out;
+  cursor: pointer;
 }
 
-.score-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  background: #00E5FF;
-}
-
+/* Provider badges */
 .provider-badge {
   font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: rgba(124, 58, 237, 0.2);
-  color: #A78BFA;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.18);
+  color: #C4B5FD;
   border: 1px solid rgba(124, 58, 237, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.local-fallback-badge {
-  font-size: 11px;
-  padding: 3px 8px;
+/* Tooltip hover de foto (RF-005.2) */
+.photo-hover-tooltip {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 76px;
+  background: rgba(3, 7, 18, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
-  background: rgba(245, 158, 11, 0.2);
-  color: #F59E0B;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 4px 8px;
+  font-size: 10px;
+  color: #E2E8F0;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.photo-card:hover .photo-hover-tooltip {
+  opacity: 1;
+  transform: translateY(0);
 }

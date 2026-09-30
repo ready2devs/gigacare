@@ -25,6 +25,9 @@ thiserror = "2"
 async-trait = "0.1"
 dirs = "5"
 walkdir = "2"
+bincode = "1.3"
+img_hash = "3.2"
+bk-tree = "0.4"
 
 [features]
 default = []

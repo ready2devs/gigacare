@@ -9,6 +9,7 @@ import {
   PowerRegular,
   DataPieRegular,
   SettingsRegular,
+  CodeRegular,
   WeatherMoonRegular,
   WeatherSunnyRegular,
 } from "@fluentui/react-icons";
@@ -73,6 +74,12 @@ export const Shell: React.FC<ShellProps> = ({
       icon: <DataPieRegular />,
     },
     {
+      id: "dev_cleaning",
+      title: t("modules.dev_cleaning.title", "Dev Cleaning"),
+      subtitle: t("modules.dev_cleaning.subtitle", "Cachés, modelos y entornos"),
+      icon: <CodeRegular />,
+    },
+    {
       id: "settings",
       title: t("modules.settings.title", "Configuración"),
       subtitle: t("modules.settings.subtitle", "Ajustes y Licencia"),
@@ -86,7 +93,7 @@ export const Shell: React.FC<ShellProps> = ({
       <header className="gc-shell-header">
         <div className="gc-shell-brand">
           <span className="gc-brand-title">GigaCare</span>
-          <span className="gc-brand-badge">v1.0.0</span>
+          <span className="gc-brand-badge">v1.0.1</span>
         </div>
         <Button
           appearance="subtle"
@@ -130,7 +137,7 @@ export const Shell: React.FC<ShellProps> = ({
       {/* Status Bar */}
       <footer className="gc-status-bar">
         <span>{t("common.status", "Estado")}: {t("common.ready", "Listo")}</span>
-        <span>Windows 11 Mica Enabled • GigaCare Core v1.0.0</span>
+        <span>Windows 11 Mica Enabled • GigaCare Core v1.0.1</span>
       </footer>
     </div>
   );

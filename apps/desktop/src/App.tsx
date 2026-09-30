@@ -15,7 +15,10 @@ import { SpaceMap } from "./components/SpaceMap";
 import { PhotoCurator } from "./components/PhotoCurator";
 import { QuarantinePanel } from "./components/QuarantinePanel";
 import { SettingsPanel } from "./components/SettingsPanel";
-import { ScanResult, CleanResult } from "./types/models";
+import { DevCleaning } from "./components/DevCleaning/DevCleaning";
+import { StartupPanel } from "./components/StartupPanel";
+import { UninstallerPanel } from "./components/UninstallerPanel";
+import { ScanResult, CleanResult, OverrideMap } from "./types/models";
 
 export default function App() {
   const [isDark, setIsDark] = useState(true);
@@ -24,6 +27,7 @@ export default function App() {
   const [activeModule, setActiveModule] = useState<string>(initialMod);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [cleanResult, setCleanResult] = useState<CleanResult | null>(null);
+  const [photoOverrides, setPhotoOverrides] = useState<OverrideMap>({});
 
   const handleScanComplete = (result: ScanResult) => {
     setScanResult(result);
@@ -62,7 +66,7 @@ export default function App() {
       tag: "Aplicaciones",
     },
     {
-      title: "Curador de Fotos",
+      title: "Fotos Duplicadas",
       subtitle: "Ráfagas, Similares y Desenfoque",
       size: "2.10 GB",
       icon: <ImageMultipleRegular style={{ fontSize: "24px", color: "#A78BFA" }} />,
@@ -175,22 +179,14 @@ export default function App() {
       case "quarantine":
         return <QuarantinePanel />;
 
-      case "photos":
-        return (
-          <PhotoCurator
-            onCleanDiscarded={async (paths) => {
-              try {
-                await invoke("clean_items", { item_ids: paths });
-                setActiveModule("quarantine");
-              } catch (err) {
-                console.error("Error al enviar fotos a cuarentena:", err);
-              }
-            }}
-          />
-        );
+      case "uninstaller":
+        return <UninstallerPanel />;
 
-      case "space_map":
-        return <SpaceMap />;
+      case "startup":
+        return <StartupPanel />;
+
+      case "dev_cleaning":
+        return <DevCleaning />;
 
       case "settings":
         return <SettingsPanel />;
@@ -215,7 +211,26 @@ export default function App() {
         activeModule={activeModule}
         onModuleChange={setActiveModule}
       >
-        {renderActiveModule()}
+        {/* SpaceMap se renderiza de forma persistente para preservar estado de navegación (RF-004) */}
+        <div style={{ display: activeModule === "space_map" ? "contents" : "none" }}>
+          <SpaceMap isVisible={activeModule === "space_map"} />
+        </div>
+        {/* PhotoCurator se monta permanentemente para preservar overrides y estado de grupos (T012) */}
+        <div style={{ display: activeModule === "photos" ? "contents" : "none" }}>
+          <PhotoCurator
+            overrides={photoOverrides}
+            onOverridesChange={setPhotoOverrides}
+            onCleanDiscarded={async (paths) => {
+              try {
+                await invoke("clean_items", { item_ids: paths });
+                setActiveModule("quarantine");
+              } catch (err) {
+                console.error("Error al enviar fotos a cuarentena:", err);
+              }
+            }}
+          />
+        </div>
+        {activeModule !== "space_map" && activeModule !== "photos" && renderActiveModule()}
       </Shell>
     </FluentProvider>
   );

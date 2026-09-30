@@ -371,4 +371,28 @@ mod tests {
             other => panic!("Esperaba InvalidState: {:?}", other),
         }
     }
+
+    #[test]
+    fn test_quarantine_dir_and_restore() {
+        let tmp = tempdir().unwrap();
+        let q_dir = tmp.path().join("quarantine");
+        let mut manager = QuarantineManager::with_defaults(q_dir).unwrap();
+
+        let source_dir = tmp.path().join("my_cache_dir");
+        std::fs::create_dir_all(source_dir.join("subdir")).unwrap();
+        std::fs::write(source_dir.join("file1.txt"), b"hello").unwrap();
+        std::fs::write(source_dir.join("subdir").join("file2.txt"), b"world!").unwrap();
+
+        let entry = manager.quarantine_path(&source_dir, "dev_cleaning").unwrap();
+        assert!(!source_dir.exists(), "Source directory should be moved to quarantine");
+        assert_eq!(entry.size_bytes, 11);
+        assert_eq!(entry.source_module, "dev_cleaning");
+
+        let restored_path = manager.restore_file(&entry.id).unwrap();
+        assert_eq!(restored_path, source_dir);
+        assert!(source_dir.join("file1.txt").exists());
+        assert!(source_dir.join("subdir").join("file2.txt").exists());
+        assert_eq!(std::fs::read(source_dir.join("subdir").join("file2.txt")).unwrap(), b"world!");
+    }
+
 }

@@ -14,10 +14,23 @@ pub async fn update_config(
     config: serde_json::Value,
 ) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().await;
-    let json_str = serde_json::to_string(&config).map_err(|e| e.to_string())?;
-    let updated: AppConfig = serde_json::from_str(&json_str).map_err(|e| e.to_string())?;
-    *cfg = updated.clone();
-    Ok(updated)
+    if let Ok(full) = serde_json::from_value::<AppConfig>(config.clone()) {
+        *cfg = full;
+    } else {
+        cfg.merge_partial(&config).map_err(|e| e.to_string())?;
+    }
+
+    if let Some(home) = dirs::home_dir() {
+        let p = home.join(".gigacare").join("config.json");
+        let _ = cfg.save(&p);
+    }
+
+    let max_bytes = (cfg.quarantine.max_size_gb * 1024.0 * 1024.0 * 1024.0) as u64;
+    let mut q = state.quarantine.lock().await;
+    q.set_max_space_bytes(max_bytes);
+    let _ = q.set_retention_days(cfg.quarantine.retention_days);
+
+    Ok(cfg.clone())
 }
 
 #[tauri::command]
@@ -34,5 +47,16 @@ pub async fn import_config(
     let mut cfg = state.config.lock().await;
     let imported: AppConfig = serde_json::from_str(&json).map_err(|e| e.to_string())?;
     *cfg = imported.clone();
+
+    if let Some(home) = dirs::home_dir() {
+        let p = home.join(".gigacare").join("config.json");
+        let _ = cfg.save(&p);
+    }
+
+    let max_bytes = (cfg.quarantine.max_size_gb * 1024.0 * 1024.0 * 1024.0) as u64;
+    let mut q = state.quarantine.lock().await;
+    q.set_max_space_bytes(max_bytes);
+    let _ = q.set_retention_days(cfg.quarantine.retention_days);
+
     Ok(imported)
 }

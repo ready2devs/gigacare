@@ -61,6 +61,24 @@ vi.mock("@tauri-apps/api/core", () => ({
         return Promise.resolve([]);
       case "quarantine_stats":
         return Promise.resolve({ total_items: 0, total_bytes: 0, max_space_bytes: 5000000000 });
+      case "list_storage_devices":
+        // T003: SpaceMap ahora se renderiza persistentemente; mock necesario para evitar devList.find error
+        return Promise.resolve([
+          {
+            id: "C:",
+            label: "Disco local (C:)",
+            device_type: "local_disk",
+            root_path: "C:\\",
+            total_bytes: 500000000000,
+            used_bytes: 200000000000,
+            free_bytes: 300000000000,
+            is_removable: false,
+            icon_hint: "hard_drive",
+            is_ready: true,
+          }
+        ]);
+      case "suggest_auto_rules":
+        return Promise.resolve([]);
       default:
         return Promise.resolve({});
     }

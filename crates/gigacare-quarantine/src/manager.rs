@@ -12,8 +12,8 @@ use crate::models::{
     QuarantineEntry, QuarantineFilters, QuarantineManifest, QuarantineStats, QuarantineStatus,
 };
 
-/// Limite por defecto de espacio de cuarentena: 5 GB.
-pub const DEFAULT_MAX_SPACE_BYTES: u64 = 5 * 1024 * 1024 * 1024;
+/// Limite por defecto de espacio de cuarentena: 50 GB.
+pub const DEFAULT_MAX_SPACE_BYTES: u64 = 50 * 1024 * 1024 * 1024;
 
 /// Dias de retencion por defecto: 7 dias.
 pub const DEFAULT_RETENTION_DAYS: u32 = 7;
@@ -22,11 +22,50 @@ pub const DEFAULT_RETENTION_DAYS: u32 = 7;
 pub const MIN_RETENTION_DAYS: u32 = 1;
 pub const MAX_RETENTION_DAYS: u32 = 90;
 
-/// Mueve un archivo de forma segura entre particiones/filesystems si rename falla.
+/// Copia un directorio recursivamente.
+fn copy_dir_all(src: &Path, dst: &Path) -> std::io::Result<()> {
+    std::fs::create_dir_all(dst)?;
+    for entry in std::fs::read_dir(src)? {
+        let entry = entry?;
+        let ty = entry.file_type()?;
+        let to = dst.join(entry.file_name());
+        if ty.is_dir() {
+            copy_dir_all(&entry.path(), &to)?;
+        } else {
+            std::fs::copy(entry.path(), to)?;
+        }
+    }
+    Ok(())
+}
+
+/// Mueve un archivo o directorio de forma segura entre particiones/filesystems si rename falla.
 fn move_file_cross_fs(src: &Path, dst: &Path) -> std::io::Result<()> {
     if std::fs::rename(src, dst).is_err() {
         std::fs::copy(src, dst)?;
         std::fs::remove_file(src)?;
+    }
+    Ok(())
+}
+
+fn calc_dir_size(path: &Path) -> u64 {
+    let mut total = 0;
+    if let Ok(entries) = std::fs::read_dir(path) {
+        for entry in entries.flatten() {
+            let p = entry.path();
+            if p.is_dir() {
+                total += calc_dir_size(&p);
+            } else if let Ok(m) = p.metadata() {
+                total += m.len();
+            }
+        }
+    }
+    total
+}
+
+fn move_dir_cross_fs(src: &Path, dst: &Path) -> std::io::Result<()> {
+    if std::fs::rename(src, dst).is_err() {
+        copy_dir_all(src, dst)?;
+        std::fs::remove_dir_all(src)?;
     }
     Ok(())
 }
@@ -122,6 +161,72 @@ impl QuarantineManager {
     }
 
     /// Mueve un archivo a cuarentena, calculando su SHA-256 y registrandolo en el manifiesto.
+    /// Mueve un archivo o directorio a cuarentena registrándolo en el manifiesto.
+    pub fn quarantine_path(
+        &mut self,
+        original_path: &Path,
+        source_module: &str,
+    ) -> Result<QuarantineEntry> {
+        if !original_path.exists() {
+            return Err(QuarantineError::FileNotFound(original_path.to_path_buf()));
+        }
+
+        if original_path.is_file() {
+            return self.quarantine_file(original_path, source_module);
+        }
+
+        // Caso directorio
+        let size_bytes = calc_dir_size(original_path);
+
+        let current_bytes: u64 = self
+            .manifest
+            .entries
+            .iter()
+            .filter(|e| e.status == QuarantineStatus::Quarantined)
+            .map(|e| e.size_bytes)
+            .sum();
+
+        if current_bytes.saturating_add(size_bytes) > self.max_space_bytes {
+            return Err(QuarantineError::SpaceLimitExceeded {
+                current_bytes,
+                required_bytes: size_bytes,
+                limit_bytes: self.max_space_bytes,
+            });
+        }
+
+        let id = Uuid::new_v4().to_string();
+        let dir_name = original_path
+            .file_name()
+            .map(|f| f.to_string_lossy().to_string())
+            .unwrap_or_else(|| "dir".to_string());
+
+        let entry_dir = self.files_dir.join(&id);
+        std::fs::create_dir_all(&entry_dir)?;
+        let target_path = entry_dir.join(&dir_name);
+
+        move_dir_cross_fs(original_path, &target_path)?;
+
+        let now = Utc::now();
+        let expires_at = now + Duration::days(self.retention_days as i64);
+
+        let entry = QuarantineEntry {
+            id: id.clone(),
+            original_path: original_path.to_string_lossy().to_string(),
+            quarantine_path: target_path.to_string_lossy().to_string(),
+            sha256: format!("dir:{}", id),
+            size_bytes,
+            quarantined_at: now,
+            expires_at,
+            source_module: source_module.to_string(),
+            status: QuarantineStatus::Quarantined,
+        };
+
+        self.manifest.entries.push(entry.clone());
+        self.save_manifest()?;
+
+        Ok(entry)
+    }
+
     pub fn quarantine_file(
         &mut self,
         original_path: &Path,
@@ -203,21 +308,11 @@ impl QuarantineManager {
         }
 
         let q_path = PathBuf::from(&entry.quarantine_path);
-        if !q_path.is_file() {
+        if !q_path.exists() {
             return Err(QuarantineError::FileNotFound(q_path));
         }
 
-        let actual_hash = gigacare_hash::sha256_file(&q_path)?;
-        if actual_hash != entry.sha256 {
-            return Err(QuarantineError::IntegrityMismatch {
-                id: id.to_string(),
-                expected: entry.sha256.clone(),
-                actual: actual_hash,
-            });
-        }
-
         let original_path = PathBuf::from(&entry.original_path);
-
         if original_path.exists() {
             return Err(QuarantineError::TargetAlreadyExists(original_path));
         }
@@ -226,10 +321,24 @@ impl QuarantineManager {
             std::fs::create_dir_all(parent)?;
         }
 
-        move_file_cross_fs(&q_path, &original_path)?;
-
-        if let Some(parent) = q_path.parent() {
-            let _ = std::fs::remove_dir(parent);
+        if q_path.is_dir() {
+            move_dir_cross_fs(&q_path, &original_path)?;
+            if let Some(parent) = q_path.parent() {
+                let _ = std::fs::remove_dir_all(parent);
+            }
+        } else {
+            let actual_hash = gigacare_hash::sha256_file(&q_path)?;
+            if actual_hash != entry.sha256 {
+                return Err(QuarantineError::IntegrityMismatch {
+                    id: id.to_string(),
+                    expected: entry.sha256.clone(),
+                    actual: actual_hash,
+                });
+            }
+            move_file_cross_fs(&q_path, &original_path)?;
+            if let Some(parent) = q_path.parent() {
+                let _ = std::fs::remove_dir(parent);
+            }
         }
 
         self.manifest.entries[idx].status = QuarantineStatus::Restored;
@@ -250,11 +359,13 @@ impl QuarantineManager {
         for entry in &self.manifest.entries {
             if entry.status == QuarantineStatus::Quarantined && entry.expires_at <= now {
                 let q_path = PathBuf::from(&entry.quarantine_path);
-                if q_path.exists() {
+                if q_path.is_dir() {
+                    let _ = std::fs::remove_dir_all(&q_path);
+                } else if q_path.is_file() {
                     let _ = std::fs::remove_file(&q_path);
                 }
                 if let Some(parent) = q_path.parent() {
-                    let _ = std::fs::remove_dir(parent);
+                    let _ = std::fs::remove_dir_all(parent);
                 }
                 purged_ids.push(entry.id.clone());
             }
@@ -281,11 +392,13 @@ impl QuarantineManager {
 
         let entry = &self.manifest.entries[idx];
         let q_path = PathBuf::from(&entry.quarantine_path);
-        if q_path.exists() {
+        if q_path.is_dir() {
+            let _ = std::fs::remove_dir_all(&q_path);
+        } else if q_path.is_file() {
             let _ = std::fs::remove_file(&q_path);
         }
         if let Some(parent) = q_path.parent() {
-            let _ = std::fs::remove_dir(parent);
+            let _ = std::fs::remove_dir_all(parent);
         }
 
         self.manifest.entries.remove(idx);

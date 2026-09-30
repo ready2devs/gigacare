@@ -3,7 +3,7 @@
 exports[`GigaCare Windows E2E UI Flow > (d) Snapshot test de estructura visual contra Obsidian Dark Theme 1`] = `
 <DocumentFragment>
   <div
-    class="fui-FluentProvider fui-FluentProviderr9 ___jdtuxv0_17k0bs4 f19n0e5 fxugw4r f1o700av fk6fouc fkhj508 figsok6 f1i3iumi"
+    class="fui-FluentProvider fui-FluentProviderrc ___jdtuxv0_17k0bs4 f19n0e5 fxugw4r f1o700av fk6fouc fkhj508 figsok6 f1i3iumi"
     dir="ltr"
     style="height: 100vh;"
   >
@@ -24,7 +24,7 @@ exports[`GigaCare Windows E2E UI Flow > (d) Snapshot test de estructura visual c
           <span
             class="gc-brand-badge"
           >
-            v1.0.0
+            v1.0.1
           </span>
         </div>
         <button
@@ -298,6 +298,43 @@ exports[`GigaCare Windows E2E UI Flow > (d) Snapshot test de estructura visual c
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
+                  d="M12.97 3.68a.5.5 0 0 0-.94-.36l-5 13a.5.5 0 1 0 .94.36zM5.83 6.12c.2.18.23.5.05.7L3.16 10l2.72 3.17a.5.5 0 0 1-.76.66l-3-3.5a.5.5 0 0 1 0-.66l3-3.5a.5.5 0 0 1 .7-.05m8.34 8.26a.5.5 0 0 1-.05-.7l2.72-3.18-2.72-3.17a.5.5 0 1 1 .76-.66l3 3.5a.5.5 0 0 1 0 .66l-3 3.5a.5.5 0 0 1-.7.05"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div
+              class="gc-card-text"
+            >
+              <span
+                class="gc-card-title"
+              >
+                Dev Cleaning
+              </span>
+              <span
+                class="gc-card-subtitle"
+              >
+                Cachés, modelos y entornos
+              </span>
+            </div>
+          </div>
+          <div
+            class="gc-module-card "
+          >
+            <div
+              class="gc-card-icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                data-fui-icon=""
+                fill="currentColor"
+                height="1em"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
                   d="M1.91 7.38A8.5 8.5 0 0 1 3.7 4.3a.5.5 0 0 1 .54-.13l1.92.68a1 1 0 0 0 1.32-.76l.36-2a.5.5 0 0 1 .4-.4 9 9 0 0 1 3.55 0q.32.08.38.4l.37 2a1 1 0 0 0 1.32.76l1.92-.68a.5.5 0 0 1 .54.13 8.5 8.5 0 0 1 1.78 3.08q.08.31-.15.54l-1.56 1.32a1 1 0 0 0 0 1.52l1.56 1.32a.5.5 0 0 1 .15.54 8.5 8.5 0 0 1-1.78 3.08.5.5 0 0 1-.54.13l-1.92-.68a1 1 0 0 0-1.32.76l-.37 2a.5.5 0 0 1-.38.4 8.5 8.5 0 0 1-3.56 0 .5.5 0 0 1-.39-.4l-.36-2a1 1 0 0 0-1.32-.76l-1.92.68a.5.5 0 0 1-.54-.13 8.5 8.5 0 0 1-1.78-3.08.5.5 0 0 1 .15-.54l1.56-1.32a1 1 0 0 0 0-1.52L2.06 7.92a.5.5 0 0 1-.15-.54m1.06 0 1.3 1.1a2 2 0 0 1 0 3.04l-1.3 1.1q.45 1.19 1.25 2.16l1.6-.58a2 2 0 0 1 2.63 1.53l.3 1.67a8 8 0 0 0 2.5 0l.3-1.67a2 2 0 0 1 2.64-1.53l1.6.58a8 8 0 0 0 1.24-2.16l-1.3-1.1a2 2 0 0 1 0-3.04l1.3-1.1a8 8 0 0 0-1.25-2.16l-1.6.58a2 2 0 0 1-2.63-1.53l-.3-1.67a8 8 0 0 0-2.5 0l-.3 1.67A2 2 0 0 1 5.81 5.8l-1.6-.58a8 8 0 0 0-1.24 2.16M7.5 10a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0m1 0a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0"
                   fill="currentColor"
                 />
@@ -326,7 +363,610 @@ exports[`GigaCare Windows E2E UI Flow > (d) Snapshot test de estructura visual c
             class="gc-transition-container"
           >
             <div
-              style="display: flex; flex-direction: column; align-items: center;"
+              style="display: none;"
+            >
+              <div
+                class="space-map-container"
+                data-testid="spacelens-root"
+              >
+                <div
+                  class="spacelens-welcome-container"
+                  data-testid="spacelens-welcome-screen"
+                >
+                  <div
+                    class="spacelens-lupa-3d-wrapper"
+                  >
+                    <div
+                      class="spacelens-lupa-glow-ring"
+                    />
+                    <div
+                      class="spacelens-lupa-glass-badge"
+                    >
+                      <svg
+                        class="spacelens-lupa-svg"
+                        fill="none"
+                        viewBox="0 0 120 120"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <defs>
+                          <lineargradient
+                            gradientUnits="userSpaceOnUse"
+                            id="lupaRimGrad"
+                            x1="0"
+                            x2="120"
+                            y1="0"
+                            y2="120"
+                          >
+                            <stop
+                              stop-color="#00E5FF"
+                              stop-opacity="0.95"
+                            />
+                            <stop
+                              offset="0.33"
+                              stop-color="#A855F7"
+                              stop-opacity="0.9"
+                            />
+                            <stop
+                              offset="0.66"
+                              stop-color="#3B82F6"
+                              stop-opacity="0.85"
+                            />
+                            <stop
+                              offset="1"
+                              stop-color="#FFFFFF"
+                              stop-opacity="0.7"
+                            />
+                          </lineargradient>
+                          <lineargradient
+                            gradientUnits="userSpaceOnUse"
+                            id="lupaLensGrad"
+                            x1="20"
+                            x2="80"
+                            y1="20"
+                            y2="80"
+                          >
+                            <stop
+                              stop-color="#38BDF8"
+                              stop-opacity="0.4"
+                            />
+                            <stop
+                              offset="0.5"
+                              stop-color="#7C3AED"
+                              stop-opacity="0.25"
+                            />
+                            <stop
+                              offset="1"
+                              stop-color="#0B0F19"
+                              stop-opacity="0.35"
+                            />
+                          </lineargradient>
+                          <filter
+                            height="140%"
+                            id="lupaShadow"
+                            width="140%"
+                            x="-20%"
+                            y="-20%"
+                          >
+                            <fedropshadow
+                              dx="0"
+                              dy="4"
+                              flood-color="#7C3AED"
+                              flood-opacity="0.5"
+                              stdDeviation="6"
+                            />
+                          </filter>
+                        </defs>
+                        <circle
+                          cx="54"
+                          cy="54"
+                          fill="rgba(124,58,237,0.15)"
+                          filter="url(#lupaShadow)"
+                          r="34"
+                        />
+                        <circle
+                          cx="54"
+                          cy="54"
+                          fill="url(#lupaLensGrad)"
+                          r="34"
+                          stroke="url(#lupaRimGrad)"
+                          stroke-width="12"
+                        />
+                        <path
+                          d="M34 38 A 24 24 0 0 1 68 28"
+                          stroke="#FFFFFF"
+                          stroke-linecap="round"
+                          stroke-opacity="0.7"
+                          stroke-width="4"
+                        />
+                        <path
+                          d="M44 32 A 10 10 0 0 1 58 28"
+                          stroke="#FFFFFF"
+                          stroke-linecap="round"
+                          stroke-opacity="0.4"
+                          stroke-width="2.5"
+                        />
+                        <rect
+                          fill="url(#lupaRimGrad)"
+                          height="34"
+                          rx="7.5"
+                          transform="rotate(-45 78 74)"
+                          width="15"
+                          x="78"
+                          y="74"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  <h1
+                    class="spacelens-welcome-title"
+                  >
+                    Visualizando tu espacio
+                  </h1>
+                  <p
+                    class="spacelens-welcome-subtitle"
+                  >
+                    Selecciona una unidad o carpeta para comenzar el análisis
+                  </p>
+                  <div
+                    class="spacelens-welcome-device-picker"
+                  >
+                    <span
+                      class="spacelens-welcome-picker-label"
+                    >
+                      Unidad a analizar:
+                    </span>
+                    <div
+                      class="spacelens-welcome-select-wrapper"
+                      data-testid="welcome-drive-select"
+                    >
+                      <div
+                        class="spacelens-drive-selector-container"
+                      >
+                        <button
+                          aria-expanded="false"
+                          aria-haspopup="listbox"
+                          class="spacelens-drive-trigger "
+                          data-testid="spacelens-drive-selector-button"
+                          type="button"
+                        >
+                          <span
+                            class="spacelens-drive-icon"
+                          >
+                            💾
+                          </span>
+                          <span
+                            class="spacelens-trigger-label"
+                          >
+                            Seleccionar unidad
+                          </span>
+                          <span
+                            class="spacelens-trigger-chevron "
+                          >
+                            ▾
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                    <button
+                      class="spacelens-welcome-folder-btn"
+                      data-testid="welcome-pick-folder-btn"
+                      title="Seleccionar una carpeta específica para analizar"
+                      type="button"
+                    >
+                      📁 Elegir carpeta...
+                    </button>
+                  </div>
+                  <button
+                    class="spacelens-welcome-scan-btn"
+                    data-testid="welcome-start-scan-btn"
+                    type="button"
+                  >
+                    <span
+                      class="spacelens-scan-btn-pulse-wave"
+                    />
+                    <span
+                      class="spacelens-scan-btn-text"
+                    >
+                      Analizar
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              style="display: none;"
+            >
+              <div
+                class="photo-curator-container"
+                data-testid="photo-curator"
+              >
+                <div
+                  class="photo-curator-header"
+                  data-testid="photo-curator-header"
+                >
+                  <div
+                    class="photo-curator-header-top"
+                  >
+                    <div>
+                      <div
+                        style="display: flex; align-items: center; gap: 8px;"
+                      >
+                        <span
+                          class="curator-title-gradient"
+                        >
+                          Curador de Fotos Inteligente & Análisis de Calidad
+                        </span>
+                      </div>
+                      <div
+                        class="curator-subtitle"
+                      >
+                        <span
+                          class="sparkle-icon"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                            data-fui-icon=""
+                            fill="currentColor"
+                            height="1em"
+                            viewBox="0 0 20 20"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M7.4 12.8a1.04 1.04 0 0 0 1.59-.51l.45-1.37a2.3 2.3 0 0 1 1.47-1.48l1.4-.45A1.04 1.04 0 0 0 12.25 7l-1.37-.45A2.3 2.3 0 0 1 9.4 5.08L8.95 3.7a1 1 0 0 0-.82-.68 1.04 1.04 0 0 0-1.15.7l-.46 1.4a2.3 2.3 0 0 1-1.44 1.45L3.7 7a1.04 1.04 0 0 0 .02 1.97l1.37.45a2.3 2.3 0 0 1 1.48 1.48l.46 1.4q.1.3.38.5m.08-7.4.53-1.38.44 1.37a3.3 3.3 0 0 0 2.12 2.12l1.4.53-1.38.45a3.3 3.3 0 0 0-2.11 2.11l-.53 1.38-.45-1.38a3.3 3.3 0 0 0-2.1-2.12L4 7.96 5.4 7.5a3.4 3.4 0 0 0 2.08-2.12m6.06 11.45a.8.8 0 0 0 1.22-.4l.25-.76a1.1 1.1 0 0 1 .68-.68l.77-.25a.8.8 0 0 0-.02-1.52l-.77-.25a1.1 1.1 0 0 1-.68-.68l-.25-.77a.8.8 0 0 0-1.52.01l-.24.76a1.1 1.1 0 0 1-.67.68l-.77.25a.8.8 0 0 0 0 1.52l.77.25a1.1 1.1 0 0 1 .68.68l.25.77q.09.25.3.4m-.92-2.8-.18-.05.19-.06a2.1 2.1 0 0 0 1.3-1.32l.06-.18.05.18a2 2 0 0 0 1.32 1.32l.2.06-.18.06a2 2 0 0 0-1.32 1.32l-.06.18-.06-.18a2 2 0 0 0-1.32-1.32"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </span>
+                        <span>
+                          Agrupación de fotos similares, detección de fotos desenfocadas y selección automática de las mejores tomas.
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      style="display: flex; align-items: center; gap: 8px;"
+                    >
+                      <button
+                        class="fui-Button r1f29ykk"
+                        data-testid="select-curator-folder-btn"
+                        style="border-color: rgb(0, 229, 255); color: rgb(0, 229, 255); font-weight: 600; font-size: 12px;"
+                        type="button"
+                      >
+                        <span
+                          class="fui-Button__icon rywnvv2 ___963sj20_1qpm2bl f1nizpg2"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                            data-fui-icon=""
+                            fill="currentColor"
+                            height="1em"
+                            viewBox="0 0 20 20"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M3 5.5v6.6l1.5-2.6A3 3 0 0 1 7.1 8H15v-.5c0-.83-.67-1.5-1.5-1.5h-4a.5.5 0 0 1-.35-.15l-1.71-1.7A.5.5 0 0 0 7.09 4H4.5C3.67 4 3 4.67 3 5.5m1.28 10.48.22.02h9.4a2 2 0 0 0 1.73-1l2.17-3.75A1.5 1.5 0 0 0 16.5 9H7.1a2 2 0 0 0-1.73 1L3.2 13.75a1.5 1.5 0 0 0 1.08 2.23M2 14.46V5.5A2.5 2.5 0 0 1 4.5 3h2.59c.4 0 .78.16 1.06.44L9.7 5h3.79A2.5 2.5 0 0 1 16 7.5V8h.5a2.5 2.5 0 0 1 2.16 3.75L16.5 15.5a3 3 0 0 1-2.6 1.5H4.5a2.5 2.5 0 0 1-1.62-.6A2.5 2.5 0 0 1 2 14.46"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </span>
+                        Cambiar Carpeta
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgb(148, 163, 184);"
+                  >
+                    <span>
+                      Carpeta activa:
+                    </span>
+                    <span
+                      style="font-family: monospace; color: rgb(56, 189, 248); background: rgba(0, 229, 255, 0.08); padding: 2px 8px; border-radius: 4px; max-width: 500px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                      title="C:\\Album DJI Action 5 - Salvador 2026\\Fotos DJI"
+                    >
+                      C:\\Album DJI Action 5 - Salvador 2026\\Fotos DJI
+                    </span>
+                  </div>
+                  <div
+                    class="photo-curator-controls"
+                  >
+                    <div
+                      style="display: flex; align-items: center; gap: 10px;"
+                    >
+                      <span
+                        class="fui-Text ___13vod6f_typzub0 fk6fouc fy9rknc fwrc4pm figsok6 fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                        style="color: rgb(148, 163, 184); font-weight: 600;"
+                      >
+                        Conservar por grupo:
+                      </span>
+                      <div
+                        class="fui-Dropdown ___11d5zms_mmbwks0 ft85np5 f1ewtqcl ftuwxu6 f1exfvgq f10pi13n fmrv4ls f14a1fxs f3e99gv fhljsf7 f1gw3sf2 f13zj6fq f1mdlcz9 f1a7op3 f1gboi2j f1cjjd47 ffyw7fx f1kp91vd f1ibwz09 f1mnjydx f13evtba f1yk9hq fhwpy7i f14ee0xe f1xhbsuh fsrmcvb f1t3k7v9 fjw5xc1 f1xdyd5c fatpbeo fb7uyps fx04xgm f1c7in40 f1ibeo51 f18qfb8s f1m082s7 fxugw4r f1c1zstj fhz96rm fvcxoqz f1ub3y4t f1l4zc64 f1m52nbi fvs00aa f1assf6x f1z0osm6 f4ruux4 f1b473iu f381qr8 f1qzcrsd ft4skwv"
+                      >
+                        <button
+                          aria-expanded="false"
+                          class="fui-Dropdown__button ___17rkbkg_1w377vp f122n59 f1c21dwh f3bhgqh f1ewtqcl f19n0e5 f14mj54c f1k6fduh f13qh94s fk6fouc f12nh0o2 f1869bpl f1o700av fly5x3f ftqa4ok fy9rknc figsok6 fwrc4pm fye6m5k"
+                          data-tabster="{"focusable":{"ignoreKeydown":{"Escape":false}}}"
+                          data-testid="keep-count-dropdown"
+                          role="combobox"
+                          tabindex="0"
+                          type="button"
+                          value="1 mejor"
+                        >
+                          1 mejor
+                          <span
+                            class="fui-Dropdown__expandIcon ___wu62wz0_l0el1i0 f1ewtqcl fxkbij4 ftgm304 f4ybsrx f12w6cgp f8bv1bt fvc9v3g f1h9en5y"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                              data-fui-icon=""
+                              fill="currentColor"
+                              height="1em"
+                              viewBox="0 0 20 20"
+                              width="1em"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M15.85 7.65c.2.2.2.5 0 .7l-5.46 5.49a.55.55 0 0 1-.78 0L4.15 8.35a.5.5 0 1 1 .7-.7L10 12.8l5.15-5.16c.2-.2.5-.2.7 0"
+                                fill="currentColor"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                        <button
+                          aria-label="Clear selection"
+                          class="fui-Dropdown__clearButton rticfuj ___1lpkr9v_1god6cv f1ewtqcl fxkbij4 fjseox f4ybsrx f12w6cgp f8bv1bt fvc9v3g f1h9en5y"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                            data-fui-icon=""
+                            fill="currentColor"
+                            height="1em"
+                            viewBox="0 0 20 20"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="m4.09 4.22.06-.07a.5.5 0 0 1 .63-.06l.07.06L10 9.29l5.15-5.14a.5.5 0 0 1 .63-.06l.07.06c.18.17.2.44.06.63l-.06.07L10.71 10l5.14 5.15c.18.17.2.44.06.63l-.06.07a.5.5 0 0 1-.63.06l-.07-.06L10 10.71l-5.15 5.14a.5.5 0 0 1-.63.06l-.07-.06a.5.5 0 0 1-.06-.63l.06-.07L9.29 10 4.15 4.85a.5.5 0 0 1-.06-.63l.06-.07z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      class="photo-curator-actions"
+                    >
+                      <button
+                        class="fui-Button r1f29ykk ___kf30qf0_c1pzpb0 f1bg9a2p f1jj8ep1 f15xbau f4ikngz fy0fskl f1s2aq7o fdrzuqr f15x8b5r f1falr9n f12mpcsy f1gwvigk f1jnshp0 f18rmfxp fvgxktp fphbwmw f19vpps7 fv5swzo f1al02dq f1jct5ie f13txml0 f1ncddno f1z04ada f1axfvow f1uhomfy fy9mucy f1g9va8i fwgvudy fom6jww f14ptb23 f9dbb4x f3qs60o fwd1oij f5u9ap2 f1cyfu5x f127ot8j f19etb0b f4f984j f3d22hf fw441p0 fj8k9ua fifrq0d f196mwp7 f1l6uprw fnekfq fa9u7a5 f1m71e0y fw24f3 f1nznrny fq8nxuu ftoixeo f1ao3jkc fpmuzpx f168odog"
+                        disabled=""
+                        type="button"
+                      >
+                        <span
+                          class="fui-Button__icon rywnvv2 ___963sj20_1qpm2bl f1nizpg2"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                            data-fui-icon=""
+                            fill="currentColor"
+                            height="1em"
+                            viewBox="0 0 20 20"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M13.73 14.44a6.5 6.5 0 1 1 .7-.7l3.42 3.4a.5.5 0 0 1-.63.77l-.07-.06zm-.71-.71A5.5 5.5 0 0 0 15 9.5a5.5 5.5 0 1 0-1.98 4.23"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </span>
+                        Detectar Similares
+                      </button>
+                      <button
+                        class="fui-Button r1f29ykk ___hak8ra0_1wqosrr f1bg9a2p f1p3nwhy f11589ue f1q5o8ev f1pdflbu f1s2aq7o f1falr9n f1s2uweq fr80ssc f1ukrpxl fecsdlb fvgxktp f1jct5ie fhvnf4x fb6swo4 f1klyf7k f232fm2 f1uhomfy f14ptb23 f9dbb4x f3qs60o fwd1oij f5u9ap2 f1cyfu5x f1h3a8gf fj8k9ua fifrq0d f196mwp7 f1l6uprw fnekfq fa9u7a5 fw24f3 f1nznrny fq8nxuu ftoixeo f1ao3jkc fpmuzpx fdrzuqr f15x8b5r fphbwmw f19vpps7 fv5swzo f1al02dq fy9mucy f1g9va8i fwgvudy fom6jww f127ot8j f19etb0b f4f984j f3d22hf fw441p0 f1m71e0y f168odog f17t0x8g f194v5ow f1qgg65p fk7jm04 fhgccpy f32wu9k fu5nqqq f13prjl2 f1czftr5 f1nl83rv fixhny3 feygou5"
+                        disabled=""
+                        style="background-color: rgb(124, 58, 237); color: rgb(248, 250, 252); font-weight: 600;"
+                        type="button"
+                      >
+                        <span
+                          class="fui-Button__icon rywnvv2 ___963sj20_1qpm2bl f1nizpg2"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                            data-fui-icon=""
+                            fill="currentColor"
+                            height="1em"
+                            viewBox="0 0 20 20"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M11.41 3.64a.5.5 0 0 0 0-.71L9.3.8a.5.5 0 0 0-.7.7l1 1a7.5 7.5 0 0 0-4.08 13.5.5.5 0 0 0 .6-.8A6.5 6.5 0 0 1 10.14 3.5L8.59 5.04a.5.5 0 0 0 .7.7zM8.6 16.36a.5.5 0 0 0 0 .71l2.12 2.12a.5.5 0 0 0 .7-.7l-1-1a7.5 7.5 0 0 0 4.07-13.5.5.5 0 1 0-.59.8q.37.28.7.61a6.5 6.5 0 0 1-4.73 11.1l1.55-1.55a.5.5 0 1 0-.7-.7z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </span>
+                        Curado Recursivo Automático
+                      </button>
+                      <button
+                        class="fui-Button r1f29ykk ___hak8ra0_1wqosrr f1bg9a2p f1p3nwhy f11589ue f1q5o8ev f1pdflbu f1s2aq7o f1falr9n f1s2uweq fr80ssc f1ukrpxl fecsdlb fvgxktp f1jct5ie fhvnf4x fb6swo4 f1klyf7k f232fm2 f1uhomfy f14ptb23 f9dbb4x f3qs60o fwd1oij f5u9ap2 f1cyfu5x f1h3a8gf fj8k9ua fifrq0d f196mwp7 f1l6uprw fnekfq fa9u7a5 fw24f3 f1nznrny fq8nxuu ftoixeo f1ao3jkc fpmuzpx fdrzuqr f15x8b5r fphbwmw f19vpps7 fv5swzo f1al02dq fy9mucy f1g9va8i fwgvudy fom6jww f127ot8j f19etb0b f4f984j f3d22hf fw441p0 f1m71e0y f168odog f17t0x8g f194v5ow f1qgg65p fk7jm04 fhgccpy f32wu9k fu5nqqq f13prjl2 f1czftr5 f1nl83rv fixhny3 feygou5"
+                        disabled=""
+                        style="background-color: rgb(0, 229, 255); color: rgb(11, 15, 25); font-weight: 700;"
+                        type="button"
+                      >
+                        <span
+                          class="fui-Button__icon rywnvv2 ___963sj20_1qpm2bl f1nizpg2"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                            data-fui-icon=""
+                            fill="currentColor"
+                            height="1em"
+                            viewBox="0 0 20 20"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M5.7 3.95a2.42 2.42 0 0 1 4.3-1 2.42 2.42 0 0 1 4.3 1l.12.63.41.08A2.7 2.7 0 0 1 17 7.3v.2a2.5 2.5 0 0 1-.8 1.84 3.25 3.25 0 0 1-.77 6.08l-.04.19A2.97 2.97 0 0 1 10 16.68a2.97 2.97 0 0 1-5.39-1.07l-.03-.19a3.25 3.25 0 0 1-.78-6.08A2.5 2.5 0 0 1 3 7.5v-.2c0-1.28.9-2.4 2.17-2.64l.4-.08zM14 10.9v.59c0 .83-.67 1.5-1.5 1.5h-2v2.03a1.97 1.97 0 0 0 3.9.38l.11-.5a.5.5 0 0 1 .4-.4l.28-.06a2.25 2.25 0 0 0-.28-4.44 1.5 1.5 0 0 1-.91.9m-1 0a1.5 1.5 0 1 1 1.9-1.96A1.5 1.5 0 0 0 16 7.5v-.2c0-.8-.57-1.5-1.37-1.66l-.73-.15a.5.5 0 0 1-.39-.4l-.2-.95a1.42 1.42 0 0 0-2.81.28V12h2a.5.5 0 0 0 .5-.5zM9.5 6V4.42a1.42 1.42 0 0 0-2.82-.28l-.19.96a.5.5 0 0 1-.4.39l-.72.15A1.7 1.7 0 0 0 4 7.3v.2C4 8.33 4.67 9 5.5 9h1c.83 0 1.5.67 1.5 1.5v.59a1.5 1.5 0 1 1-1 0v-.59a.5.5 0 0 0-.5-.5H5.25a2.25 2.25 0 0 0-.44 4.45l.29.06c.2.04.35.2.39.4l.1.5a1.97 1.97 0 0 0 3.91-.38V7h-.59a1.5 1.5 0 1 1 0-1zM8 6.5a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0M7.5 13a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1m6-3a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </span>
+                        Re-analizar con IA
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="photo-groups-grid"
+                >
+                  <div
+                    style="display: flex; flex-direction: column; gap: 16px; align-items: center; padding: 20px 0px;"
+                  >
+                    <div
+                      style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;"
+                    >
+                      <div
+                        class="skeleton-card"
+                        data-testid="skeleton-photo-card"
+                        style="min-width: 220px; max-width: 260px; border-radius: 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(8px);"
+                      >
+                        <div
+                          class="skeleton-thumbnail shimmer"
+                          style="width: 100%; height: 170px; background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);"
+                        />
+                        <div
+                          style="padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 8px;"
+                        >
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 70%; height: 12px; border-radius: 4px; background: rgba(255, 255, 255, 0.08);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 10px; border-radius: 4px; background: rgba(255, 255, 255, 0.06); margin-top: 2px;"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="skeleton-card"
+                        data-testid="skeleton-photo-card"
+                        style="min-width: 220px; max-width: 260px; border-radius: 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(8px);"
+                      >
+                        <div
+                          class="skeleton-thumbnail shimmer"
+                          style="width: 100%; height: 170px; background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);"
+                        />
+                        <div
+                          style="padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 8px;"
+                        >
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 70%; height: 12px; border-radius: 4px; background: rgba(255, 255, 255, 0.08);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 10px; border-radius: 4px; background: rgba(255, 255, 255, 0.06); margin-top: 2px;"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="skeleton-card"
+                        data-testid="skeleton-photo-card"
+                        style="min-width: 220px; max-width: 260px; border-radius: 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(8px);"
+                      >
+                        <div
+                          class="skeleton-thumbnail shimmer"
+                          style="width: 100%; height: 170px; background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);"
+                        />
+                        <div
+                          style="padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 8px;"
+                        >
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 70%; height: 12px; border-radius: 4px; background: rgba(255, 255, 255, 0.08);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 10px; border-radius: 4px; background: rgba(255, 255, 255, 0.06); margin-top: 2px;"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        class="skeleton-card"
+                        data-testid="skeleton-photo-card"
+                        style="min-width: 220px; max-width: 260px; border-radius: 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(8px);"
+                      >
+                        <div
+                          class="skeleton-thumbnail shimmer"
+                          style="width: 100%; height: 170px; background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);"
+                        />
+                        <div
+                          style="padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 8px;"
+                        >
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 70%; height: 12px; border-radius: 4px; background: rgba(255, 255, 255, 0.08);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05);"
+                          />
+                          <div
+                            class="skeleton-line shimmer"
+                            style="width: 100%; height: 10px; border-radius: 4px; background: rgba(255, 255, 255, 0.06); margin-top: 2px;"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      style="display: flex; align-items: center; gap: 8px; color: rgb(148, 163, 184); font-size: 13px;"
+                    >
+                      <span>
+                        Buscando fotos similares y evaluando nitidez...
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 900px; margin: 0px auto; gap: 28px;"
             >
               <div
                 class="smartcare-container"
@@ -362,6 +1002,258 @@ exports[`GigaCare Windows E2E UI Flow > (d) Snapshot test de estructura visual c
                   </span>
                 </button>
               </div>
+              <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; width: 100%; padding: 0px 10px;"
+              >
+                <div
+                  style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); backdrop-filter: blur(12px); transition: transform 0.2s ease, border-color 0.2s ease;"
+                >
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: center;"
+                  >
+                    <div
+                      style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0, 229, 255, 0.08); display: flex; align-items: center; justify-content: center;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                        data-fui-icon=""
+                        fill="currentColor"
+                        height="1em"
+                        style="font-size: 24px; color: rgb(0, 229, 255);"
+                        viewBox="0 0 20 20"
+                        width="1em"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M17.91 2.18c.2.2.2.51 0 .7l-5.32 5.33a4.5 4.5 0 0 1-.34 6l-.66.66-2.09 3.48a.5.5 0 0 1-.78.1l-7.07-7.08a.5.5 0 0 1 .1-.78L5.22 8.5l.66-.66a4.5 4.5 0 0 1 5.99-.34l5.32-5.32c.2-.2.51-.2.71 0M6.24 8.9l4.95 4.95.36-.35A3.5 3.5 0 1 0 6.6 8.55zm-.78.63L2.8 11.12l6.16 6.17 1.6-2.66z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </div>
+                    <div
+                      class="fui-Badge r1iycov ___1qrk6pj_prmhlw0 fk6fouc f13mqy1h fl43uef fcpl73t fq2vo04 fd461yt fupdldz f16xkysk faj9fo0 f161y7kd f1c8dzaj f1619yhw f1sl6hi9"
+                    >
+                      Sistema
+                    </div>
+                  </div>
+                  <div>
+                    <span
+                      class="fui-Text ___5uvdjg0_m9724x0 fk6fouc fkhj508 f1i3iumi flh3ekv fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(248, 250, 252); display: block;"
+                    >
+                      Archivos Temporales
+                    </span>
+                    <span
+                      class="fui-Text ___13vod6f_typzub0 fk6fouc fy9rknc fwrc4pm figsok6 fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(148, 163, 184);"
+                    >
+                      %TEMP%, Prefetch, Crash Dumps
+                    </span>
+                  </div>
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;"
+                  >
+                    <span
+                      style="font-size: 11px; color: rgb(100, 116, 139); text-transform: uppercase;"
+                    >
+                      Estimado
+                    </span>
+                    <span
+                      class="fui-Text ___avd72o0_19fptjg fk6fouc fod5ikn faaz57k flh3ekv fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(0, 229, 255);"
+                    >
+                      1.45 GB
+                    </span>
+                  </div>
+                </div>
+                <div
+                  style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); backdrop-filter: blur(12px); transition: transform 0.2s ease, border-color 0.2s ease;"
+                >
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: center;"
+                  >
+                    <div
+                      style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0, 229, 255, 0.08); display: flex; align-items: center; justify-content: center;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                        data-fui-icon=""
+                        fill="currentColor"
+                        height="1em"
+                        style="font-size: 24px; color: rgb(56, 189, 248);"
+                        viewBox="0 0 20 20"
+                        width="1em"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M6.98 3c.47 0 .91.18 1.24.51L9.71 5h5.79A2.5 2.5 0 0 1 18 7.5v7a2.5 2.5 0 0 1-2.5 2.5H15v.54c0 .25-.2.46-.46.46h-3.08l-.1-.01a.46.46 0 0 1-.36-.45V17H4.5A2.5 2.5 0 0 1 2 14.5v-9A2.5 2.5 0 0 1 4.5 3zM13 13a1 1 0 0 0-1 1v3h2v-3a1 1 0 0 0-1-1M8.15 7.56A1.5 1.5 0 0 1 7.09 8H3v6.5c0 .83.67 1.5 1.5 1.5H11v-2a2 2 0 1 1 4 0v2h.5c.83 0 1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5H9.7zM13 12h-1.5a.5.5 0 0 1 0-1H13zm1.5-2a.5.5 0 0 1 0 1H13v-1zM13 10h-1.5a.5.5 0 0 1 0-1H13zm1.5-2a.5.5 0 0 1 0 1H13V8zM13 8h-1.5a.5.5 0 0 1 0-1H13zM4.5 4C3.67 4 3 4.67 3 5.5V7h4.09a.5.5 0 0 0 .35-.15L8.79 5.5 7.51 4.22A.8.8 0 0 0 6.98 4z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </div>
+                    <div
+                      class="fui-Badge r1iycov ___1qrk6pj_prmhlw0 fk6fouc f13mqy1h fl43uef fcpl73t fq2vo04 fd461yt fupdldz f16xkysk faj9fo0 f161y7kd f1c8dzaj f1619yhw f1sl6hi9"
+                    >
+                      Aplicaciones
+                    </div>
+                  </div>
+                  <div>
+                    <span
+                      class="fui-Text ___5uvdjg0_m9724x0 fk6fouc fkhj508 f1i3iumi flh3ekv fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(248, 250, 252); display: block;"
+                    >
+                      Caché de Mensajería
+                    </span>
+                    <span
+                      class="fui-Text ___13vod6f_typzub0 fk6fouc fy9rknc fwrc4pm figsok6 fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(148, 163, 184);"
+                    >
+                      WhatsApp, Telegram Desktop
+                    </span>
+                  </div>
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;"
+                  >
+                    <span
+                      style="font-size: 11px; color: rgb(100, 116, 139); text-transform: uppercase;"
+                    >
+                      Estimado
+                    </span>
+                    <span
+                      class="fui-Text ___avd72o0_19fptjg fk6fouc fod5ikn faaz57k flh3ekv fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(0, 229, 255);"
+                    >
+                      820 MB
+                    </span>
+                  </div>
+                </div>
+                <div
+                  style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); backdrop-filter: blur(12px); transition: transform 0.2s ease, border-color 0.2s ease;"
+                >
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: center;"
+                  >
+                    <div
+                      style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0, 229, 255, 0.08); display: flex; align-items: center; justify-content: center;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                        data-fui-icon=""
+                        fill="currentColor"
+                        height="1em"
+                        style="font-size: 24px; color: rgb(167, 139, 250);"
+                        viewBox="0 0 20 20"
+                        width="1em"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M11.5 7.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2M3 6a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3zm3-2a2 2 0 0 0-2 2v6q0 .56.28 1.02l3.3-3.31a2 2 0 0 1 2.83 0l3.31 3.3A2 2 0 0 0 14 12V6a2 2 0 0 0-2-2zm3.7 6.41a1 1 0 0 0-1.4 0l-3.32 3.31A2 2 0 0 0 6 14h6a2 2 0 0 0 1.02-.28zM8 17a3 3 0 0 1-2.24-1h6.74a3.5 3.5 0 0 0 3.5-3.5V5.76A3 3 0 0 1 17 8v4.5a4.5 4.5 0 0 1-4.5 4.5z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </div>
+                    <div
+                      class="fui-Badge r1iycov ___1qrk6pj_prmhlw0 fk6fouc f13mqy1h fl43uef fcpl73t fq2vo04 fd461yt fupdldz f16xkysk faj9fo0 f161y7kd f1c8dzaj f1619yhw f1sl6hi9"
+                    >
+                      Imágenes
+                    </div>
+                  </div>
+                  <div>
+                    <span
+                      class="fui-Text ___5uvdjg0_m9724x0 fk6fouc fkhj508 f1i3iumi flh3ekv fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(248, 250, 252); display: block;"
+                    >
+                      Fotos Duplicadas
+                    </span>
+                    <span
+                      class="fui-Text ___13vod6f_typzub0 fk6fouc fy9rknc fwrc4pm figsok6 fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(148, 163, 184);"
+                    >
+                      Ráfagas, Similares y Desenfoque
+                    </span>
+                  </div>
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;"
+                  >
+                    <span
+                      style="font-size: 11px; color: rgb(100, 116, 139); text-transform: uppercase;"
+                    >
+                      Estimado
+                    </span>
+                    <span
+                      class="fui-Text ___avd72o0_19fptjg fk6fouc fod5ikn faaz57k flh3ekv fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(0, 229, 255);"
+                    >
+                      2.10 GB
+                    </span>
+                  </div>
+                </div>
+                <div
+                  style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); backdrop-filter: blur(12px); transition: transform 0.2s ease, border-color 0.2s ease;"
+                >
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: center;"
+                  >
+                    <div
+                      style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0, 229, 255, 0.08); display: flex; align-items: center; justify-content: center;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="fui-Icon ___9ctc0p0_1xvj9ao f1w7gpdv fez10in f1dd5bof"
+                        data-fui-icon=""
+                        fill="currentColor"
+                        height="1em"
+                        style="font-size: 24px; color: rgb(245, 158, 11);"
+                        viewBox="0 0 20 20"
+                        width="1em"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M3.5 4C2.67 4 2 4.67 2 5.5v2C2 8.33 2.67 9 3.5 9h2C6.33 9 7 8.33 7 7.5v-2C7 4.67 6.33 4 5.5 4zM3 5.5c0-.28.22-.5.5-.5h2c.28 0 .5.22.5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5zM9.5 5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-6 4c-.83 0-1.5.67-1.5 1.5v2c0 .83.67 1.5 1.5 1.5h2c.83 0 1.5-.67 1.5-1.5v-2c0-.83-.67-1.5-1.5-1.5zM3 12.5c0-.28.22-.5.5-.5h2c.28 0 .5.22.5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5zm6.5-.5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </div>
+                    <div
+                      class="fui-Badge r1iycov ___1qrk6pj_prmhlw0 fk6fouc f13mqy1h fl43uef fcpl73t fq2vo04 fd461yt fupdldz f16xkysk faj9fo0 f161y7kd f1c8dzaj f1619yhw f1sl6hi9"
+                    >
+                      Limpieza
+                    </div>
+                  </div>
+                  <div>
+                    <span
+                      class="fui-Text ___5uvdjg0_m9724x0 fk6fouc fkhj508 f1i3iumi flh3ekv fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(248, 250, 252); display: block;"
+                    >
+                      Residuales de Apps
+                    </span>
+                    <span
+                      class="fui-Text ___13vod6f_typzub0 fk6fouc fy9rknc fwrc4pm figsok6 fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(148, 163, 184);"
+                    >
+                      Archivos huérfanos de desinstalación
+                    </span>
+                  </div>
+                  <div
+                    style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;"
+                  >
+                    <span
+                      style="font-size: 11px; color: rgb(100, 116, 139); text-transform: uppercase;"
+                    >
+                      Estimado
+                    </span>
+                    <span
+                      class="fui-Text ___avd72o0_19fptjg fk6fouc fod5ikn faaz57k flh3ekv fpgzoln f1w7gpdv f6juhto f1gl81tg f2jf649"
+                      style="color: rgb(0, 229, 255);"
+                    >
+                      450 MB
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </main>
@@ -373,7 +1265,7 @@ exports[`GigaCare Windows E2E UI Flow > (d) Snapshot test de estructura visual c
           Estado: Listo
         </span>
         <span>
-          Windows 11 Mica Enabled • GigaCare Core v1.0.0
+          Windows 11 Mica Enabled • GigaCare Core v1.0.1
         </span>
       </footer>
     </div>

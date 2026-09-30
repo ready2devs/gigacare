@@ -1,0 +1,11 @@
+[package]
+name = "gigacare-treemap"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Motor de layout de visualización Squarified Treemap y Sunburst para GigaCare"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
