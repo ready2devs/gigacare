@@ -102,7 +102,13 @@ export default function App() {
         invoke<any>("dev_clean_scan").catch(() => null),
         invoke<any>("ml_model_scan").catch(() => null),
         invoke<any>("python_env_scan").catch(() => null),
-        invoke<InstalledApp[]>("list_installed_apps_with_usage").catch(() => null),
+        (async () => {
+          try {
+            const apps = await invoke<InstalledApp[]>("list_installed_apps_with_usage");
+            if (apps && apps.length > 0) return apps;
+          } catch {}
+          return await invoke<InstalledApp[]>("list_installed_apps").catch(() => null);
+        })(),
       ]);
 
       if (junkRes) setJunkData(junkRes);

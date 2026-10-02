@@ -139,26 +139,17 @@ export const CleanupReviewModal: React.FC<CleanupReviewModalProps> = ({
     if (!appsData) return [];
     return appsData
       .filter((app) => {
+        const days = typeof app.last_used_days === "number" ? app.last_used_days : null;
+        const count = typeof app.usage_count === "number" ? app.usage_count : null;
+
         if (appFilter === "1_year") {
-          return (
-            (app.last_used_days !== undefined && app.last_used_days > 365) ||
-            app.last_used_at === null ||
-            app.last_used_at === undefined
-          );
+          return (days !== null && days >= 365) || (days === null && !app.last_used_at);
         }
         if (appFilter === "2_years") {
-          return (
-            (app.last_used_days !== undefined && app.last_used_days > 730) ||
-            app.last_used_at === null ||
-            app.last_used_at === undefined
-          );
+          return (days !== null && days >= 730) || (days === null && !app.last_used_at);
         }
         if (appFilter === "never") {
-          return (
-            app.last_used_at === null ||
-            app.last_used_at === undefined ||
-            (app.usage_count !== undefined && app.usage_count !== null && app.usage_count <= 1)
-          );
+          return (count !== null && count === 0) || (days === null && !app.last_used_at);
         }
         return false;
       })

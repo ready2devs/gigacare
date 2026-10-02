@@ -2866,27 +2866,28 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
         console.warn("[Bridge] Fallback real installed apps:", err);
       }
 
+      const nowMs = Date.now();
       const apps: InstalledApp[] = [
-        { id: "app-1", name: "Visual Studio Code", version: "1.92.2", publisher: "Microsoft Corporation", size_bytes: 480 * 1024 * 1024, source: "registry" },
-        { id: "app-2", name: "Google Chrome", version: "128.0.6613.120", publisher: "Google LLC", size_bytes: 650 * 1024 * 1024, source: "registry" },
-        { id: "app-3", name: "Node.js (LTS)", version: "20.17.0", publisher: "OpenJS Foundation", size_bytes: 280 * 1024 * 1024, source: "registry" },
-        { id: "app-4", name: "Git for Windows", version: "2.46.0", publisher: "The Git Development Community", size_bytes: 310 * 1024 * 1024, source: "registry" },
-        { id: "app-5", name: "Steam", version: "2.10.91.91", publisher: "Valve Corporation", size_bytes: 2500 * 1024 * 1024, source: "registry_wow64" },
-        { id: "app-6", name: "Spotify Music", version: "1.2.45.454", publisher: "Spotify AB", size_bytes: 320 * 1024 * 1024, source: "store" },
-        { id: "app-7", name: "Discord", version: "1.0.9142", publisher: "Discord Inc.", size_bytes: 290 * 1024 * 1024, source: "registry" },
-        { id: "app-8", name: "Docker Desktop", version: "4.34.2", publisher: "Docker Inc.", size_bytes: 1400 * 1024 * 1024, source: "registry" },
-        { id: "app-9", name: "Windows Terminal", version: "1.21.2361.0", publisher: "Microsoft Corporation", size_bytes: 85 * 1024 * 1024, source: "uwp" },
-        { id: "app-10", name: "Microsoft Teams", version: "24215.1007.3073.3323", publisher: "Microsoft Corporation", size_bytes: 410 * 1024 * 1024, source: "uwp" },
-        { id: "app-11", name: "7-Zip 24.08 (x64)", version: "24.08", publisher: "Igor Pavlov", size_bytes: 15 * 1024 * 1024, source: "registry" },
-        { id: "app-12", name: "VLC Media Player", version: "3.0.21", publisher: "VideoLAN", size_bytes: 180 * 1024 * 1024, source: "registry" },
-        { id: "app-13", name: "PowerToys (Preview) x64", version: "0.84.1", publisher: "Microsoft Corporation", size_bytes: 520 * 1024 * 1024, source: "registry" },
-        { id: "app-14", name: "Postman", version: "11.10.0", publisher: "Postman, Inc.", size_bytes: 490 * 1024 * 1024, source: "registry" },
-        { id: "app-15", name: "Obsidian", version: "1.6.7", publisher: "Dynalist Inc.", size_bytes: 260 * 1024 * 1024, source: "registry" },
-        { id: "app-16", name: "Blender 4.2 LTS", version: "4.2.1", publisher: "Blender Foundation", size_bytes: 980 * 1024 * 1024, source: "registry" },
-        { id: "app-17", name: "Figma Agent", version: "0.4.0", publisher: "Figma, Inc.", size_bytes: 110 * 1024 * 1024, source: "registry" },
-        { id: "app-18", name: "Notepad++ (64-bit x64)", version: "8.6.9", publisher: "Don HO", size_bytes: 25 * 1024 * 1024, source: "registry" },
-        { id: "app-19", name: "WhatsApp Desktop", version: "2.2435.6.0", publisher: "Meta Platforms, Inc.", size_bytes: 350 * 1024 * 1024, source: "uwp" },
-        { id: "app-20", name: "Telegram Desktop", version: "5.4.1", publisher: "Telegram FZ-LLC", size_bytes: 145 * 1024 * 1024, source: "registry" },
+        { id: "app-1", name: "Visual Studio Code", version: "1.92.2", publisher: "Microsoft Corporation", size_bytes: 480 * 1024 * 1024, source: "registry", last_used_days: 1, last_used_at: new Date(nowMs - 86400000).toISOString(), usage_count: 140 },
+        { id: "app-2", name: "Google Chrome", version: "128.0.6613.120", publisher: "Google LLC", size_bytes: 650 * 1024 * 1024, source: "registry", last_used_days: 0, last_used_at: new Date(nowMs).toISOString(), usage_count: 420 },
+        { id: "app-3", name: "Node.js (LTS)", version: "20.17.0", publisher: "OpenJS Foundation", size_bytes: 280 * 1024 * 1024, source: "registry", last_used_days: 2, last_used_at: new Date(nowMs - 2 * 86400000).toISOString(), usage_count: 55 },
+        { id: "app-4", name: "Git for Windows", version: "2.46.0", publisher: "The Git Development Community", size_bytes: 310 * 1024 * 1024, source: "registry", last_used_days: 5, last_used_at: new Date(nowMs - 5 * 86400000).toISOString(), usage_count: 80 },
+        { id: "app-5", name: "Steam", version: "2.10.91.91", publisher: "Valve Corporation", size_bytes: 2500 * 1024 * 1024, source: "registry_wow64", last_used_days: 410, last_used_at: new Date(nowMs - 410 * 86400000).toISOString(), usage_count: 4 },
+        { id: "app-6", name: "Spotify Music", version: "1.2.45.454", publisher: "Spotify AB", size_bytes: 320 * 1024 * 1024, source: "store", last_used_days: 95, last_used_at: new Date(nowMs - 95 * 86400000).toISOString(), usage_count: 15 },
+        { id: "app-7", name: "Discord", version: "1.0.9142", publisher: "Discord Inc.", size_bytes: 290 * 1024 * 1024, source: "registry", last_used_days: 12, last_used_at: new Date(nowMs - 12 * 86400000).toISOString(), usage_count: 32 },
+        { id: "app-8", name: "Docker Desktop", version: "4.34.2", publisher: "Docker Inc.", size_bytes: 1400 * 1024 * 1024, source: "registry", last_used_days: 380, last_used_at: new Date(nowMs - 380 * 86400000).toISOString(), usage_count: 2 },
+        { id: "app-9", name: "Windows Terminal", version: "1.21.2361.0", publisher: "Microsoft Corporation", size_bytes: 85 * 1024 * 1024, source: "uwp", last_used_days: 0, last_used_at: new Date(nowMs).toISOString(), usage_count: 95 },
+        { id: "app-10", name: "Microsoft Teams", version: "24215.1007.3073.3323", publisher: "Microsoft Corporation", size_bytes: 410 * 1024 * 1024, source: "uwp", last_used_days: 180, last_used_at: new Date(nowMs - 180 * 86400000).toISOString(), usage_count: 6 },
+        { id: "app-11", name: "7-Zip 24.08 (x64)", version: "24.08", publisher: "Igor Pavlov", size_bytes: 15 * 1024 * 1024, source: "registry", last_used_days: 20, last_used_at: new Date(nowMs - 20 * 86400000).toISOString(), usage_count: 11 },
+        { id: "app-12", name: "VLC Media Player", version: "3.0.21", publisher: "VideoLAN", size_bytes: 180 * 1024 * 1024, source: "registry", last_used_days: 450, last_used_at: new Date(nowMs - 450 * 86400000).toISOString(), usage_count: 1 },
+        { id: "app-13", name: "PowerToys (Preview) x64", version: "0.84.1", publisher: "Microsoft Corporation", size_bytes: 520 * 1024 * 1024, source: "registry", last_used_days: 4, last_used_at: new Date(nowMs - 4 * 86400000).toISOString(), usage_count: 45 },
+        { id: "app-14", name: "Postman", version: "11.10.0", publisher: "Postman, Inc.", size_bytes: 490 * 1024 * 1024, source: "registry", last_used_days: 395, last_used_at: new Date(nowMs - 395 * 86400000).toISOString(), usage_count: 3 },
+        { id: "app-15", name: "Obsidian", version: "1.6.7", publisher: "Dynalist Inc.", size_bytes: 260 * 1024 * 1024, source: "registry", last_used_days: 3, last_used_at: new Date(nowMs - 3 * 86400000).toISOString(), usage_count: 88 },
+        { id: "app-16", name: "Blender 4.2 LTS", version: "4.2.1", publisher: "Blender Foundation", size_bytes: 980 * 1024 * 1024, source: "registry", last_used_days: 740, last_used_at: new Date(nowMs - 740 * 86400000).toISOString(), usage_count: 1 },
+        { id: "app-17", name: "Figma Agent", version: "0.4.0", publisher: "Figma, Inc.", size_bytes: 110 * 1024 * 1024, source: "registry", last_used_days: 7, last_used_at: new Date(nowMs - 7 * 86400000).toISOString(), usage_count: 24 },
+        { id: "app-18", name: "Notepad++ (64-bit x64)", version: "8.6.9", publisher: "Don HO", size_bytes: 25 * 1024 * 1024, source: "registry", last_used_days: 8, last_used_at: new Date(nowMs - 8 * 86400000).toISOString(), usage_count: 19 },
+        { id: "app-19", name: "WhatsApp Desktop", version: "2.2435.6.0", publisher: "Meta Platforms, Inc.", size_bytes: 350 * 1024 * 1024, source: "uwp", last_used_days: 0, last_used_at: new Date(nowMs).toISOString(), usage_count: 110 },
+        { id: "app-20", name: "Telegram Desktop", version: "5.4.1", publisher: "Telegram FZ-LLC", size_bytes: 145 * 1024 * 1024, source: "registry", last_used_days: 2, last_used_at: new Date(nowMs - 2 * 86400000).toISOString(), usage_count: 60 },
       ];
       return apps;
     }
