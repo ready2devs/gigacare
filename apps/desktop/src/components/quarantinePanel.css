@@ -135,3 +135,192 @@
   align-items: center;
   gap: 8px;
 }
+
+
+/* ==========================================================================
+   Visualización de Origen en Cuarentena
+   ========================================================================== */
+
+.quarantine-item-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #F8FAFC;
+}
+
+.quarantine-item-origin-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  overflow: hidden;
+}
+
+.quarantine-origin-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #00E5FF;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(0, 229, 255, 0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.quarantine-origin-path-text {
+  font-size: 12px;
+  color: #CBD5E1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modal de Visualización de Origen */
+.quarantine-origin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  padding: 24px;
+  animation: gc-fade-slide 0.2s ease-out;
+}
+
+.quarantine-origin-modal-card {
+  width: 100%;
+  max-width: 680px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #111827 0%, #0B0F19 100%);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 229, 255, 0.2);
+  overflow: hidden;
+  color: #E2E8F0;
+}
+
+.quarantine-origin-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.quarantine-origin-icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  color: #00E5FF;
+  font-size: 18px;
+}
+
+.quarantine-origin-close-btn {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94A3B8;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  transition: all 0.15s ease;
+}
+
+.quarantine-origin-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #EF4444;
+  color: #F87171;
+}
+
+.quarantine-origin-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.quarantine-origin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quarantine-origin-field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quarantine-origin-code-box {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12.5px;
+  color: #00E5FF;
+  word-break: break-all;
+  user-select: all;
+}
+
+.quarantine-origin-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: #00E5FF;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quarantine-origin-copy-btn:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00E5FF;
+}
+
+.quarantine-origin-subcard {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quarantine-origin-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(11, 15, 25, 0.7);
+}

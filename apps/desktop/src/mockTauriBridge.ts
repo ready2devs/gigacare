@@ -23,6 +23,7 @@ import {
   ActivationResult,
   StartupItem,
   InstalledApp,
+  JunkFilesScanResult,
 } from "./types/models";
 import { LayoutNode, Rect, Point, TreemapRect, SunburstArc } from "./types/treemap";
 import {
@@ -52,7 +53,7 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     },
     quarantine: {
       retention_days: 7,
-      max_size_gb: 5,
+      max_size_gb: 50,
     },
     photos: {
       keep_count: 1,
@@ -82,7 +83,22 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
   const getStoredConfig = (): AppConfig => {
     try {
       const data = localStorage.getItem("gigacare_config");
-      return data ? JSON.parse(data) : DEFAULT_CONFIG;
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (parsed?.quarantine && (parsed.quarantine.max_size_gb === 5 || !parsed.quarantine.max_size_gb)) {
+          parsed.quarantine.max_size_gb = 50;
+          try { localStorage.setItem("gigacare_config", JSON.stringify(parsed)); } catch {}
+        }
+        return {
+          ...DEFAULT_CONFIG,
+          ...parsed,
+          quarantine: {
+            ...DEFAULT_CONFIG.quarantine,
+            ...(parsed.quarantine || {}),
+          },
+        };
+      }
+      return DEFAULT_CONFIG;
     } catch {
       return DEFAULT_CONFIG;
     }
@@ -276,7 +292,259 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
       return true;
     }
 
+    // Manejo de apertura de rutas en el Explorador de Windows (plugin:opener / open_path)
+    if (
+      cmd === "plugin:opener|open_path" ||
+      cmd === "open_path" ||
+      cmd === "plugin:opener|reveal_item_in_dir" ||
+      cmd === "reveal_item_in_dir"
+    ) {
+      const targetPath = args?.path || args?.item;
+      if (targetPath) {
+        try {
+          const resp = await fetch(`/api/reveal-path?path=${encodeURIComponent(targetPath)}`);
+          if (resp.ok) {
+            return await resp.json();
+          }
+        } catch (err) {
+          console.warn("[Bridge] Fallback reveal-path error:", err);
+        }
+      }
+      return { success: true };
+    }
+
     // 2. Comandos de SmartCare y Escaneo
+    if (cmd === "scan_junk_files") {
+      const mockResult: JunkFilesScanResult = {
+        total_junk_bytes: 8520000000,
+        scan_timestamp: new Date().toISOString(),
+        categories: [
+          {
+            category_id: "temp_files",
+            display_name: "Archivos Temporales",
+            total_bytes: 2450000000,
+            safe_bytes: 2450000000,
+            items: [
+              {
+                id: "C:\\Users\\Luciano\\AppData\\Local\\Temp\\tmp_001.tmp",
+                display_name: "tmp_001.tmp",
+                path: "C:\\Users\\Luciano\\AppData\\Local\\Temp\\tmp_001.tmp",
+                size_bytes: 1450000000,
+                safe: true,
+                age_days: 14,
+                age_display: "2 semanas",
+                source_type: "temp_user",
+              },
+              {
+                id: "C:\\Windows\\Temp\\system_log.tmp",
+                display_name: "system_log.tmp",
+                path: "C:\\Windows\\Temp\\system_log.tmp",
+                size_bytes: 1000000000,
+                safe: true,
+                age_days: 60,
+                age_display: "2 meses",
+                source_type: "temp_system",
+              },
+            ],
+          },
+          {
+            category_id: "windows_leftovers",
+            display_name: "Restos de Windows",
+            total_bytes: 1800000000,
+            safe_bytes: 1800000000,
+            items: [
+              {
+                id: "C:\\Windows\\SoftwareDistribution\\Download\\cab_update.cab",
+                display_name: "cab_update.cab",
+                path: "C:\\Windows\\SoftwareDistribution\\Download\\cab_update.cab",
+                size_bytes: 1800000000,
+                safe: true,
+                age_days: 30,
+                age_display: "1 mes",
+                source_type: "windows_update",
+              },
+            ],
+          },
+          {
+            category_id: "download_installers",
+            display_name: "Instaladores en Descargas",
+            total_bytes: 750000000,
+            safe_bytes: 750000000,
+            items: [
+              {
+                id: "C:\\Users\\Luciano\\Downloads\\Git-2.46.0-64-bit.exe",
+                display_name: "Git-2.46.0-64-bit.exe",
+                path: "C:\\Users\\Luciano\\Downloads\\Git-2.46.0-64-bit.exe",
+                size_bytes: 750000000,
+                safe: true,
+                age_days: 90,
+                age_display: "3 meses",
+                source_type: "download_installer",
+              },
+            ],
+          },
+          {
+            category_id: "browser_caches",
+            display_name: "Cachés de Navegadores",
+            total_bytes: 2520000000,
+            safe_bytes: 2520000000,
+            items: [
+              {
+                id: "C:\\Chrome\\Default\\Cache_Data",
+                display_name: "Google Chrome (Caché principal)",
+                path: "C:\\Chrome\\Default\\Cache_Data",
+                size_bytes: 1800000000,
+                safe: true,
+                source_type: "browser_cache",
+              },
+            ],
+          },
+          {
+            category_id: "messaging_cache",
+            display_name: "Cachés de Mensajería",
+            total_bytes: 600000000,
+            safe_bytes: 600000000,
+            items: [
+              {
+                id: "C:\\WhatsApp\\Cache\\media_1.mp4",
+                display_name: "media_1.mp4",
+                path: "C:\\WhatsApp\\Cache\\media_1.mp4",
+                size_bytes: 600000000,
+                safe: true,
+                age_days: 45,
+                age_display: "1 mes",
+                source_type: "messaging_cache",
+              },
+            ],
+          },
+          {
+            category_id: "app_residuals",
+            display_name: "Residuales de Aplicaciones",
+            total_bytes: 400000000,
+            safe_bytes: 0,
+            items: [
+              {
+                id: "C:\\Users\\Luciano\\AppData\\Local\\OldApp",
+                display_name: "OldApp",
+                path: "C:\\Users\\Luciano\\AppData\\Local\\OldApp",
+                size_bytes: 400000000,
+                safe: false,
+                source_type: "app_residual",
+              },
+            ],
+          },
+          {
+            category_id: "prefetch",
+            display_name: "Prefetch",
+            total_bytes: 120000000,
+            safe_bytes: 0,
+            informational: true,
+            items: [
+              {
+                id: "C:\\Windows\\Prefetch\\APP.EXE-12345.pf",
+                display_name: "APP.EXE-12345.pf",
+                path: "C:\\Windows\\Prefetch\\APP.EXE-12345.pf",
+                size_bytes: 120000000,
+                safe: false,
+                source_type: "prefetch",
+              },
+            ],
+          },
+        ],
+        browsers: [
+          {
+            browser_name: "Google Chrome",
+            browser_id: "chrome",
+            installed: true,
+            total_all_profiles_bytes: 1800000000,
+            profiles: [
+              {
+                profile_name: "Default",
+                profile_path: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default",
+                total_size_bytes: 1800000000,
+                cache_entries: [
+                  {
+                    cache_type: "cache",
+                    display_name: "Caché principal",
+                    path: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache_Data",
+                    size_bytes: 1200000000,
+                    safe: true,
+                  },
+                  {
+                    cache_type: "code_cache",
+                    display_name: "Caché de código",
+                    path: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Code Cache",
+                    size_bytes: 400000000,
+                    safe: true,
+                  },
+                  {
+                    cache_type: "gpu_cache",
+                    display_name: "GPUCache",
+                    path: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\GPUCache",
+                    size_bytes: 200000000,
+                    safe: true,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            browser_name: "Microsoft Edge",
+            browser_id: "edge",
+            installed: true,
+            total_all_profiles_bytes: 720000000,
+            profiles: [
+              {
+                profile_name: "Default",
+                profile_path: "C:\\Users\\Luciano\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default",
+                total_size_bytes: 720000000,
+                cache_entries: [
+                  {
+                    cache_type: "cache",
+                    display_name: "Caché principal",
+                    path: "C:\\Users\\Luciano\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Cache_Data",
+                    size_bytes: 500000000,
+                    safe: true,
+                  },
+                  {
+                    cache_type: "gpu_cache",
+                    display_name: "GPUCache",
+                    path: "C:\\Users\\Luciano\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\GPUCache",
+                    size_bytes: 220000000,
+                    safe: true,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      return mockResult;
+    }
+
+    if (cmd === "scan_browser_caches") {
+      return [
+        {
+          browser_name: "Google Chrome",
+          browser_id: "chrome",
+          installed: true,
+          total_all_profiles_bytes: 1800000000,
+          profiles: [],
+        },
+      ];
+    }
+
+    if (cmd === "clean_browser_cache") {
+      return {
+        scan_id: "browser-clean-" + args?.browser_id,
+        timestamp: new Date().toISOString(),
+        items_moved: 142,
+        items_failed: 0,
+        bytes_freed: 1800000000,
+        errors: [],
+      };
+    }
+
     if (cmd === "scan_smart_care" || cmd === "scan_module") {
       scanCancelRequested = false;
 
@@ -525,10 +793,12 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     if (cmd === "quarantine_stats") {
       const entries = getStoredQuarantine();
       const totalBytes = entries.reduce((acc, e) => acc + (e.size_bytes || 0), 0);
+      const cfg = getStoredConfig();
+      const maxGb = cfg?.quarantine?.max_size_gb || 50;
       const stats: QuarantineStats = {
         total_items: entries.length,
         total_bytes: totalBytes,
-        max_space_bytes: 5368709120, // 5 GB
+        max_space_bytes: Math.round(maxGb * 1024 * 1024 * 1024),
         oldest_quarantined_at: entries.length > 0 ? entries[entries.length - 1].quarantined_at : undefined,
       };
       return stats;
@@ -562,6 +832,7 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               initialDir: args?.options?.defaultPath || "",
+              title: args?.options?.title || "Selecciona la carpeta para analizar en GigaCare",
             }),
           });
           if (resp.ok) {
@@ -1946,7 +2217,34 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     if (cmd === "update_config") {
       const updated = args?.config || {};
       const current = getStoredConfig();
-      const merged = { ...current, ...updated };
+      const merged: AppConfig = {
+        ...current,
+        ...updated,
+        scanning: {
+          ...current.scanning,
+          ...(updated.scanning || {}),
+        },
+        quarantine: {
+          ...current.quarantine,
+          ...(updated.quarantine || {}),
+        },
+        photos: {
+          ...current.photos,
+          ...(updated.photos || {}),
+        },
+        ai_providers: {
+          ...current.ai_providers,
+          ...(updated.ai_providers || {}),
+        },
+        byok: {
+          ...current.byok,
+          ...(updated.byok || {}),
+        },
+        space_map: {
+          ...current.space_map,
+          ...(updated.space_map || {}),
+        },
+      };
       setStoredConfig(merged);
       return merged;
     }
@@ -1987,17 +2285,35 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
 
     // 8. Elementos de Inicio & Apps
     if (cmd === "list_startup_items") {
+      try {
+        const resp = await fetch("/api/real-startup-items");
+        if (resp.ok) {
+          const realItems: StartupItem[] = await resp.json();
+          if (Array.isArray(realItems) && realItems.length > 0) {
+            return realItems;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real startup items:", err);
+      }
+
       const items: StartupItem[] = [
         { id: "st-1", name: "Microsoft OneDrive", path: "C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe", source: "registry_hkcu", impact: "high", enabled: true, protected: false },
-        { id: "st-2", name: "Discord", path: "C:\\Users\\Luciano\\AppData\\Local\\Discord\\app-1.0.9142\\Discord.exe", source: "registry_hkcu", impact: "medium", enabled: true, protected: false },
-        { id: "st-3", name: "Spotify", path: "C:\\Users\\Luciano\\AppData\\Roaming\\Spotify\\Spotify.exe", source: "registry_hkcu", impact: "low", enabled: false, protected: false },
-        { id: "st-4", name: "Seguridad de Windows", path: "C:\\Windows\\System32\\SecurityHealthSystray.exe", source: "registry_hklm", impact: "low", enabled: true, protected: true },
+        { id: "st-2", name: "Docker Desktop", path: "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe -Autostart", source: "registry_hkcu", impact: "high", enabled: true, protected: false },
+        { id: "st-3", name: "Discord", path: "C:\\Users\\Luciano\\AppData\\Local\\Discord\\app-1.0.9142\\Discord.exe", source: "registry_hkcu", impact: "medium", enabled: true, protected: false },
+        { id: "st-4", name: "Spotify", path: "C:\\Users\\Luciano\\AppData\\Roaming\\Spotify\\Spotify.exe", source: "registry_hkcu", impact: "low", enabled: false, protected: false },
+        { id: "st-5", name: "Steam Client Bootstrapper", path: "C:\\Program Files (x86)\\Steam\\steam.exe -silent", source: "registry_hkcu", impact: "medium", enabled: false, protected: false },
+        { id: "st-6", name: "Epic Games Launcher", path: "C:\\Program Files (x86)\\Epic Games\\Launcher\\Portal\\Binaries\\Win64\\EpicGamesLauncher.exe -silent", source: "registry_hkcu", impact: "medium", enabled: false, protected: false },
+        { id: "st-7", name: "Ollama", path: "C:\\Users\\Luciano\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Ollama.lnk", source: "startup_folder", impact: "medium", enabled: true, protected: false },
+        { id: "st-8", name: "Google Chrome Auto Launch", path: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe --no-startup-window", source: "registry_hkcu", impact: "low", enabled: true, protected: false },
+        { id: "st-9", name: "Seguridad de Windows", path: "C:\\Windows\\System32\\SecurityHealthSystray.exe", source: "registry_hklm", impact: "high", enabled: true, protected: true },
+        { id: "st-10", name: "AMD Software Notification", path: "C:\\Program Files\\AMD\\CNext\\CNext\\RadeonSoftware.exe", source: "registry_hklm", impact: "low", enabled: true, protected: false },
       ];
       return items;
     }
 
     if (cmd === "toggle_startup_item") {
-      if (args?.item_id === "st-4") {
+      if (args?.item_id === "st-4" || String(args?.item_id).toLowerCase().includes("securityhealth")) {
         throw new Error("El servicio de Seguridad de Windows está protegido y no se puede desactivar.");
       }
       return { success: true };
@@ -2320,16 +2636,57 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     }
 
     if (cmd === "list_installed_apps") {
+      try {
+        const resp = await fetch("/api/real-installed-apps");
+        if (resp.ok) {
+          const realApps: InstalledApp[] = await resp.json();
+          if (Array.isArray(realApps) && realApps.length > 0) {
+            return realApps;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real installed apps:", err);
+      }
+
       const apps: InstalledApp[] = [
-        { id: "app-1", name: "Visual Studio Code", version: "1.92.2", publisher: "Microsoft Corporation", size_bytes: 480 * 1024 * 1024 },
-        { id: "app-2", name: "Google Chrome", version: "128.0.6613.120", publisher: "Google LLC", size_bytes: 650 * 1024 * 1024 },
-        { id: "app-3", name: "Node.js (LTS)", version: "20.17.0", publisher: "OpenJS Foundation", size_bytes: 280 * 1024 * 1024 },
-        { id: "app-4", name: "Git for Windows", version: "2.46.0", publisher: "The Git Development Community", size_bytes: 310 * 1024 * 1024 },
+        { id: "app-1", name: "Visual Studio Code", version: "1.92.2", publisher: "Microsoft Corporation", size_bytes: 480 * 1024 * 1024, source: "registry" },
+        { id: "app-2", name: "Google Chrome", version: "128.0.6613.120", publisher: "Google LLC", size_bytes: 650 * 1024 * 1024, source: "registry" },
+        { id: "app-3", name: "Node.js (LTS)", version: "20.17.0", publisher: "OpenJS Foundation", size_bytes: 280 * 1024 * 1024, source: "registry" },
+        { id: "app-4", name: "Git for Windows", version: "2.46.0", publisher: "The Git Development Community", size_bytes: 310 * 1024 * 1024, source: "registry" },
+        { id: "app-5", name: "Steam", version: "2.10.91.91", publisher: "Valve Corporation", size_bytes: 2500 * 1024 * 1024, source: "registry_wow64" },
+        { id: "app-6", name: "Spotify Music", version: "1.2.45.454", publisher: "Spotify AB", size_bytes: 320 * 1024 * 1024, source: "store" },
+        { id: "app-7", name: "Discord", version: "1.0.9142", publisher: "Discord Inc.", size_bytes: 290 * 1024 * 1024, source: "registry" },
+        { id: "app-8", name: "Docker Desktop", version: "4.34.2", publisher: "Docker Inc.", size_bytes: 1400 * 1024 * 1024, source: "registry" },
+        { id: "app-9", name: "Windows Terminal", version: "1.21.2361.0", publisher: "Microsoft Corporation", size_bytes: 85 * 1024 * 1024, source: "uwp" },
+        { id: "app-10", name: "Microsoft Teams", version: "24215.1007.3073.3323", publisher: "Microsoft Corporation", size_bytes: 410 * 1024 * 1024, source: "uwp" },
+        { id: "app-11", name: "7-Zip 24.08 (x64)", version: "24.08", publisher: "Igor Pavlov", size_bytes: 15 * 1024 * 1024, source: "registry" },
+        { id: "app-12", name: "VLC Media Player", version: "3.0.21", publisher: "VideoLAN", size_bytes: 180 * 1024 * 1024, source: "registry" },
+        { id: "app-13", name: "PowerToys (Preview) x64", version: "0.84.1", publisher: "Microsoft Corporation", size_bytes: 520 * 1024 * 1024, source: "registry" },
+        { id: "app-14", name: "Postman", version: "11.10.0", publisher: "Postman, Inc.", size_bytes: 490 * 1024 * 1024, source: "registry" },
+        { id: "app-15", name: "Obsidian", version: "1.6.7", publisher: "Dynalist Inc.", size_bytes: 260 * 1024 * 1024, source: "registry" },
+        { id: "app-16", name: "Blender 4.2 LTS", version: "4.2.1", publisher: "Blender Foundation", size_bytes: 980 * 1024 * 1024, source: "registry" },
+        { id: "app-17", name: "Figma Agent", version: "0.4.0", publisher: "Figma, Inc.", size_bytes: 110 * 1024 * 1024, source: "registry" },
+        { id: "app-18", name: "Notepad++ (64-bit x64)", version: "8.6.9", publisher: "Don HO", size_bytes: 25 * 1024 * 1024, source: "registry" },
+        { id: "app-19", name: "WhatsApp Desktop", version: "2.2435.6.0", publisher: "Meta Platforms, Inc.", size_bytes: 350 * 1024 * 1024, source: "uwp" },
+        { id: "app-20", name: "Telegram Desktop", version: "5.4.1", publisher: "Telegram FZ-LLC", size_bytes: 145 * 1024 * 1024, source: "registry" },
       ];
       return apps;
     }
     if (cmd === "uninstall_app") {
-      return { success: true, message: `Desinstalación completada para ${args?.app_id}` };
+      try {
+        const resp = await fetch("/api/real-uninstall-app", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ app_id: args?.app_id }),
+        });
+        if (resp.ok) {
+          const res = await resp.json();
+          return res;
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real-uninstall-app:", err);
+      }
+      return { success: true, message: `Desinstalador iniciado para ${args?.app_id}` };
     }
 
     if (cmd === "scan_residuals") {

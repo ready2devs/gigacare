@@ -68,7 +68,7 @@ export const SpaceMapQuarantineTab: React.FC = () => {
       setStats({
         total_items: 2,
         total_bytes: 452457600,
-        max_space_bytes: 5 * 1024 * 1024 * 1024,
+        max_space_bytes: 50 * 1024 * 1024 * 1024,
       });
     } finally {
       setLoading(false);
@@ -142,7 +142,7 @@ export const SpaceMapQuarantineTab: React.FC = () => {
     );
   }
 
-  const maxBytes = stats?.max_space_bytes || 5 * 1024 * 1024 * 1024;
+  const maxBytes = stats?.max_space_bytes || 50 * 1024 * 1024 * 1024;
   const totalBytes = stats?.total_bytes || entries.reduce((acc, e) => acc + e.size_bytes, 0);
   const ratio = Math.min(1, maxBytes > 0 ? totalBytes / maxBytes : 0);
 

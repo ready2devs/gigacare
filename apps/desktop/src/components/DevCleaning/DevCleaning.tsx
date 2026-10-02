@@ -3,15 +3,17 @@ import { useTranslation } from "react-i18next";
 import { DevCleanTab } from "./DevCleanTab";
 import { ModelsTab } from "./ModelsTab";
 import { PythonTab } from "./PythonTab";
+import { SmartCareAnalysis } from "../../types/models";
 import "./devcleaning.css";
 
 export type DevCleaningTabId = "caches" | "models" | "python";
 
-interface DevCleaningProps {
+export interface DevCleaningProps {
   onRecovered?: (bytes: number) => void;
+  smartCareAnalysis?: SmartCareAnalysis | null;
 }
 
-export const DevCleaning: React.FC<DevCleaningProps> = ({ onRecovered }) => {
+export const DevCleaning: React.FC<DevCleaningProps> = ({ onRecovered, smartCareAnalysis }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<DevCleaningTabId>("caches");
 
@@ -50,7 +52,7 @@ export const DevCleaning: React.FC<DevCleaningProps> = ({ onRecovered }) => {
       </div>
 
       {/* Active Tab View */}
-      {activeTab === "caches" && <DevCleanTab onRecovered={onRecovered} />}
+      {activeTab === "caches" && <DevCleanTab onRecovered={onRecovered} smartCareAnalysis={smartCareAnalysis} />}
       {activeTab === "models" && <ModelsTab onRecovered={onRecovered} />}
       {activeTab === "python" && <PythonTab onRecovered={onRecovered} />}
     </div>

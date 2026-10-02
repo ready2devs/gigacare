@@ -192,6 +192,14 @@ export interface InstalledApp {
   publisher: string;
   install_date?: string;
   size_bytes?: number;
+  /** Fuente de detección: registro, WOW64, UWP o Microsoft Store */
+  source?: "registry" | "registry_wow64" | "uwp" | "store";
+  /** Nombre para mostrar (alias de name, compatibilidad con backend T006-T007) */
+  display_name?: string;
+  last_used_at?: string;
+  usage_count?: number;
+  last_used_days?: number;
+  usage_source?: string;
 }
 
 export interface UninstallResult {
@@ -307,6 +315,14 @@ export interface SpaceMapConfig {
   preview_threshold_mb: number;
 }
 
+export interface SmartCareConfig {
+  model_unused_threshold_days: number;
+  python_unused_threshold_days: number;
+  app_unused_threshold_days: number;
+  analysis_cache_hours: number;
+  enable_drive_health: boolean;
+}
+
 export interface AppConfig {
   version: number;
   scanning: ScanningConfig;
@@ -317,6 +333,7 @@ export interface AppConfig {
   space_map: SpaceMapConfig;
   theme: "obsidian_dark" | "light" | string;
   language: "es" | "en" | string;
+  smartcare?: SmartCareConfig;
 }
 
 // ─────────────────────────── Licencia ─────────────────────────────
@@ -456,3 +473,156 @@ export interface DetectedPattern {
   remaining_matches: number;
   toast_message: string; // "¿Deseas aislar automáticamente los 14 archivos restantes?"
 }
+
+// ─────────────────────────── Junk Files ──────────────────────────
+
+/** Entrada individual de caché de un navegador */
+export interface BrowserCacheEntry {
+  cache_type: "cache" | "code_cache" | "gpu_cache" | "service_worker" | string;
+  display_name: string;       // "Caché principal", "Caché de código", etc.
+  path: string;
+  size_bytes: number;
+  safe: boolean;
+}
+
+/** Perfil individual de un navegador (Default, Profile 1, etc.) */
+export interface BrowserProfile {
+  profile_name: string;
+  profile_path: string;
+  cache_entries: BrowserCacheEntry[];
+  total_size_bytes: number;
+}
+
+/** Resultado de escaneo de caché de un navegador */
+export interface BrowserCacheProfile {
+  browser_name: string;       // "Google Chrome", "Microsoft Edge", etc.
+  browser_id: string;         // "chrome", "edge", "firefox", "brave", "opera", "vivaldi"
+  installed: boolean;         // true si se detectó el directorio de perfiles
+  profiles: BrowserProfile[];
+  total_all_profiles_bytes: number;
+}
+
+/** Item individual dentro de una categoría de junk files */
+export interface JunkItem {
+  id: string;                 // path o identificador único
+  display_name: string;       // nombre legible del archivo/grupo
+  path: string;
+  size_bytes: number;
+  safe: boolean;              // true = "Seguro", false = "Revisar"
+  age_days?: number;
+  age_display?: string;       // "2 meses", "1 mes", etc.
+  source_type?: string;       // "temp_user", "temp_system", "crash_dump", etc.
+}
+
+/** Categoría de junk files (resultado de un sub-escáner) */
+export interface JunkCategory {
+  category_id: string;        // "temp_files", "windows_leftovers", "download_installers", etc.
+  display_name: string;       // "Archivos Temporales", "Restos de Windows", etc.
+  total_bytes: number;
+  safe_bytes: number;         // bytes de ítems marcados como safe=true
+  items: JunkItem[];
+  informational?: boolean;    // true para Prefetch (no limpiar automáticamente)
+}
+
+/** Resultado completo del escaneo de archivos basura */
+export interface JunkFilesScanResult {
+  total_junk_bytes: number;
+  categories: JunkCategory[];
+  browsers: BrowserCacheProfile[];
+  scan_timestamp: string;     // ISO-8601
+}
+
+// ─────────────────────────── SmartCare Redesign (008) ─────────────
+
+export interface FillForecast {
+  gb_per_day: number;
+  full_in_weeks: number;
+  readings_count: number;
+  readings_period_days: number;
+}
+
+export interface DriveHealthInfo {
+  drive_letter: string;
+  drive_label: string;
+  drive_path: string;
+  total_bytes: number;
+  used_bytes: number;
+  free_bytes: number;
+  usage_percent: number;
+  disk_type: "SSD_NVMe" | "SSD_SATA" | "HDD" | "Unknown" | string;
+  filesystem: string;
+  smart_status: "Healthy" | "Warning" | "Critical" | "Unknown" | string;
+  temperature_celsius?: number | null;
+  drive_wear_percent?: number | null;
+  reallocated_sectors?: number | null;
+  power_on_hours?: number | null;
+  fill_forecast?: FillForecast | null;
+}
+
+export interface RecycleBinDrive {
+  drive_letter: string;
+  drive_label: string;
+  item_count: number;
+  total_bytes: number;
+}
+
+export interface RecycleBinItem {
+  original_path: string;
+  name: string;
+  size_bytes: number;
+  deleted_at: string;
+  file_type: string;
+  recycle_path?: string | null;
+  i_path?: string | null;
+}
+
+export interface RecycleBinScanResult {
+  drives: RecycleBinDrive[];
+  items: RecycleBinItem[];
+  total_items: number;
+  total_bytes: number;
+}
+
+export interface AppUsageInfo {
+  app_id: string;
+  last_used_at?: string | null;
+  usage_count?: number | null;
+  last_used_days?: number | null;
+  source: "prefetch" | "userassist" | "file_modified" | "unknown" | string;
+}
+
+export interface SmartCareJunkSummary {
+  temp_files_bytes: number;
+  windows_leftovers_bytes: number;
+  installers_bytes: number;
+  browser_caches_bytes: number;
+  messaging_caches_bytes: number;
+  recycle_bin_bytes: number;
+  total_bytes: number;
+  item_count: number;
+}
+
+export interface SmartCareDevSummary {
+  safe_caches_bytes: number;
+  unused_models_bytes: number;
+  stale_python_bytes: number;
+  total_bytes: number;
+  item_count: number;
+}
+
+export interface SmartCareAppsSummary {
+  unused_apps_count: number;
+  unused_apps_bytes: number;
+}
+
+export interface SmartCareAnalysis {
+  id: string;
+  timestamp: string;
+  drive_health: DriveHealthInfo;
+  junk_summary: SmartCareJunkSummary;
+  dev_summary: SmartCareDevSummary;
+  apps_summary: SmartCareAppsSummary;
+  total_recoverable_bytes: number;
+  is_valid: boolean;
+}
+

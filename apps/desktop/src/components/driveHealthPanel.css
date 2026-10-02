@@ -1,0 +1,153 @@
+.drive-health-panel {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.drive-health-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.drive-health-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #F8FAFC;
+  margin: 0;
+}
+
+.drive-health-refresh-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94A3B8;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.drive-health-refresh-btn:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: #00E5FF;
+  color: #00E5FF;
+}
+
+.drive-health-columns {
+  display: grid;
+  grid-template-columns: 140px 1.2fr 1.5fr;
+  gap: 24px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .drive-health-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.drive-health-col-doughnut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.drive-health-col-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drive-health-drive-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #F8FAFC;
+  margin: 0;
+}
+
+.drive-health-drive-path {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0;
+}
+
+.drive-health-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.drive-health-free-text {
+  font-size: 13px;
+  color: #94A3B8;
+  margin-top: 4px;
+}
+
+.drive-health-col-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drive-health-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.drive-health-metric-label {
+  color: #94A3B8;
+}
+
+.drive-health-metric-value {
+  color: #F8FAFC;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drive-health-metric-bar {
+  width: 80px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.drive-health-metric-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.drive-health-forecast-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.drive-health-forecast-svg {
+  flex-shrink: 0;
+}
+
+.drive-health-forecast-text {
+  font-size: 13px;
+  color: #38BDF8;
+}

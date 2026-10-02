@@ -22,6 +22,9 @@ use crate::error::{CoreError, Result};
 use crate::events::{ScanModule, ScanProgress};
 use crate::models::{ModuleScanResult, ModuleStatus, Platform, ScanFilters, ScanResult};
 
+pub mod browsers;
+pub mod junk_files;
+
 pub mod installers;
 
 pub mod startup;

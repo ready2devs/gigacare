@@ -47,13 +47,17 @@ pub struct KnownFootprintsFile {
 
 // ─────────────────────────── Installed App ─────────────────────────
 
-/// Representación de una app instalada (leída del registro o mock).
+/// Representación de una app instalada (leída del registro, AppX o mock).
 #[derive(Debug, Clone)]
 pub struct InstalledApp {
     /// Nombre de la aplicación tal como aparece en el registro.
     pub display_name: String,
     /// Ruta de instalación (si está disponible).
     pub install_location: Option<String>,
+    /// Editor/publicador de la aplicación (si está disponible).
+    pub publisher: Option<String>,
+    /// Origen de la información: "registry", "registry_wow64", "uwp", "store".
+    pub source: String,
 }
 
 // ─────────────────────────── Registry Provider Trait ───────────────
@@ -83,13 +87,18 @@ pub trait FilesystemProvider: Send + Sync {
 // ─────────────────────────── Default Providers ────────────────────
 
 /// Proveedor de registro real (Windows).
-/// Lee HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall.
+/// Lee HKLM y HKCU Uninstall (incluyendo WOW6432Node).
 pub struct RealRegistryProvider;
 
 impl RegistryProvider for RealRegistryProvider {
     fn get_installed_apps(&self) -> Result<Vec<InstalledApp>> {
         // En una implementación real se leería el registro de Windows.
         // Por ahora retornamos lista vacía (stub de producción).
+        // Las ramas a leer serían:
+        //   HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall  -> source "registry"
+        //   HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall -> source "registry_wow64"
+        //   HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall  -> source "registry"
+        //   HKCU\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall -> source "registry_wow64"
         Ok(Vec::new())
     }
 }
@@ -125,6 +134,116 @@ impl FilesystemProvider for RealFilesystemProvider {
         }
         Ok(total)
     }
+}
+
+// ─────────────────────────── AppX / UWP / MSIX ───────────────────
+
+/// Representación de un paquete AppX/UWP/MSIX instalado.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AppxPackage {
+    /// Nombre del paquete (campo Name).
+    #[serde(alias = "Name")]
+    pub name: Option<String>,
+    /// Editor del paquete (campo Publisher).
+    #[serde(alias = "Publisher")]
+    pub publisher: Option<String>,
+    /// Nombre completo del paquete.
+    #[serde(alias = "PackageFullName")]
+    pub package_full_name: Option<String>,
+    /// Ubicación de instalación.
+    #[serde(alias = "InstallLocation")]
+    pub install_location: Option<String>,
+}
+
+/// Ejecuta PowerShell para obtener la lista de paquetes AppX/UWP instalados.
+///
+/// Si PowerShell falla (permisos, no disponible, etc.), retorna Vec vacío
+/// con un log de advertencia, sin provocar panic.
+pub fn list_appx_packages() -> Vec<InstalledApp> {
+    let output = match std::process::Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Get-AppxPackage | ConvertTo-Json -Depth 3 -Compress",
+        ])
+        .output()
+    {
+        Ok(o) => o,
+        Err(_e) => {
+            eprintln!("[gigacare] WARNING: No se pudo ejecutar PowerShell para listar AppX: {_e}");
+            return Vec::new();
+        }
+    };
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        eprintln!("[gigacare] WARNING: PowerShell Get-AppxPackage falló: {stderr}");
+        return Vec::new();
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    if stdout.trim().is_empty() {
+        return Vec::new();
+    }
+
+    // PowerShell retorna un solo objeto si hay 1 paquete, o un array si hay varios
+    let packages: Vec<AppxPackage> = if stdout.trim_start().starts_with('[') {
+        match serde_json::from_str(&stdout) {
+            Ok(pkgs) => pkgs,
+            Err(_e) => {
+                eprintln!("[gigacare] WARNING: Error parseando JSON de AppX: {_e}");
+                return Vec::new();
+            }
+        }
+    } else {
+        match serde_json::from_str::<AppxPackage>(&stdout) {
+            Ok(pkg) => vec![pkg],
+            Err(_e) => {
+                eprintln!("[gigacare] WARNING: Error parseando JSON de AppX: {_e}");
+                return Vec::new();
+            }
+        }
+    };
+
+    packages
+        .into_iter()
+        .filter_map(|pkg| {
+            let name = pkg.name?;
+            if name.is_empty() {
+                return None;
+            }
+            Some(InstalledApp {
+                display_name: name,
+                install_location: pkg.install_location,
+                publisher: pkg.publisher,
+                source: "uwp".to_string(),
+            })
+        })
+        .collect()
+}
+
+// ─────────────────────────── Deduplication ─────────────────────────
+
+/// Deduplica apps por la combinación (display_name, publisher) en minúsculas.
+///
+/// Si dos apps tienen el mismo nombre y publisher (provenientes de ramas
+/// distintas del registro o de AppX), se conserva solo la primera encontrada.
+pub fn deduplicate_apps(apps: Vec<InstalledApp>) -> Vec<InstalledApp> {
+    let mut seen = HashSet::new();
+    let mut result = Vec::new();
+
+    for app in apps {
+        let key = (
+            app.display_name.to_lowercase(),
+            app.publisher.as_deref().unwrap_or("").to_lowercase(),
+        );
+        if seen.insert(key) {
+            result.push(app);
+        }
+    }
+
+    result
 }
 
 // ─────────────────────────── UninstallerScanner ───────────────────
@@ -537,6 +656,8 @@ mod tests {
         let installed_apps = vec![InstalledApp {
             display_name: "Discord".to_string(),
             install_location: Some("C:\\Program Files\\Discord".to_string()),
+            publisher: Some("Discord Inc.".to_string()),
+            source: "registry".to_string(),
         }];
 
         let scanner = create_test_scanner(installed_apps, directories, sizes, footprints);
@@ -696,10 +817,14 @@ mod tests {
             InstalledApp {
                 display_name: "Discord Inc.".to_string(),
                 install_location: None,
+                publisher: None,
+                source: "registry".to_string(),
             },
             InstalledApp {
                 display_name: "Visual Studio Code".to_string(),
                 install_location: None,
+                publisher: Some("Microsoft Corporation".to_string()),
+                source: "registry".to_string(),
             },
         ];
 
@@ -729,5 +854,291 @@ mod tests {
 
         let result = scanner.find_orphan_match("discord", &installed);
         assert!(result.is_none(), "No debería ser huérfano si registry name contiene el pattern");
+    }
+
+    // ─────────────────────────── T006: Tests WOW6432Node ─────────────
+
+    #[test]
+    fn test_installed_app_source_field() {
+        let app_registry = InstalledApp {
+            display_name: "App A".to_string(),
+            install_location: None,
+            publisher: None,
+            source: "registry".to_string(),
+        };
+        let app_wow64 = InstalledApp {
+            display_name: "App B".to_string(),
+            install_location: None,
+            publisher: None,
+            source: "registry_wow64".to_string(),
+        };
+        let app_uwp = InstalledApp {
+            display_name: "App C".to_string(),
+            install_location: None,
+            publisher: None,
+            source: "uwp".to_string(),
+        };
+
+        assert_eq!(app_registry.source, "registry");
+        assert_eq!(app_wow64.source, "registry_wow64");
+        assert_eq!(app_uwp.source, "uwp");
+    }
+
+    #[test]
+    fn test_mock_registry_with_wow64_source() {
+        // Simular que el proveedor devuelve apps de distintas fuentes
+        let apps = vec![
+            InstalledApp {
+                display_name: "Steam".to_string(),
+                install_location: Some("C:\\Program Files\\Steam".to_string()),
+                publisher: Some("Valve Corporation".to_string()),
+                source: "registry".to_string(),
+            },
+            InstalledApp {
+                display_name: "7-Zip".to_string(),
+                install_location: Some("C:\\Program Files (x86)\\7-Zip".to_string()),
+                publisher: Some("Igor Pavlov".to_string()),
+                source: "registry_wow64".to_string(),
+            },
+        ];
+
+        let scanner = create_test_scanner(apps.clone(), HashMap::new(), HashMap::new(), vec![]);
+        let names = scanner.installed_app_names().unwrap();
+
+        assert!(names.contains("steam"));
+        assert!(names.contains("7-zip"));
+        assert_eq!(names.len(), 2);
+    }
+
+    // ─────────────────────────── T006: Tests deduplicación ───────────
+
+    #[test]
+    fn test_deduplicate_apps_by_name_and_publisher() {
+        let apps = vec![
+            InstalledApp {
+                display_name: "Discord".to_string(),
+                install_location: None,
+                publisher: Some("Discord Inc.".to_string()),
+                source: "registry".to_string(),
+            },
+            InstalledApp {
+                display_name: "Discord".to_string(),
+                install_location: None,
+                publisher: Some("Discord Inc.".to_string()),
+                source: "registry_wow64".to_string(),
+            },
+            InstalledApp {
+                display_name: "Steam".to_string(),
+                install_location: None,
+                publisher: Some("Valve Corporation".to_string()),
+                source: "registry".to_string(),
+            },
+        ];
+
+        let deduped = super::deduplicate_apps(apps);
+        assert_eq!(deduped.len(), 2, "Discord debería deduplicarse, quedando 2 apps");
+        // La primera aparición (registry) se conserva
+        assert_eq!(deduped[0].source, "registry");
+        assert_eq!(deduped[0].display_name, "Discord");
+        assert_eq!(deduped[1].display_name, "Steam");
+    }
+
+    #[test]
+    fn test_deduplicate_case_insensitive() {
+        let apps = vec![
+            InstalledApp {
+                display_name: "Discord".to_string(),
+                install_location: None,
+                publisher: Some("DISCORD INC.".to_string()),
+                source: "registry".to_string(),
+            },
+            InstalledApp {
+                display_name: "discord".to_string(),
+                install_location: None,
+                publisher: Some("Discord Inc.".to_string()),
+                source: "registry_wow64".to_string(),
+            },
+        ];
+
+        let deduped = super::deduplicate_apps(apps);
+        assert_eq!(deduped.len(), 1, "Deduplicación debe ser case-insensitive");
+    }
+
+    #[test]
+    fn test_deduplicate_different_publishers_not_deduped() {
+        let apps = vec![
+            InstalledApp {
+                display_name: "Helper Tool".to_string(),
+                install_location: None,
+                publisher: Some("Company A".to_string()),
+                source: "registry".to_string(),
+            },
+            InstalledApp {
+                display_name: "Helper Tool".to_string(),
+                install_location: None,
+                publisher: Some("Company B".to_string()),
+                source: "registry_wow64".to_string(),
+            },
+        ];
+
+        let deduped = super::deduplicate_apps(apps);
+        assert_eq!(deduped.len(), 2, "Apps con mismo nombre pero distinto publisher NO se deduplicarn");
+    }
+
+    #[test]
+    fn test_deduplicate_empty_publisher() {
+        let apps = vec![
+            InstalledApp {
+                display_name: "MyApp".to_string(),
+                install_location: None,
+                publisher: None,
+                source: "registry".to_string(),
+            },
+            InstalledApp {
+                display_name: "MyApp".to_string(),
+                install_location: None,
+                publisher: None,
+                source: "registry_wow64".to_string(),
+            },
+        ];
+
+        let deduped = super::deduplicate_apps(apps);
+        assert_eq!(deduped.len(), 1, "Apps sin publisher con mismo nombre deben deduplicarse");
+    }
+
+    // ─────────────────────────── T007: Tests AppX ────────────────────
+
+    #[test]
+    fn test_appx_package_deserialization() {
+        let json = r#"{
+            "Name": "Microsoft.WindowsCalculator",
+            "Publisher": "CN=Microsoft Corporation",
+            "PackageFullName": "Microsoft.WindowsCalculator_11.0_x64__8wekyb3d8bbwe",
+            "InstallLocation": "C:\\Program Files\\WindowsApps\\Calculator"
+        }"#;
+
+        let pkg: super::AppxPackage = serde_json::from_str(json).unwrap();
+        assert_eq!(pkg.name.as_deref(), Some("Microsoft.WindowsCalculator"));
+        assert_eq!(pkg.publisher.as_deref(), Some("CN=Microsoft Corporation"));
+        assert!(pkg.package_full_name.is_some());
+        assert!(pkg.install_location.is_some());
+    }
+
+    #[test]
+    fn test_appx_package_array_deserialization() {
+        let json = r#"[
+            {
+                "Name": "App1",
+                "Publisher": "Pub1",
+                "PackageFullName": "App1_1.0",
+                "InstallLocation": "C:\\Apps\\App1"
+            },
+            {
+                "Name": "App2",
+                "Publisher": "Pub2",
+                "PackageFullName": "App2_2.0",
+                "InstallLocation": "C:\\Apps\\App2"
+            }
+        ]"#;
+
+        let pkgs: Vec<super::AppxPackage> = serde_json::from_str(json).unwrap();
+        assert_eq!(pkgs.len(), 2);
+        assert_eq!(pkgs[0].name.as_deref(), Some("App1"));
+        assert_eq!(pkgs[1].name.as_deref(), Some("App2"));
+    }
+
+    #[test]
+    fn test_appx_to_installed_app_conversion() {
+        // Simula la conversión que hace list_appx_packages() internamente
+        let pkg = super::AppxPackage {
+            name: Some("Microsoft.WindowsStore".to_string()),
+            publisher: Some("CN=Microsoft Corporation".to_string()),
+            package_full_name: Some("Microsoft.WindowsStore_22000".to_string()),
+            install_location: Some("C:\\Program Files\\WindowsApps\\Store".to_string()),
+        };
+
+        let app = InstalledApp {
+            display_name: pkg.name.unwrap(),
+            install_location: pkg.install_location,
+            publisher: pkg.publisher,
+            source: "uwp".to_string(),
+        };
+
+        assert_eq!(app.display_name, "Microsoft.WindowsStore");
+        assert_eq!(app.source, "uwp");
+        assert!(app.publisher.is_some());
+    }
+
+    #[test]
+    fn test_appx_package_with_missing_fields() {
+        let json = r#"{"Name": "MinimalApp"}"#;
+        let pkg: super::AppxPackage = serde_json::from_str(json).unwrap();
+        assert_eq!(pkg.name.as_deref(), Some("MinimalApp"));
+        assert!(pkg.publisher.is_none());
+        assert!(pkg.package_full_name.is_none());
+        assert!(pkg.install_location.is_none());
+    }
+
+    #[test]
+    fn test_deduplicate_registry_and_uwp() {
+        let apps = vec![
+            InstalledApp {
+                display_name: "Microsoft Edge".to_string(),
+                install_location: None,
+                publisher: Some("Microsoft Corporation".to_string()),
+                source: "registry".to_string(),
+            },
+            InstalledApp {
+                display_name: "Microsoft Edge".to_string(),
+                install_location: Some("C:\\Program Files\\WindowsApps\\Edge".to_string()),
+                publisher: Some("Microsoft Corporation".to_string()),
+                source: "uwp".to_string(),
+            },
+        ];
+
+        let deduped = super::deduplicate_apps(apps);
+        assert_eq!(deduped.len(), 1, "App que aparece en registry y UWP debe deduplicarse");
+        assert_eq!(deduped[0].source, "registry", "Se conserva la primera aparición (registry)");
+    }
+
+    #[tokio::test]
+    async fn test_scanner_with_mixed_sources() {
+        // Verificar que el scanner funciona con apps de distintas fuentes
+        let appdata = PathBuf::from(std::env::var("APPDATA").unwrap_or_else(|_| "C:\\Users\\Test\\AppData\\Roaming".to_string()));
+        let discord_dir = appdata.join("discord");
+
+        let mut directories = HashMap::new();
+        directories.insert(appdata.clone(), vec![discord_dir.clone()]);
+
+        let mut sizes = HashMap::new();
+        sizes.insert(discord_dir.clone(), 2048);
+
+        let footprints = vec![KnownFootprint {
+            app_name: "Discord".to_string(),
+            folders: vec!["discord".to_string()],
+            registry_patterns: vec!["Discord".to_string()],
+        }];
+
+        // Discord viene de UWP → está instalado
+        let installed_apps = vec![InstalledApp {
+            display_name: "Discord".to_string(),
+            install_location: None,
+            publisher: Some("Discord Inc.".to_string()),
+            source: "uwp".to_string(),
+        }];
+
+        let scanner = create_test_scanner(installed_apps, directories, sizes, footprints);
+
+        let config = AppConfig::default();
+        let cancel = AtomicBool::new(false);
+        let (tx, _rx) = mpsc::channel(64);
+
+        let result = scanner.scan(&config, &cancel, &tx, None).await.unwrap();
+
+        // Discord está instalado (aunque venga de uwp), no debe ser huérfano
+        let discord_orphan = result.items.iter().find(|i| {
+            i.metadata.app_source.as_deref() == Some("Discord")
+        });
+        assert!(discord_orphan.is_none(), "No debería marcar Discord como huérfano si está instalado vía UWP");
     }
 }

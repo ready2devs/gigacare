@@ -376,24 +376,24 @@ Instrucciones:
         req.on("data", (chunk) => (bodyData += chunk));
         req.on("end", () => {
           try {
-            const { initialDir } = JSON.parse(bodyData || "{}");
+            const { initialDir, title } = JSON.parse(bodyData || "{}");
+            const dialogDesc = (title || "Selecciona la carpeta que deseas analizar en GigaCare").replace(/'/g, "''");
             const psScript = `
               Add-Type -AssemblyName System.Windows.Forms
-              $topForm = New-Object System.Windows.Forms.Form
-              $topForm.TopMost = $true
-              $topForm.MinimizeBox = $false
-              $topForm.MaximizeBox = $false
-              $topForm.WindowState = 'Minimized'
-              $topForm.Show()
-              $topForm.Activate()
               $dialog = New-Object System.Windows.Forms.FolderBrowserDialog
-              $dialog.Description = 'Selecciona la carpeta de fotos para analizar en GigaCare'
+              $dialog.Description = '${dialogDesc}'
               $dialog.ShowNewFolderButton = $false
               if ('${(initialDir || "").replace(/'/g, "''")}' -ne '' -and (Test-Path '${(initialDir || "").replace(/'/g, "''")}')) {
                 $dialog.SelectedPath = '${(initialDir || "").replace(/'/g, "''")}'
               }
-              $result = $dialog.ShowDialog($topForm)
-              $topForm.Close()
+              $form = New-Object System.Windows.Forms.Form
+              $form.TopMost = $true
+              $form.ShowInTaskbar = $false
+              $form.Opacity = 0
+              $form.Size = New-Object System.Drawing.Size(0,0)
+              $form.Location = New-Object System.Drawing.Point(-5000,-5000)
+              $result = $dialog.ShowDialog($form)
+              $form.Dispose()
               if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
                 Write-Output $dialog.SelectedPath
               }
@@ -766,7 +766,189 @@ Instrucciones:
         }
       });
 
+      // Endpoints para Gestión del Sistema REAL en modo Web (navegador)
+      let cachedApps = null;
+      let cachedAppsTime = 0;
+      server.middlewares.use("/api/real-installed-apps", (req, res) => {
+        try {
+          const now = Date.now();
+          if (cachedApps && now - cachedAppsTime < 60000) {
+            res.setHeader("Content-Type", "application/json");
+            return res.end(cachedApps);
+          }
 
+          const psScript = `
+$paths = @(
+  'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*',
+  'HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*',
+  'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'
+)
+$apps = Get-ItemProperty $paths -ErrorAction SilentlyContinue |
+  Where-Object { $_.DisplayName -and -not $_.SystemComponent -and -not $_.ParentKeyName } |
+  ForEach-Object {
+    $src = if ($_.PSPath -like '*Wow6432Node*') { 'registry_wow64' } elseif ($_.PSPath -like '*HKCU*') { 'registry' } else { 'registry' }
+    [PSCustomObject]@{
+      id = $_.PSChildName
+      name = $_.DisplayName.Trim()
+      version = if ($_.DisplayVersion) { [string]$_.DisplayVersion } else { '1.0.0' }
+      publisher = if ($_.Publisher) { [string]$_.Publisher } else { 'Desconocido' }
+      size_bytes = if ($_.EstimatedSize) { [int64]$_.EstimatedSize * 1024 } else { 0 }
+      source = $src
+      install_date = if ($_.InstallDate) { [string]$_.InstallDate } else { $null }
+    }
+  } | Sort-Object name -Unique
+$apps | ConvertTo-Json -Compress
+`;
+          const b64 = Buffer.from(psScript, "utf16le").toString("base64");
+          const out = execSync(`powershell -NoProfile -EncodedCommand ${b64}`, {
+            maxBuffer: 15 * 1024 * 1024,
+            encoding: "utf-8",
+            timeout: 10000,
+          });
+          cachedApps = out || "[]";
+          cachedAppsTime = now;
+          res.setHeader("Content-Type", "application/json");
+          res.end(cachedApps);
+        } catch (err) {
+          console.error("Error fetching real installed apps:", err);
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: String(err) }));
+        }
+      });
+
+      server.middlewares.use("/api/real-uninstall-app", (req, res) => {
+        let body = "";
+        req.on("data", (chunk) => { body += chunk; });
+        req.on("end", () => {
+          try {
+            const data = JSON.parse(body || "{}");
+            const appId = data.app_id;
+            if (!appId) {
+              res.statusCode = 400;
+              return res.end(JSON.stringify({ success: false, message: "app_id es requerido" }));
+            }
+
+            const psScript = `
+$appId = '${appId.replace(/'/g, "''")}'
+$paths = @(
+  'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*',
+  'HKLM:\\Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*',
+  'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'
+)
+$target = Get-ItemProperty $paths -ErrorAction SilentlyContinue | Where-Object { $_.PSChildName -eq $appId }
+if (-not $target) {
+  # Intentar búsqueda por DisplayName si el id no coincide exactamente
+  $target = Get-ItemProperty $paths -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -eq $appId }
+}
+
+if ($target) {
+  $uninstCmd = if ($target.QuietUninstallString) { $target.QuietUninstallString } else { $target.UninstallString }
+  if ($uninstCmd) {
+    # Ejecutar el desinstalador nativo en Windows
+    Start-Process -FilePath cmd.exe -ArgumentList "/C $uninstCmd"
+    [PSCustomObject]@{ success = $true; message = "Desinstalador de $($target.DisplayName) iniciado en Windows" } | ConvertTo-Json -Compress
+  } else {
+    [PSCustomObject]@{ success = $false; message = "No se encontró comando de desinstalación para $($target.DisplayName)" } | ConvertTo-Json -Compress
+  }
+} else {
+  [PSCustomObject]@{ success = $false; message = "Aplicación no encontrada en el registro de Windows" } | ConvertTo-Json -Compress
+}
+`;
+            const b64 = Buffer.from(psScript, "utf16le").toString("base64");
+            const out = execSync(`powershell -NoProfile -EncodedCommand ${b64}`, {
+              maxBuffer: 5 * 1024 * 1024,
+              encoding: "utf-8",
+              timeout: 10000,
+            });
+
+            // Invalidar caché de apps instaladas para que se reflejen los cambios al recargar
+            cachedApps = null;
+            cachedAppsTime = 0;
+
+            res.setHeader("Content-Type", "application/json");
+            res.end(out || JSON.stringify({ success: true, message: "Proceso de desinstalación iniciado" }));
+          } catch (err) {
+            console.error("Error al desinstalar app:", err);
+            res.statusCode = 500;
+            res.end(JSON.stringify({ success: false, message: String(err) }));
+          }
+        });
+      });
+
+
+      let cachedStartup = null;
+      let cachedStartupTime = 0;
+      server.middlewares.use("/api/real-startup-items", (req, res) => {
+        try {
+          const now = Date.now();
+          if (cachedStartup && now - cachedStartupTime < 60000) {
+            res.setHeader("Content-Type", "application/json");
+            return res.end(cachedStartup);
+          }
+
+          const psScript = `
+$targets = @(
+  @{ Path = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'; Source = 'registry_hkcu' },
+  @{ Path = 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'; Source = 'registry_hklm' },
+  @{ Path = 'HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run'; Source = 'registry_hklm' }
+)
+$startupFolder = [Environment]::GetFolderPath('Startup')
+
+$items = @()
+
+foreach ($t in $targets) {
+  if (Test-Path $t.Path) {
+    $p = Get-ItemProperty $t.Path
+    $p.PSObject.Properties | Where-Object { $_.Name -notmatch '^PS' } | ForEach-Object {
+      $val = [string]$_.Value
+      $name = $_.Name
+      $prot = ($val -like '*system32*' -or $val -like '*windows\\system*')
+      $imp = if ($prot) { 'high' } elseif ($val -like '*discord*' -or $val -like '*steam*' -or $val -like '*spotify*' -or $val -like '*docker*') { 'medium' } else { 'low' }
+      $items += [PSCustomObject]@{
+        id = "$($t.Source)_$name"
+        name = $name
+        path = $val
+        source = $t.Source
+        impact = $imp
+        enabled = $true
+        protected = $prot
+      }
+    }
+  }
+}
+
+if (Test-Path $startupFolder) {
+  Get-ChildItem $startupFolder -Filter *.lnk -ErrorAction SilentlyContinue | ForEach-Object {
+    $items += [PSCustomObject]@{
+      id = "folder_$($_.Name)"
+      name = $_.BaseName
+      path = $_.FullName
+      source = "startup_folder"
+      impact = "medium"
+      enabled = $true
+      protected = $false
+    }
+  }
+}
+
+$items | ConvertTo-Json -Compress
+`;
+          const b64 = Buffer.from(psScript, "utf16le").toString("base64");
+          const out = execSync(`powershell -NoProfile -EncodedCommand ${b64}`, {
+            maxBuffer: 5 * 1024 * 1024,
+            encoding: "utf-8",
+            timeout: 5000,
+          });
+          cachedStartup = out || "[]";
+          cachedStartupTime = now;
+          res.setHeader("Content-Type", "application/json");
+          res.end(cachedStartup);
+        } catch (err) {
+          console.error("Error fetching real startup items:", err);
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: String(err) }));
+        }
+      });
 
     },
   };

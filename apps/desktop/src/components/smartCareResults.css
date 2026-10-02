@@ -1,0 +1,72 @@
+.smartcare-results-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  gap: 24px;
+  padding: 20px 10px 40px;
+  box-sizing: border-box;
+}
+
+.smartcare-results-top-actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.smartcare-restart-btn {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.smartcare-restart-btn:hover {
+  color: #00E5FF;
+  background: rgba(0, 229, 255, 0.08);
+}
+
+.smartcare-execute-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.smartcare-execute-btn {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EC4899, #8B5CF6);
+  border: none;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.4), 0 0 45px rgba(139, 92, 246, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  outline: none;
+}
+
+.smartcare-execute-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 35px rgba(236, 72, 153, 0.6), 0 0 60px rgba(139, 92, 246, 0.5);
+  filter: brightness(1.1);
+}
+
+.smartcare-execute-btn:active {
+  transform: scale(0.96);
+}

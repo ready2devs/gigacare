@@ -121,3 +121,115 @@ El flujo de datos sigue una política de **cero eliminación destructiva directa
 | `gigacare-license` | Generación y verificación de tokens de licencia | hmac, sha2, base64 |
 | `gigacare-fs` | Escaneo seguro con exclusión de enlaces simbólicos | walkdir, fs_extra |
 | `gigacare-uniffi` | Exportación de interfaces FFI para Android | uniffi, tokio |
+
+---
+
+## 🗑️ 5. Arquitectura de Archivos Basura y Gestión del Sistema (Spec 007)
+
+### 5.1 Diagrama de Flujo: Orquestador de Archivos Basura (Junk Files)
+
+```
+                     ┌────────────────────────────────────┐
+                     │         JunkFilesScanner           │
+                     │  (Orquestador Unificado en Rust)   │
+                     └─────────────────┬──────────────────┘
+                                       │
+         ┌─────────────────────────────┼─────────────────────────────┐
+         ▼                             ▼                             ▼
+┌──────────────────┐          ┌──────────────────┐          ┌──────────────────┐
+│  SystemScanner   │          │  BrowserScanner  │          │ MessagingScanner │
+│  - Temp Usuario  │          │  - Chrome        │          │  - WhatsApp      │
+│  - Temp Sistema  │          │  - Edge          │          │  - Telegram      │
+│  - WER Dumps     │          │  - Brave         │          │  - Discord       │
+│  - Delivery Opt  │          │  - Opera         │          └──────────────────┘
+│  - Windows.old   │          │  - Vivaldi       │                   │
+│  - Prefetch (inf)│          │  - Firefox (ini) │                   │
+└────────┬─────────┘          └────────┬─────────┘                   │
+         │                             │                             │
+         └─────────────────────────────┼─────────────────────────────┘
+                                       ▼
+                     ┌────────────────────────────────────┐
+                     │      Clasificación de Seguridad    │
+                     │  • safe: true (Cuarentena 1-clic)  │
+                     │  • safe: false / review (Requiere  │
+                     │    confirmación expresa o warning) │
+                     └─────────────────┬──────────────────┘
+                                       ▼
+                     ┌────────────────────────────────────┐
+                     │       JunkFilesScanResult (IPC)    │
+                     │  • total_junk_bytes                │
+                     │  • categories: [JunkCategory]      │
+                     └────────────────────────────────────┘
+```
+
+### 5.2 Estructura del Módulo Gestión del Sistema (System Management)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                 SystemManagementPanel (Contenedor con Tabs)                 │
+├──────────────────────────────────────┬──────────────────────────────────────┤
+│    Tab 1: Desinstalador Profundo     │      Tab 2: Inicio de Windows        │
+│    (UninstallerPanel)                │      (StartupPanel)                  │
+├──────────────────────────────────────┼──────────────────────────────────────┤
+│ • Detección 360° de aplicaciones:    │ • Control de programas de arranque   │
+│   - Registro HKLM/HKCU (64-bit)      │ • Fuentes: Registros HKCU, HKLM y    │
+│   - WOW6432Node (32-bit legacy)      │   carpeta shell:startup              │
+│   - Aplicaciones UWP / AppX          │ • Clasificación de impacto (Alto,    │
+│ • Rastreo de residuos en AppData/Reg │   Medio, Bajo)                       │
+│ • Desinstalación y limpieza          │ • Protección de servicios críticos   │
+└──────────────────────────────────────┴──────────────────────────────────────┘
+```
+
+### 5.3 Mapa Actualizado de Módulos (Shell de 8 Módulos)
+
+1. **SmartCare** (`smartcare`): Diagnóstico y escaneo central del sistema con acceso rápido mediante tarjetas de resumen interactivas.
+2. **Cuarentena** (`quarantine`): Aislamiento seguro y reversible con retención programada e inspección por carpetas.
+3. **Curador de Fotos** (`photos`): Detección local con pHash + filtrado de nitidez por FFT e inferencia opcional IA.
+4. **Archivos Basura** (`junk_files`): Escaneo profundo de temporales, cachés de navegadores, restos de Windows y mensajería con clasificación de seguridad.
+5. **Gestión del Sistema** (`system_management`): Panel unificado que agrupa Desinstalador Profundo e Inicio de Windows con preservación de estado entre pestañas.
+6. **Space Map** (`space_map`): Explorador visual de almacenamiento jerárquico (burbujas, treemap y sunburst) y consultas en lenguaje natural.
+7. **Dev Cleaning** (`dev_cleaning`): Detección y limpieza de entornos de desarrollo (`node_modules`, venv, pip, Gradle, Cargo).
+8. **Configuración** (`settings`): Ajustes de retención, tema, licencias y preferencias globales.
+
+---
+
+## 6. Módulo Cuidado Inteligente (SmartCare Redesign)
+
+A partir de la especificación **008-smartcare-redesign**, SmartCare evoluciona de tarjetas estáticas a un flujo completo y autónomo de diagnóstico, salud de disco y limpieza profunda inspirado en la elegancia de **CleanMyMac** y la telemetría de **Jharu**.
+
+### 6.1 Flujo y Máquina de Estados
+
+- **Welcome (SmartCareWelcome)**: Monitor 3D con halo pulsante SVG, indicador de último análisis y botón circular 'Analizar'.
+- **Scanning (SmartCareScanning)**: Disco giratorio SVG, ticker animado con rutas de archivo reales, barra de progreso por etapas y botón 'Detener' cooperativo.
+- **Results (SmartCareResults)**: Panel superior de Salud del Disco (DriveHealthPanel), tarjeta con total recuperable (CleanupCard), botón circular Ejecutar y barra proporcional de recuperación (SpaceRecoveryBar).
+- **Review (CleanupReviewModal)**: Modal CleanMyMac de 3 paneles verticales (Categorías 180px, Subcategorías 250px, Lista de archivos con ordenamiento y checkboxes individuales) con filtrado estricto de seguridad.
+- **Execution**: Aislamiento a cuarentena con `clean_items` y `clean_recycle_bin`, confirmación individual para desinstalación de aplicaciones y resumen post-ejecución.
+
+### 6.2 Componentes Nuevos
+
+- `SmartCareWelcome.tsx`: Pantalla de bienvenida con monitor animado SVG y tiempo transcurrido desde el último escaneo.
+- `SmartCareScanning.tsx`: Animación de escaneo continuo con disco giratorio, ticker de archivos y eventos Tauri en tiempo real.
+- `SmartCareResults.tsx`: Vista de resultados que ensambla salud del disco, total recuperable, botón de ejecución y barra de recuperación.
+- `DriveHealthPanel.tsx`: Panel estilo Jharu con gráfico doughnut SVG, badges de estado SMART, barras de hardware (temperatura, desgaste, sectores reasignados) y pronóstico de llenado de disco.
+- `CleanupCard.tsx`: Tarjeta de resumen con tamaño recuperable total y disparador de revisión.
+- `SpaceRecoveryBar.tsx`: Barra tricolor de 3 segmentos que representa espacio ocupado permanente, recuperable y libre.
+- `CleanupReviewModal.tsx`: Gestor de limpieza con navegación lateral por 4 categorías (Archivos basura, Limpieza Dev, Apps sin uso, Multimedia), filtros temporales y ordenamiento.
+- `ReviewCategoryList.tsx`, `ReviewSubcategoryList.tsx`, `ReviewFileList.tsx`: Componentes desacoplados de los 3 paneles internos de revisión.
+
+### 6.3 Persistencia y Estado Compartido entre Módulos
+
+El análisis integral (`SmartCareAnalysis`) se persiste de forma durable en `~/.gigacare/last_analysis.json` y se mantiene en memoria en `AppState.smartcare_analysis`. Si el análisis es reciente (menor a `analysis_cache_hours` configurado):
+- **Space Map**: Salta la bienvenida e inicializa directamente el treemap de la unidad principal.
+- **Archivos Basura (Junk Files)**: Muestra inmediatamente el resumen categorizado sin forzar un re-escaneo.
+- **Dev Cleaning**: Despliega directamente los hallazgos de cachés de desarrollo.
+
+### 6.4 Comandos Tauri IPC Añadidos
+
+- `get_drive_health`: Consulta WMI para telemetría física del disco y cálculo de pronóstico de llenado.
+- `scan_recycle_bin`: Inspecciona `$Recycle.Bin` y encabezados Win32.
+- `clean_recycle_bin`: Envía ítems de la papelera a cuarentena conservando la ruta original de restauración.
+- `get_app_usage` / `list_installed_apps_with_usage`: Analiza Prefetch y UserAssist (ROT-13) para determinar el último uso y conteo de ejecuciones de programas.
+- `get_smartcare_analysis` / `save_smartcare_analysis`: Lee y persiste el análisis en disco.
+- `run_full_smartcare_analysis`: Ejecuta el pipeline completo de análisis en segundo plano emitiendo eventos de progreso.
+- `cancel_scan`: Cancela cooperativamente el análisis en curso.
+

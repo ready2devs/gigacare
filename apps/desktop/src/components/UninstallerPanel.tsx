@@ -4,6 +4,12 @@ import {
   Text,
   Spinner,
   Input,
+  Dialog,
+  DialogSurface,
+  DialogBody,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@fluentui/react-components";
 import {
   AppsListDetailRegular,
@@ -28,6 +34,7 @@ export const UninstallerPanel: React.FC = () => {
   const [residualResult, setResidualResult] = useState<ResidualScanResult | null>(null);
   const [scanningResiduals, setScanningResiduals] = useState(false);
   const [uninstalling, setUninstalling] = useState(false);
+  const [appToUninstall, setAppToUninstall] = useState<InstalledApp | null>(null);
 
   const fetchApps = async () => {
     setLoading(true);
@@ -65,11 +72,14 @@ export const UninstallerPanel: React.FC = () => {
     }
   };
 
-  const handleUninstall = async (app: InstalledApp) => {
-    if (!window.confirm(`¿Seguro que deseas desinstalar "${app.name}"?`)) {
-      return;
-    }
+  const handleOpenUninstallDialog = (app: InstalledApp) => {
+    setAppToUninstall(app);
+  };
 
+  const handleConfirmUninstall = async () => {
+    if (!appToUninstall) return;
+    const app = appToUninstall;
+    setAppToUninstall(null);
     setUninstalling(true);
     setError(null);
     setSuccessMsg(null);
@@ -78,8 +88,10 @@ export const UninstallerPanel: React.FC = () => {
         app_id: app.id,
       });
       if (res.success) {
-        setSuccessMsg(res.message || `"${app.name}" se ha desinstalado correctamente.`);
-        setApps((prev) => prev.filter((a) => a.id !== app.id));
+        setSuccessMsg(
+          res.message ||
+            `Desinstalador de "${app.name}" iniciado. Completa los pasos en la ventana de Windows y luego presiona "Actualizar lista".`
+        );
         setSelectedApp(null);
         setResidualResult(null);
       } else {
@@ -176,7 +188,9 @@ export const UninstallerPanel: React.FC = () => {
             {apps.length}
           </span>
           <span style={{ fontSize: "11px", color: "#64748B" }}>
-            Detectados en registro y sistema
+            {apps.some((a) => a.source === "uwp" || a.source === "store" || a.source === "registry_wow64")
+              ? "Detectados (Registro + UWP + Store)"
+              : "Detectados en registro y sistema"}
           </span>
         </div>
 
@@ -321,9 +335,31 @@ export const UninstallerPanel: React.FC = () => {
                     <span style={{ fontWeight: 600, fontSize: "14px", color: "#F8FAFC" }}>
                       {app.name}
                     </span>
-                    <span style={{ fontSize: "11px", color: "#94A3B8" }}>
-                      {app.publisher} • v{app.version}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ fontSize: "11px", color: "#94A3B8" }}>
+                        {app.publisher} • v{app.version}
+                      </span>
+                      {app.source && (
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            padding: "1px 6px",
+                            borderRadius: "4px",
+                            background: "rgba(255, 255, 255, 0.06)",
+                            color: "#94A3B8",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          {app.source === "uwp"
+                            ? "UWP"
+                            : app.source === "store"
+                            ? "Store"
+                            : app.source === "registry_wow64"
+                            ? "WOW64"
+                            : "Registro"}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -336,7 +372,7 @@ export const UninstallerPanel: React.FC = () => {
                       icon={<DeleteRegular />}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleUninstall(app);
+                        handleOpenUninstallDialog(app);
                       }}
                       disabled={uninstalling}
                     >
@@ -458,10 +494,10 @@ export const UninstallerPanel: React.FC = () => {
                   fontWeight: 600,
                   marginTop: "6px",
                 }}
-                onClick={() => handleUninstall(selectedApp)}
+                onClick={() => handleOpenUninstallDialog(selectedApp)}
                 disabled={uninstalling}
               >
-                {uninstalling ? "Desinstalando..." : "Desinstalar Programa"}
+                {uninstalling ? "Iniciando..." : "Desinstalar Programa"}
               </Button>
             </>
           ) : (
@@ -471,6 +507,105 @@ export const UninstallerPanel: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Diálogo Moderno de Confirmación de Desinstalación */}
+      <Dialog
+        open={Boolean(appToUninstall)}
+        onOpenChange={(_, data) => !data.open && setAppToUninstall(null)}
+      >
+        <DialogSurface
+          style={{
+            maxWidth: "480px",
+            background: "#0F172A",
+            border: "1px solid rgba(0, 229, 255, 0.3)",
+            boxShadow: "0 16px 36px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <DialogBody>
+            <DialogTitle
+              style={{
+                color: "#00E5FF",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                fontSize: "18px",
+              }}
+            >
+              <DeleteRegular style={{ fontSize: "22px", color: "#F87171" }} />
+              ¿Confirmar desinstalación?
+            </DialogTitle>
+
+            <DialogContent
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+                marginTop: "12px",
+              }}
+            >
+              <Text size={300} style={{ color: "#F8FAFC" }}>
+                Estás a punto de desinstalar la siguiente aplicación de tu equipo:
+              </Text>
+
+              <div
+                style={{
+                  background: "rgba(0, 229, 255, 0.06)",
+                  padding: "12px 16px",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(0, 229, 255, 0.15)",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div>
+                  <Text weight="semibold" style={{ display: "block", color: "#F8FAFC", fontSize: "15px" }}>
+                    {appToUninstall?.name}
+                  </Text>
+                  <Text size={200} style={{ color: "#94A3B8" }}>
+                    {appToUninstall?.publisher || "Editor desconocido"} {appToUninstall?.version ? `• v${appToUninstall.version}` : ""}
+                  </Text>
+                </div>
+                <Text weight="semibold" style={{ color: "#00E5FF", fontSize: "14px" }}>
+                  {appToUninstall?.size_bytes ? formatBytes(appToUninstall.size_bytes) : "—"}
+                </Text>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "10px",
+                  background: "rgba(245, 158, 11, 0.08)",
+                  border: "1px solid rgba(245, 158, 11, 0.2)",
+                  borderRadius: "8px",
+                  padding: "10px 12px",
+                  color: "#FCD34D",
+                  fontSize: "12px",
+                }}
+              >
+                <WarningRegular style={{ fontSize: "18px", flexShrink: 0, marginTop: "2px" }} />
+                <span>
+                  Al pulsar confirmar, Windows iniciará el asistente oficial de desinstalación del programa. Si el Control de Cuentas de Usuario (UAC) te solicita permisos de Administrador, acéptalos para continuar.
+                </span>
+              </div>
+            </DialogContent>
+
+            <DialogActions style={{ marginTop: "22px", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+              <Button appearance="secondary" onClick={() => setAppToUninstall(null)}>
+                Cancelar
+              </Button>
+              <Button
+                appearance="primary"
+                style={{ backgroundColor: "#EF4444", color: "#FFFFFF", fontWeight: 600 }}
+                onClick={handleConfirmUninstall}
+              >
+                Iniciar Desinstalación
+              </Button>
+            </DialogActions>
+          </DialogBody>
+        </DialogSurface>
+      </Dialog>
     </div>
   );
 };

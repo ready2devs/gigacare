@@ -10,6 +10,15 @@ pub struct InstalledApp {
     pub publisher: String,
     pub install_date: Option<String>,
     pub size_bytes: Option<u64>,
+    pub source: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_used_at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub usage_count: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_used_days: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub usage_source: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -37,6 +46,11 @@ pub fn list_installed_apps() -> Vec<InstalledApp> {
                 publisher: "Vendor".into(),
                 install_date: Some("2024-01-01".into()),
                 size_bytes: Some(10485760),
+                source: Some("registry".into()),
+                last_used_at: None,
+                usage_count: None,
+                last_used_days: None,
+                usage_source: None,
             }
         ];
     }
@@ -50,8 +64,29 @@ pub fn list_installed_apps() -> Vec<InstalledApp> {
             publisher: a.publisher.unwrap_or_else(|| "Desconocido".to_string()),
             install_date: a.install_date,
             size_bytes: Some(a.size_bytes),
+            source: a.source,
+            last_used_at: None,
+            usage_count: None,
+            last_used_days: None,
+            usage_source: None,
         })
         .collect()
+}
+
+#[tauri::command]
+pub fn list_installed_apps_with_usage() -> Vec<InstalledApp> {
+    let mut apps = list_installed_apps();
+    let app_ids_or_names: Vec<String> = apps.iter().map(|a| a.name.clone()).collect();
+    let usage_infos = crate::commands::app_usage::get_app_usage(app_ids_or_names);
+
+    for (app, usage) in apps.iter_mut().zip(usage_infos.into_iter()) {
+        app.last_used_at = usage.last_used_at;
+        app.usage_count = usage.usage_count;
+        app.last_used_days = usage.last_used_days;
+        app.usage_source = if usage.source == "unknown" { None } else { Some(usage.source) };
+    }
+
+    apps
 }
 
 #[tauri::command]
