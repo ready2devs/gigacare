@@ -66,6 +66,9 @@ export const SmartCareScanning: React.FC<SmartCareScanningProps> = ({
       })
       .catch((err) => {
         console.error("Error al ejecutar análisis completo:", err);
+        if (isMountedRef.current) {
+          onCancel();
+        }
       });
 
     return () => {

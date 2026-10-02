@@ -2,12 +2,12 @@ import React from "react";
 import { Button } from "@fluentui/react-components";
 
 export interface CleanupCardProps {
-  totalBytes: number;
+  totalBytes?: number;
   onReview: () => void;
 }
 
-const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 B";
+const formatBytes = (bytes?: number): string => {
+  if (typeof bytes !== "number" || isNaN(bytes) || bytes <= 0) return "0 B";
   const k = 1024;
   const sizes = ["B", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -15,7 +15,7 @@ const formatBytes = (bytes: number): string => {
 };
 
 export const CleanupCard: React.FC<CleanupCardProps> = ({
-  totalBytes,
+  totalBytes = 0,
   onReview,
 }) => {
   return (

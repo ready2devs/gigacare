@@ -1,13 +1,13 @@
 import React from "react";
 
 export interface SpaceRecoveryBarProps {
-  totalBytes: number;
-  usedBytes: number;
-  recoverableBytes: number;
+  totalBytes?: number;
+  usedBytes?: number;
+  recoverableBytes?: number;
 }
 
 const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 B";
+  if (!bytes || isNaN(bytes) || bytes <= 0) return "0 B";
   const k = 1024;
   const sizes = ["B", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -15,14 +15,17 @@ const formatBytes = (bytes: number): string => {
 };
 
 export const SpaceRecoveryBar: React.FC<SpaceRecoveryBarProps> = ({
-  totalBytes,
-  usedBytes,
-  recoverableBytes,
+  totalBytes = 0,
+  usedBytes = 0,
+  recoverableBytes = 0,
 }) => {
-  const safeTotal = totalBytes > 0 ? totalBytes : 1;
-  const clampedRecoverable = Math.min(usedBytes, recoverableBytes);
-  const permanentUsedBytes = Math.max(0, usedBytes - clampedRecoverable);
-  const freeBytes = Math.max(0, totalBytes - usedBytes);
+  const safeTotal = typeof totalBytes === "number" && totalBytes > 0 ? totalBytes : 1;
+  const safeUsed = typeof usedBytes === "number" && !isNaN(usedBytes) ? Math.max(0, usedBytes) : 0;
+  const safeRecoverable = typeof recoverableBytes === "number" && !isNaN(recoverableBytes) ? Math.max(0, recoverableBytes) : 0;
+
+  const clampedRecoverable = Math.min(safeUsed, safeRecoverable);
+  const permanentUsedBytes = Math.max(0, safeUsed - clampedRecoverable);
+  const freeBytes = Math.max(0, safeTotal - safeUsed);
 
   const permanentPct = Math.round((permanentUsedBytes / safeTotal) * 1000) / 10;
   const recoverablePct = Math.round((clampedRecoverable / safeTotal) * 1000) / 10;
@@ -58,56 +61,84 @@ export const SpaceRecoveryBar: React.FC<SpaceRecoveryBarProps> = ({
           style={{
             width: `${permanentPct}%`,
             background: "#CBD5E1",
-            transition: "width 0.4s ease",
+            transition: "width 0.5s ease",
           }}
           title={`Ocupado: ${formatBytes(permanentUsedBytes)} (${permanentPct}%)`}
         />
-        {/* Segmento recuperable */}
+
+        {/* Segmento recuperable (verde esmeralda brillante) */}
         <div
           data-testid="segment-recoverable"
           style={{
             width: `${recoverablePct}%`,
             background: "#4ADE80",
-            transition: "width 0.4s ease",
+            transition: "width 0.5s ease",
           }}
           title={`Recuperable: ${formatBytes(clampedRecoverable)} (${recoverablePct}%)`}
         />
+
         {/* Segmento libre */}
         <div
           data-testid="segment-free"
           style={{
             width: `${freePct}%`,
-            background: "#1E293B",
-            transition: "width 0.4s ease",
+            background: "transparent",
+            transition: "width 0.5s ease",
           }}
           title={`Libre: ${formatBytes(freeBytes)} (${freePct}%)`}
         />
       </div>
 
-      {/* Leyenda */}
+      {/* Leyenda inferior */}
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "12px",
+          justifyContent: "center",
+          gap: "24px",
           fontSize: "13px",
-          color: "#94A3B8",
         }}
+        data-testid="bar-legend"
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#CBD5E1" }} />
-          <span>Espacio ocupado: {formatBytes(permanentUsedBytes)} ({permanentPct}%)</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#4ADE80" }} />
-          <span style={{ color: "#4ADE80", fontWeight: 600 }}>
-            Espacio recuperable: {formatBytes(clampedRecoverable)} ({recoverablePct}%)
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <span
+            style={{
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              background: "#CBD5E1",
+            }}
+          />
+          <span style={{ color: "#94A3B8" }}>
+            Ocupado: <strong style={{ color: "#F8FAFC" }}>{formatBytes(permanentUsedBytes)}</strong> ({permanentPct}%)
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#1E293B", border: "1px solid #475569" }} />
-          <span>Espacio libre: {formatBytes(freeBytes)} ({freePct}%)</span>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <span
+            style={{
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              background: "#4ADE80",
+            }}
+          />
+          <span style={{ color: "#94A3B8" }}>
+            Recuperable: <strong style={{ color: "#4ADE80" }}>{formatBytes(clampedRecoverable)}</strong> ({recoverablePct}%)
+          </span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <span
+            style={{
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              border: "1px solid rgba(255, 255, 255, 0.4)",
+            }}
+          />
+          <span style={{ color: "#94A3B8" }}>
+            Libre: <strong style={{ color: "#F8FAFC" }}>{formatBytes(freeBytes)}</strong> ({freePct}%)
+          </span>
         </div>
       </div>
     </div>

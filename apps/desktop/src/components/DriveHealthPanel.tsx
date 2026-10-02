@@ -5,11 +5,12 @@ import { DriveHealthInfo } from "../types/models";
 import "./driveHealthPanel.css";
 
 export interface DriveHealthPanelProps {
-  data: DriveHealthInfo;
+  data?: DriveHealthInfo | null;
   onRefresh: () => void;
 }
 
-const formatBytesToGb = (bytes: number): string => {
+const formatBytesToGb = (bytes?: number): string => {
+  if (typeof bytes !== "number" || isNaN(bytes) || bytes <= 0) return "0.0 GB";
   return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
 };
 
@@ -17,15 +18,28 @@ export const DriveHealthPanel: React.FC<DriveHealthPanelProps> = ({
   data,
   onRefresh,
 }) => {
+  if (!data) {
+    return (
+      <div className="drive-health-panel" data-testid="drive-health-panel">
+        <div className="drive-health-header">
+          <h2 className="drive-health-title">Salud del Disco</h2>
+        </div>
+        <p style={{ color: "#94A3B8", textAlign: "center", padding: "24px" }}>
+          Información de salud del disco no disponible.
+        </p>
+      </div>
+    );
+  }
+
   const {
-    drive_label,
-    drive_path,
-    total_bytes,
-    free_bytes,
-    usage_percent,
-    disk_type,
-    filesystem,
-    smart_status,
+    drive_label = "Disco local (C:)",
+    drive_path = "C:",
+    total_bytes = 0,
+    free_bytes = 0,
+    usage_percent = 0,
+    disk_type = "SSD",
+    filesystem = "NTFS",
+    smart_status = "Healthy",
     temperature_celsius,
     drive_wear_percent,
     reallocated_sectors,
@@ -33,15 +47,19 @@ export const DriveHealthPanel: React.FC<DriveHealthPanelProps> = ({
     fill_forecast,
   } = data;
 
+  const safeUsage = typeof usage_percent === "number" && !isNaN(usage_percent)
+    ? Math.min(100, Math.max(0, Math.round(usage_percent)))
+    : 0;
+
   // Doughnut math
   const radius = 45;
   const circumference = 2 * Math.PI * radius; // ~282.74
-  const strokeDashoffset = circumference - (Math.min(100, Math.max(0, usage_percent)) / 100) * circumference;
+  const strokeDashoffset = circumference - (safeUsage / 100) * circumference;
 
   let doughnutColor = "#4ADE80";
-  if (usage_percent >= 90) {
+  if (safeUsage >= 90) {
     doughnutColor = "#F87171";
-  } else if (usage_percent >= 80) {
+  } else if (safeUsage >= 80) {
     doughnutColor = "#FACC15";
   }
 
@@ -107,7 +125,7 @@ export const DriveHealthPanel: React.FC<DriveHealthPanelProps> = ({
               fontSize="20"
               fontWeight="700"
             >
-              {usage_percent}%
+              {safeUsage}%
             </text>
             <text
               x="60"
@@ -145,10 +163,10 @@ export const DriveHealthPanel: React.FC<DriveHealthPanelProps> = ({
               <div className="drive-health-metric-bar">
                 <div
                   className="drive-health-metric-bar-fill"
-                  style={{ width: `${usage_percent}%`, background: doughnutColor }}
+                  style={{ width: `${safeUsage}%`, background: doughnutColor }}
                 />
               </div>
-              <span>{usage_percent}%</span>
+              <span>{safeUsage}%</span>
             </div>
           </div>
 
@@ -218,24 +236,22 @@ export const DriveHealthPanel: React.FC<DriveHealthPanelProps> = ({
                     ? "#94A3B8"
                     : reallocated_sectors === 0
                     ? "#4ADE80"
-                    : "#FACC15",
+                    : "#F87171",
               }}
             >
               {reallocated_sectors === null || reallocated_sectors === undefined
                 ? "N/A"
-                : reallocated_sectors === 0
-                ? "0 - healthy"
-                : `${reallocated_sectors} - warning`}
+                : reallocated_sectors}
             </span>
           </div>
 
-          {/* Power-on time */}
+          {/* Power on hours */}
           <div className="drive-health-metric-row">
-            <span className="drive-health-metric-label">Power-on time</span>
-            <span className="drive-health-metric-value">
-              {power_on_hours !== null && power_on_hours !== undefined
-                ? `${power_on_hours} hours`
-                : "N/A"}
+            <span className="drive-health-metric-label">Power on hours</span>
+            <span className="drive-health-metric-value" style={{ color: "#F8FAFC" }}>
+              {power_on_hours === null || power_on_hours === undefined
+                ? "N/A"
+                : `${power_on_hours.toLocaleString()} hrs`}
             </span>
           </div>
         </div>
@@ -253,7 +269,7 @@ export const DriveHealthPanel: React.FC<DriveHealthPanelProps> = ({
               strokeDasharray="4 4"
             />
           </svg>
-          <div className="drive-health-forecast-text">
+          <div className="drive-health-forecast-text" data-testid="fill-forecast">
             Filling at about {fill_forecast.gb_per_day} GB per day — full in roughly{" "}
             {fill_forecast.full_in_weeks} weeks.
           </div>

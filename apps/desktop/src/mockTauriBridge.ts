@@ -24,6 +24,10 @@ import {
   StartupItem,
   InstalledApp,
   JunkFilesScanResult,
+  SmartCareAnalysis,
+  DriveHealthInfo,
+  RecycleBinScanResult,
+  AppUsageInfo,
 } from "./types/models";
 import { LayoutNode, Rect, Point, TreemapRect, SunburstArc } from "./types/treemap";
 import {
@@ -314,6 +318,262 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     }
 
     // 2. Comandos de SmartCare y Escaneo
+    if (cmd === "get_drive_health") {
+      const drive = (args?.drive || "C:").toUpperCase();
+      const driveLetter = drive.endsWith(":") ? drive : `${drive}:`;
+      const health: DriveHealthInfo = {
+        drive_letter: driveLetter,
+        drive_label: driveLetter.startsWith("C") ? "Disco local (C:)" : `Disco (${driveLetter})`,
+        drive_path: driveLetter,
+        total_bytes: 1024 * 1024 * 1024 * 1024, // 1 TB
+        used_bytes: 604 * 1024 * 1024 * 1024,
+        free_bytes: 420 * 1024 * 1024 * 1024,
+        usage_percent: 59,
+        disk_type: "SSD_NVMe",
+        filesystem: "NTFS",
+        smart_status: "Healthy",
+        temperature_celsius: 38,
+        drive_wear_percent: 4,
+        reallocated_sectors: 0,
+        power_on_hours: 1420,
+        fill_forecast: {
+          gb_per_day: 1.2,
+          full_in_weeks: 48,
+          readings_count: 5,
+          readings_period_days: 30,
+        },
+      };
+      return health;
+    }
+
+    if (cmd === "get_smartcare_analysis") {
+      try {
+        const stored = localStorage.getItem("gigacare_last_smartcare_analysis");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.is_valid && parsed.drive_health) {
+            return parsed;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Error leyendo last_smartcare_analysis:", err);
+      }
+      return null;
+    }
+
+    if (cmd === "save_smartcare_analysis") {
+      try {
+        if (args?.analysis) {
+          localStorage.setItem("gigacare_last_smartcare_analysis", JSON.stringify(args.analysis));
+        }
+      } catch (err) {
+        console.warn("[Bridge] Error guardando smartcare_analysis:", err);
+      }
+      return true;
+    }
+
+    if (cmd === "run_full_smartcare_analysis") {
+      scanCancelRequested = false;
+
+      const progressSteps = [
+        { phase: "Analizando salud física de discos y telemetría SMART...", percent: 15 },
+        { phase: "Escaneando archivos temporales y restos del sistema...", percent: 35 },
+        { phase: "Analizando papelera de reciclaje y cachés de navegadores...", percent: 55 },
+        { phase: "Analizando uso de aplicaciones e inactividad en registro...", percent: 75 },
+        { phase: "Escaneando cachés de desarrollo y modelos de IA...", percent: 90 },
+        { phase: "Consolidando resultados del análisis inteligente...", percent: 100 },
+      ];
+
+      for (const step of progressSteps) {
+        if (scanCancelRequested) {
+          throw new Error("Análisis cancelado por el usuario");
+        }
+        emitEvent("smartcare-analysis-progress", {
+          phase: step.phase,
+          percent: step.percent,
+        });
+        await new Promise((r) => setTimeout(r, 380));
+      }
+
+      const driveHealth: DriveHealthInfo = {
+        drive_letter: "C:",
+        drive_label: "Disco local (C:)",
+        drive_path: "C:",
+        total_bytes: 1024 * 1024 * 1024 * 1024,
+        used_bytes: 604 * 1024 * 1024 * 1024,
+        free_bytes: 420 * 1024 * 1024 * 1024,
+        usage_percent: 59,
+        disk_type: "SSD_NVMe",
+        filesystem: "NTFS",
+        smart_status: "Healthy",
+        temperature_celsius: 38,
+        drive_wear_percent: 4,
+        reallocated_sectors: 0,
+        power_on_hours: 1420,
+        fill_forecast: {
+          gb_per_day: 1.2,
+          full_in_weeks: 48,
+          readings_count: 5,
+          readings_period_days: 30,
+        },
+      };
+
+      const analysis: SmartCareAnalysis = {
+        id: `smartcare-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        drive_health: driveHealth,
+        junk_summary: {
+          temp_files_bytes: 2450000000,
+          windows_leftovers_bytes: 1800000000,
+          installers_bytes: 750000000,
+          browser_caches_bytes: 1800000000,
+          messaging_caches_bytes: 820000000,
+          recycle_bin_bytes: 900000000,
+          total_bytes: 8520000000,
+          item_count: 64,
+        },
+        dev_summary: {
+          safe_caches_bytes: 1250000000,
+          unused_models_bytes: 4200000000,
+          stale_python_bytes: 850000000,
+          total_bytes: 6300000000,
+          item_count: 14,
+        },
+        apps_summary: {
+          unused_apps_count: 3,
+          unused_apps_bytes: 3200000000,
+        },
+        total_recoverable_bytes: 8520000000 + 6300000000 + 3200000000,
+        is_valid: true,
+      };
+
+      try {
+        localStorage.setItem("gigacare_last_smartcare_analysis", JSON.stringify(analysis));
+      } catch (err) {
+        console.warn("[Bridge] Error guardando análisis en localStorage:", err);
+      }
+
+      return analysis;
+    }
+
+    if (cmd === "scan_recycle_bin") {
+      const result: RecycleBinScanResult = {
+        drives: [
+          {
+            drive_letter: "C:",
+            drive_label: "Disco local (C:)",
+            item_count: 12,
+            total_bytes: 900000000,
+          },
+        ],
+        items: [
+          {
+            original_path: "C:\\Users\\Luciano\\Downloads\\old_installer_package.zip",
+            name: "old_installer_package.zip",
+            size_bytes: 520000000,
+            deleted_at: new Date(Date.now() - 3 * 86400000).toISOString(),
+            file_type: "zip",
+            recycle_path: "C:\\$Recycle.Bin\\S-1-5-21\\$R001.zip",
+            i_path: "C:\\$Recycle.Bin\\S-1-5-21\\$I001.zip",
+          },
+          {
+            original_path: "C:\\Users\\Luciano\\Desktop\\Draft_Presupuesto_2024.docx",
+            name: "Draft_Presupuesto_2024.docx",
+            size_bytes: 380000000,
+            deleted_at: new Date(Date.now() - 6 * 86400000).toISOString(),
+            file_type: "docx",
+            recycle_path: "C:\\$Recycle.Bin\\S-1-5-21\\$R002.docx",
+            i_path: "C:\\$Recycle.Bin\\S-1-5-21\\$I002.docx",
+          },
+        ],
+        total_items: 12,
+        total_bytes: 900000000,
+      };
+      return result;
+    }
+
+    if (cmd === "clean_recycle_bin") {
+      return {
+        success: true,
+        cleaned_count: 12,
+        freed_bytes: 900000000,
+        errors: [],
+      };
+    }
+
+    if (cmd === "list_installed_apps_with_usage") {
+      const apps: InstalledApp[] = [
+        {
+          id: "app-1",
+          name: "Visual Studio Code",
+          version: "1.92.2",
+          publisher: "Microsoft Corporation",
+          size_bytes: 480 * 1024 * 1024,
+          source: "registry",
+          last_used_days: 1,
+          last_used_at: new Date(Date.now() - 1 * 86400000).toISOString(),
+          usage_count: 180,
+        },
+        {
+          id: "app-2",
+          name: "Google Chrome",
+          version: "128.0.6613.120",
+          publisher: "Google LLC",
+          size_bytes: 650 * 1024 * 1024,
+          source: "registry",
+          last_used_days: 0,
+          last_used_at: new Date().toISOString(),
+          usage_count: 450,
+        },
+        {
+          id: "app-3",
+          name: "Epic Games Launcher",
+          version: "15.17.1",
+          publisher: "Epic Games Inc.",
+          size_bytes: 1800 * 1024 * 1024,
+          source: "registry",
+          last_used_days: 410,
+          last_used_at: new Date(Date.now() - 410 * 86400000).toISOString(),
+          usage_count: 3,
+        },
+        {
+          id: "app-4",
+          name: "Spotify Music",
+          version: "1.2.45.454",
+          publisher: "Spotify AB",
+          size_bytes: 320 * 1024 * 1024,
+          source: "store",
+          last_used_days: 95,
+          last_used_at: new Date(Date.now() - 95 * 86400000).toISOString(),
+          usage_count: 14,
+        },
+        {
+          id: "app-5",
+          name: "Steam",
+          version: "2.10.91.91",
+          publisher: "Valve Corporation",
+          size_bytes: 2500 * 1024 * 1024,
+          source: "registry_wow64",
+          last_used_days: 215,
+          last_used_at: new Date(Date.now() - 215 * 86400000).toISOString(),
+          usage_count: 22,
+        },
+      ];
+      return apps;
+    }
+
+    if (cmd === "get_app_usage") {
+      const names: string[] = args?.app_names || [];
+      const result: AppUsageInfo[] = names.map((name) => ({
+        app_id: name,
+        last_used_days: 30,
+        last_used_at: new Date(Date.now() - 30 * 86400000).toISOString(),
+        usage_count: 10,
+        source: "prefetch",
+      }));
+      return result;
+    }
+
     if (cmd === "scan_junk_files") {
       const mockResult: JunkFilesScanResult = {
         total_junk_bytes: 8520000000,

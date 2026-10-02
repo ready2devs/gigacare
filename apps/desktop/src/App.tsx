@@ -247,15 +247,20 @@ export default function App() {
           return (
             <SmartCareScanning
               onComplete={(analysis) => {
-                setSmartCareAnalysis(analysis);
-                setSmartcarePhase("results");
+                if (analysis && typeof analysis === "object" && analysis.drive_health) {
+                  setSmartCareAnalysis(analysis);
+                  setSmartcarePhase("results");
+                } else {
+                  console.warn("Análisis incompleto recibido:", analysis);
+                  setSmartcarePhase("welcome");
+                }
               }}
               onCancel={() => setSmartcarePhase("welcome")}
             />
           );
         }
 
-        if (smartcarePhase === "results" && smartCareAnalysis) {
+        if (smartcarePhase === "results" && smartCareAnalysis && smartCareAnalysis.drive_health) {
           return (
             <>
               <SmartCareResults
