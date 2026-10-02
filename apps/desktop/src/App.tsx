@@ -447,6 +447,7 @@ export default function App() {
           if (activeModule !== "settings") {
             setPreviousModule(activeModule);
           }
+          setIsReviewOpen(false);
           setActiveModule(mod);
         }}
       >

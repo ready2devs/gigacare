@@ -461,37 +461,79 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     }
 
     if (cmd === "scan_recycle_bin") {
+      try {
+        const resp = await fetch("/api/real-recycle-bin");
+        if (resp.ok) {
+          const realData = await resp.json();
+          if (realData && Array.isArray(realData.items)) {
+            const result: RecycleBinScanResult = {
+              drives: [
+                {
+                  drive_letter: "C:",
+                  drive_label: "Disco local (C:)",
+                  item_count: realData.total_items || realData.items.length,
+                  total_bytes: realData.total_bytes || 0,
+                },
+              ],
+              items: realData.items.map((it: any) => ({
+                original_path: it.original_path || it.path || it.name,
+                name: it.name,
+                size_bytes: it.size_bytes || 0,
+                deleted_at: it.deleted_at || new Date().toISOString(),
+                file_type: it.file_type || "",
+                recycle_path: it.recycle_path || it.original_path,
+                i_path: it.recycle_path || it.original_path,
+              })),
+              total_items: realData.total_items || realData.items.length,
+              total_bytes: realData.total_bytes || 0,
+            };
+            return result;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real-recycle-bin:", err);
+      }
+
       const result: RecycleBinScanResult = {
         drives: [
           {
             drive_letter: "C:",
             drive_label: "Disco local (C:)",
-            item_count: 12,
-            total_bytes: 900000000,
+            item_count: 4,
+            total_bytes: 6591,
           },
         ],
         items: [
           {
-            original_path: "C:\\Users\\Luciano\\Downloads\\old_installer_package.zip",
-            name: "old_installer_package.zip",
-            size_bytes: 520000000,
-            deleted_at: new Date(Date.now() - 3 * 86400000).toISOString(),
-            file_type: "zip",
-            recycle_path: "C:\\$Recycle.Bin\\S-1-5-21\\$R001.zip",
-            i_path: "C:\\$Recycle.Bin\\S-1-5-21\\$I001.zip",
+            original_path: "C:\\Users\\Luciano\\OneDrive\\Escritorio\\Gemini",
+            name: "Gemini",
+            size_bytes: 2128,
+            deleted_at: new Date(Date.now() - 2 * 86400000).toISOString(),
+            file_type: "lnk",
+            recycle_path: "C:\\$Recycle.Bin\\$RKZMC9S.lnk",
+            i_path: "C:\\$Recycle.Bin\\$IKZMC9S.lnk",
           },
           {
-            original_path: "C:\\Users\\Luciano\\Desktop\\Draft_Presupuesto_2024.docx",
-            name: "Draft_Presupuesto_2024.docx",
-            size_bytes: 380000000,
-            deleted_at: new Date(Date.now() - 6 * 86400000).toISOString(),
-            file_type: "docx",
-            recycle_path: "C:\\$Recycle.Bin\\S-1-5-21\\$R002.docx",
-            i_path: "C:\\$Recycle.Bin\\S-1-5-21\\$I002.docx",
+            original_path: "C:\\Users\\Public\\Desktop\\GigaCare",
+            name: "GigaCare",
+            size_bytes: 1032,
+            deleted_at: new Date(Date.now() - 11 * 86400000).toISOString(),
+            file_type: "lnk",
+            recycle_path: "C:\\$Recycle.Bin\\$R8YSO1M.lnk",
+            i_path: "C:\\$Recycle.Bin\\$I8YSO1M.lnk",
+          },
+          {
+            original_path: "C:\\Users\\Luciano\\Workspace\\antigravity\\subir.bat",
+            name: "subir.bat",
+            size_bytes: 1303,
+            deleted_at: new Date(Date.now() - 10 * 86400000).toISOString(),
+            file_type: "bat",
+            recycle_path: "C:\\$Recycle.Bin\\$R4HX5XA.bat",
+            i_path: "C:\\$Recycle.Bin\\$I4HX5XA.bat",
           },
         ],
-        total_items: 12,
-        total_bytes: 900000000,
+        total_items: 3,
+        total_bytes: 4463,
       };
       return result;
     }
@@ -648,6 +690,44 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
                 size_bytes: 400000000,
                 safe: false,
                 source_type: "app_residual",
+              },
+            ],
+          },
+          {
+            category_id: "recycle_bin",
+            display_name: "Papelera de Reciclaje",
+            total_bytes: 4463,
+            safe_bytes: 4463,
+            items: [
+              {
+                id: "C:\\$Recycle.Bin\\$RKZMC9S.lnk",
+                display_name: "Gemini",
+                path: "C:\\$Recycle.Bin\\$RKZMC9S.lnk",
+                size_bytes: 2128,
+                safe: true,
+                age_days: 2,
+                age_display: "2 días",
+                source_type: "recycle_bin",
+              },
+              {
+                id: "C:\\$Recycle.Bin\\$R4HX5XA.bat",
+                display_name: "subir.bat",
+                path: "C:\\$Recycle.Bin\\$R4HX5XA.bat",
+                size_bytes: 1303,
+                safe: true,
+                age_days: 10,
+                age_display: "1 semana",
+                source_type: "recycle_bin",
+              },
+              {
+                id: "C:\\$Recycle.Bin\\$R8YSO1M.lnk",
+                display_name: "GigaCare",
+                path: "C:\\$Recycle.Bin\\$R8YSO1M.lnk",
+                size_bytes: 1032,
+                safe: true,
+                age_days: 11,
+                age_display: "1 semana",
+                source_type: "recycle_bin",
               },
             ],
           },
@@ -960,7 +1040,8 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
       for (let i = 0; i < itemIds.length; i++) {
         const path = itemIds[i];
         const fileName = path.split(/[\\/]/).pop() || "item";
-        const size = Math.floor(Math.random() * 80000000) + 15000000;
+        // Asignar tamaño realista proporcional al volumen del análisis completo (~16.78 GB distribuidos)
+        const size = Math.floor(16780000000 / Math.max(1, itemIds.length));
         bytesFreed += size;
 
         const newEntry: QuarantineEntry = {
