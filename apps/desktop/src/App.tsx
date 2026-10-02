@@ -216,12 +216,9 @@ export default function App() {
         setUninstalledAppsCount(0);
         setPendingAppsQueue(matched.slice(1));
         setCurrentAppToUninstall(matched[0]);
-        return;
       }
-    }
-
-    // Si se ejecutó directamente sin revisar, preguntar por apps no utilizadas si existen
-    if (appsToClean.length === 0 && !customSelectedPaths) {
+    } else if (appsToClean.length === 0 && !customSelectedPaths) {
+      // Si se ejecutó directamente sin revisar, preguntar por apps no utilizadas si existen
       try {
         let detectedApps = appsData;
         if (!detectedApps || detectedApps.length === 0) {

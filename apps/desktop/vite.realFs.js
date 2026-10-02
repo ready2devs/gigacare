@@ -221,6 +221,22 @@ export function realSystemFsPlugin() {
         }
       });
 
+      server.middlewares.use("/api/real-temp-files", (_req, res) => {
+        try {
+          const scriptPath = path.resolve(__dirname || process.cwd(), "scripts", "get-real-temp-files.ps1");
+          const out = execSync(`powershell -NoProfile -ExecutionPolicy Bypass -File "${scriptPath}"`, {
+            maxBuffer: 10 * 1024 * 1024,
+            encoding: "utf-8",
+            timeout: 5000,
+          });
+          res.setHeader("Content-Type", "application/json");
+          res.end(out || JSON.stringify({ total_bytes: 0, items: [] }));
+        } catch (err) {
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: String(err), total_bytes: 0, items: [] }));
+        }
+      });
+
       server.middlewares.use("/api/real-recycle-bin", (_req, res) => {
         try {
           const scriptPath = path.resolve(__dirname || process.cwd(), "scripts", "get-real-recycle-bin.ps1");

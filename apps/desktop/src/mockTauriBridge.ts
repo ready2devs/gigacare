@@ -602,37 +602,57 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     }
 
     if (cmd === "scan_junk_files") {
+      let realTempItems: any[] = [];
+      let realTempBytes = 2580000000;
+
+      try {
+        const resp = await fetch("/api/real-temp-files");
+        if (resp.ok) {
+          const tData = await resp.json();
+          if (tData && Array.isArray(tData.items) && tData.items.length > 0) {
+            realTempItems = tData.items;
+            realTempBytes = tData.total_bytes || realTempBytes;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real temp files:", err);
+      }
+
+      const tempCategoryItems = realTempItems.length > 0 ? realTempItems : [
+        {
+          id: "C:\\Users\\Luciano\\AppData\\Local\\Temp\\tmp_001.tmp",
+          display_name: "tmp_001.tmp",
+          path: "C:\\Users\\Luciano\\AppData\\Local\\Temp\\tmp_001.tmp",
+          size_bytes: 1450000000,
+          safe: true,
+          age_days: 14,
+          age_display: "2 semanas",
+          source_type: "temp_user",
+        },
+        {
+          id: "C:\\Windows\\Temp\\system_log.tmp",
+          display_name: "system_log.tmp",
+          path: "C:\\Windows\\Temp\\system_log.tmp",
+          size_bytes: 1000000000,
+          safe: true,
+          age_days: 60,
+          age_display: "2 meses",
+          source_type: "temp_system",
+        },
+      ];
+
       const mockResult: JunkFilesScanResult = {
-        total_junk_bytes: 8520000000,
+        total_junk_bytes: realTempItems.length > 0
+          ? realTempBytes + 1800000000 + 750000000 + 2520000000 + 600000000 + 4463
+          : 8520000000,
         scan_timestamp: new Date().toISOString(),
         categories: [
           {
             category_id: "temp_files",
             display_name: "Archivos Temporales",
-            total_bytes: 2450000000,
-            safe_bytes: 2450000000,
-            items: [
-              {
-                id: "C:\\Users\\Luciano\\AppData\\Local\\Temp\\tmp_001.tmp",
-                display_name: "tmp_001.tmp",
-                path: "C:\\Users\\Luciano\\AppData\\Local\\Temp\\tmp_001.tmp",
-                size_bytes: 1450000000,
-                safe: true,
-                age_days: 14,
-                age_display: "2 semanas",
-                source_type: "temp_user",
-              },
-              {
-                id: "C:\\Windows\\Temp\\system_log.tmp",
-                display_name: "system_log.tmp",
-                path: "C:\\Windows\\Temp\\system_log.tmp",
-                size_bytes: 1000000000,
-                safe: true,
-                age_days: 60,
-                age_display: "2 meses",
-                source_type: "temp_system",
-              },
-            ],
+            total_bytes: realTempItems.length > 0 ? realTempBytes : 2450000000,
+            safe_bytes: realTempItems.length > 0 ? realTempBytes : 2450000000,
+            items: tempCategoryItems,
           },
           {
             category_id: "windows_leftovers",

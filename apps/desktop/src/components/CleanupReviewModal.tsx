@@ -193,7 +193,20 @@ export const CleanupReviewModal: React.FC<CleanupReviewModalProps> = ({
   }, [safeJunkBySubcat, devItemsBySubcat]);
 
   const [selectedPaths, setSelectedPaths] = useState<Set<string>>(() => allInitialPaths);
-  const [selectedApps, setSelectedApps] = useState<Set<string>>(new Set());
+  // Almacenar las apps deseleccionadas explícitamente por el usuario para conservarlas
+  const [unselectedApps, setUnselectedApps] = useState<Set<string>>(new Set());
+
+  // Por defecto, TODAS las aplicaciones sin uso están marcadas para desinstalar,
+  // permitiendo al usuario desmarcar casillas para conservarlas y evitar su desinstalación
+  const selectedApps = useMemo(() => {
+    const set = new Set<string>();
+    for (const app of filteredApps) {
+      if (!unselectedApps.has(app.path)) {
+        set.add(app.path);
+      }
+    }
+    return set;
+  }, [filteredApps, unselectedApps]);
 
   // Current file list items based on selected category & subcategory
   const currentFiles: ReviewFileItem[] = useMemo(() => {
@@ -211,10 +224,15 @@ export const CleanupReviewModal: React.FC<CleanupReviewModalProps> = ({
 
   const handleTogglePath = (path: string) => {
     if (selectedCategory === "apps") {
-      setSelectedApps((prev) => {
+      setUnselectedApps((prev) => {
         const next = new Set(prev);
-        if (next.has(path)) next.delete(path);
-        else next.add(path);
+        if (next.has(path)) {
+          // Volver a marcar para desinstalar
+          next.delete(path);
+        } else {
+          // Desmarcar para conservar la app
+          next.add(path);
+        }
         return next;
       });
       return;
@@ -230,11 +248,16 @@ export const CleanupReviewModal: React.FC<CleanupReviewModalProps> = ({
 
   const handleToggleAll = (selectAll: boolean) => {
     if (selectedCategory === "apps") {
-      setSelectedApps((prev) => {
+      setUnselectedApps((prev) => {
         const next = new Set(prev);
         for (const f of currentFiles) {
-          if (selectAll) next.add(f.path);
-          else next.delete(f.path);
+          if (selectAll) {
+            // Seleccionar todas (remover de la lista de apps conservadas)
+            next.delete(f.path);
+          } else {
+            // Desmarcar todas (conservar todas las apps)
+            next.add(f.path);
+          }
         }
         return next;
       });
