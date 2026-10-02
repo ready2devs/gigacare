@@ -77,8 +77,15 @@ export default function App() {
 
   useEffect(() => {
     invoke<SmartCareAnalysis | null>("get_smartcare_analysis")
-      .then((analysis) => {
+      .then(async (analysis) => {
         if (analysis && analysis.is_valid) {
+          // Asegurar que la telemetría de salud de disco refleje el estado actual del hardware real
+          try {
+            const freshHealth = await invoke<any>("get_drive_health", { drive: "C:" });
+            if (freshHealth && freshHealth.total_bytes > 0) {
+              analysis.drive_health = freshHealth;
+            }
+          } catch {}
           setSmartCareAnalysis(analysis);
           setSmartcarePhase("results");
         }

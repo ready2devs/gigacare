@@ -162,12 +162,31 @@ export const CleanupReviewModal: React.FC<CleanupReviewModalProps> = ({
         }
         return false;
       })
-      .map((app) => ({
-        path: app.id || app.name,
-        name: app.name,
-        sizeBytes: app.size_bytes || 0,
-        date: app.last_used_at || app.install_date,
-      }));
+      .map((app) => {
+        let dateDisplay = "";
+        if (typeof app.last_used_days === "number") {
+          if (app.last_used_days === 0) dateDisplay = "Usado hoy";
+          else if (app.last_used_days === 1) dateDisplay = "Usado ayer";
+          else if (app.last_used_at) {
+            try {
+              dateDisplay = `${new Date(app.last_used_at).toLocaleDateString()} (hace ${app.last_used_days} días)`;
+            } catch {
+              dateDisplay = `Hace ${app.last_used_days} días`;
+            }
+          } else {
+            dateDisplay = `Hace ${app.last_used_days} días`;
+          }
+        } else if (app.install_date) {
+          dateDisplay = `Instalado: ${app.install_date}`;
+        }
+
+        return {
+          path: app.id || app.name,
+          name: app.name,
+          sizeBytes: app.size_bytes || 0,
+          date: dateDisplay || app.last_used_at || app.install_date,
+        };
+      });
   }, [appsData, appFilter]);
 
   // All safe file items to preselect

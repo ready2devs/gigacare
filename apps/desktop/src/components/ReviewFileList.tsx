@@ -95,9 +95,16 @@ export const ReviewFileList: React.FC<ReviewFileListProps> = ({
                 ) : (
                   <DocumentRegular style={{ color: "#94A3B8", fontSize: "16px" }} />
                 )}
-                <span className="review-file-name" title={item.path}>
-                  {truncate(item.name)}
-                </span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0 }}>
+                  <span className="review-file-name" title={item.path}>
+                    {truncate(item.name)}
+                  </span>
+                  {item.date && (
+                    <span style={{ fontSize: "11px", color: "#64748B" }}>
+                      {item.date}
+                    </span>
+                  )}
+                </div>
               </div>
               <span className="review-file-size">
                 {formatBytes(item.sizeBytes)}

@@ -318,17 +318,34 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     }
 
     // 2. Comandos de SmartCare y Escaneo
-    if (cmd === "get_drive_health") {
-      const drive = (args?.drive || "C:").toUpperCase();
-      const driveLetter = drive.endsWith(":") ? drive : `${drive}:`;
-      const health: DriveHealthInfo = {
+    const getRealOrFallbackDriveHealth = async (driveLetter: string = "C:"): Promise<DriveHealthInfo> => {
+      try {
+        if (typeof window !== "undefined" && typeof fetch !== "undefined") {
+          const resp = await fetch("/api/real-drive-health");
+          if (resp.ok) {
+            const data: DriveHealthInfo = await resp.json();
+            if (data && data.total_bytes > 0) {
+              return data;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("[Bridge] Fallback al leer /api/real-drive-health:", e);
+      }
+
+      const total = 1999372283904; // 2 TB nominal (1.82 TB NTFS Samsung SSD 980 PRO)
+      const free = 1219098361856; // 1.11 TB libres reales
+      const used = total - free; // 726.7 GB usados reales
+      const usagePct = Math.round((used / total) * 100); // 39% real
+
+      return {
         drive_letter: driveLetter,
-        drive_label: driveLetter.startsWith("C") ? "Disco local (C:)" : `Disco (${driveLetter})`,
+        drive_label: `Samsung SSD 980 PRO 2TB (${driveLetter})`,
         drive_path: driveLetter,
-        total_bytes: 1024 * 1024 * 1024 * 1024, // 1 TB
-        used_bytes: 604 * 1024 * 1024 * 1024,
-        free_bytes: 420 * 1024 * 1024 * 1024,
-        usage_percent: 59,
+        total_bytes: total,
+        used_bytes: used,
+        free_bytes: free,
+        usage_percent: usagePct,
         disk_type: "SSD_NVMe",
         filesystem: "NTFS",
         smart_status: "Healthy",
@@ -343,7 +360,12 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
           readings_period_days: 30,
         },
       };
-      return health;
+    };
+
+    if (cmd === "get_drive_health") {
+      const drive = (args?.drive || "C:").toUpperCase();
+      const driveLetter = drive.endsWith(":") ? drive : `${drive}:`;
+      return await getRealOrFallbackDriveHealth(driveLetter);
     }
 
     if (cmd === "get_smartcare_analysis") {
@@ -352,6 +374,9 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed && parsed.is_valid && parsed.drive_health) {
+            // Actualizar siempre la salud del disco con la información de hardware real más reciente
+            const freshHealth = await getRealOrFallbackDriveHealth(parsed.drive_health.drive_letter || "C:");
+            parsed.drive_health = freshHealth;
             return parsed;
           }
         }
@@ -395,28 +420,7 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
         await new Promise((r) => setTimeout(r, 380));
       }
 
-      const driveHealth: DriveHealthInfo = {
-        drive_letter: "C:",
-        drive_label: "Disco local (C:)",
-        drive_path: "C:",
-        total_bytes: 1024 * 1024 * 1024 * 1024,
-        used_bytes: 604 * 1024 * 1024 * 1024,
-        free_bytes: 420 * 1024 * 1024 * 1024,
-        usage_percent: 59,
-        disk_type: "SSD_NVMe",
-        filesystem: "NTFS",
-        smart_status: "Healthy",
-        temperature_celsius: 38,
-        drive_wear_percent: 4,
-        reallocated_sectors: 0,
-        power_on_hours: 1420,
-        fill_forecast: {
-          gb_per_day: 1.2,
-          full_in_weeks: 48,
-          readings_count: 5,
-          readings_period_days: 30,
-        },
-      };
+      const driveHealth: DriveHealthInfo = await getRealOrFallbackDriveHealth("C:");
 
       const analysis: SmartCareAnalysis = {
         id: `smartcare-${Date.now()}`,
@@ -502,64 +506,18 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     }
 
     if (cmd === "list_installed_apps_with_usage") {
-      const apps: InstalledApp[] = [
-        {
-          id: "app-1",
-          name: "Visual Studio Code",
-          version: "1.92.2",
-          publisher: "Microsoft Corporation",
-          size_bytes: 480 * 1024 * 1024,
-          source: "registry",
-          last_used_days: 1,
-          last_used_at: new Date(Date.now() - 1 * 86400000).toISOString(),
-          usage_count: 180,
-        },
-        {
-          id: "app-2",
-          name: "Google Chrome",
-          version: "128.0.6613.120",
-          publisher: "Google LLC",
-          size_bytes: 650 * 1024 * 1024,
-          source: "registry",
-          last_used_days: 0,
-          last_used_at: new Date().toISOString(),
-          usage_count: 450,
-        },
-        {
-          id: "app-3",
-          name: "Epic Games Launcher",
-          version: "15.17.1",
-          publisher: "Epic Games Inc.",
-          size_bytes: 1800 * 1024 * 1024,
-          source: "registry",
-          last_used_days: 410,
-          last_used_at: new Date(Date.now() - 410 * 86400000).toISOString(),
-          usage_count: 3,
-        },
-        {
-          id: "app-4",
-          name: "Spotify Music",
-          version: "1.2.45.454",
-          publisher: "Spotify AB",
-          size_bytes: 320 * 1024 * 1024,
-          source: "store",
-          last_used_days: 95,
-          last_used_at: new Date(Date.now() - 95 * 86400000).toISOString(),
-          usage_count: 14,
-        },
-        {
-          id: "app-5",
-          name: "Steam",
-          version: "2.10.91.91",
-          publisher: "Valve Corporation",
-          size_bytes: 2500 * 1024 * 1024,
-          source: "registry_wow64",
-          last_used_days: 215,
-          last_used_at: new Date(Date.now() - 215 * 86400000).toISOString(),
-          usage_count: 22,
-        },
-      ];
-      return apps;
+      try {
+        const resp = await fetch("/api/real-installed-apps");
+        if (resp.ok) {
+          const realApps: InstalledApp[] = await resp.json();
+          if (Array.isArray(realApps) && realApps.length > 0) {
+            return realApps;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real installed apps:", err);
+      }
+      return [];
     }
 
     if (cmd === "get_app_usage") {
@@ -2895,7 +2853,7 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
       return arcs;
     }
 
-    if (cmd === "list_installed_apps") {
+    if (cmd === "list_installed_apps" || cmd === "list_installed_apps_with_usage") {
       try {
         const resp = await fetch("/api/real-installed-apps");
         if (resp.ok) {

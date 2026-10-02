@@ -24,6 +24,53 @@ import { invoke } from "@tauri-apps/api/core";
 import { InstalledApp, ResidualScanResult, UninstallResult } from "../types/models";
 import { formatBytes } from "./DevCleaning/ConfirmClean";
 
+const formatLastUsed = (app: InstalledApp): { text: string; isOld: boolean } => {
+  if (typeof app.last_used_days === "number") {
+    const days = app.last_used_days;
+    let dateStr = "";
+    if (app.last_used_at) {
+      try {
+        const d = new Date(app.last_used_at);
+        if (!isNaN(d.getTime())) {
+          dateStr = d.toLocaleDateString();
+        }
+      } catch {}
+    }
+
+    if (days === 0) {
+      return { text: "Usado hoy", isOld: false };
+    }
+    if (days === 1) {
+      return { text: "Usado ayer", isOld: false };
+    }
+    if (dateStr) {
+      return {
+        text: `Último uso: ${dateStr} (hace ${days} días)`,
+        isOld: days >= 90,
+      };
+    }
+    return {
+      text: `Último uso: hace ${days} días`,
+      isOld: days >= 90,
+    };
+  }
+
+  if (app.install_date) {
+    try {
+      const s = String(app.install_date);
+      if (s.length === 8) {
+        const yr = s.substring(0, 4);
+        const mo = s.substring(4, 6);
+        const dy = s.substring(6, 8);
+        return { text: `Instalado: ${dy}/${mo}/${yr}`, isOld: false };
+      }
+    } catch {}
+    return { text: `Instalado: ${app.install_date}`, isOld: false };
+  }
+
+  return { text: "Uso no registrado", isOld: false };
+};
+
 export const UninstallerPanel: React.FC = () => {
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [loading, setLoading] = useState(true);
@@ -310,6 +357,7 @@ export const UninstallerPanel: React.FC = () => {
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {filteredApps.map((app) => {
               const isSelected = selectedApp?.id === app.id;
+              const usageInfo = formatLastUsed(app);
               return (
                 <div
                   key={app.id}
@@ -331,11 +379,11 @@ export const UninstallerPanel: React.FC = () => {
                     transition: "all 0.2s ease",
                   }}
                 >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "3px", minWidth: 0 }}>
                     <span style={{ fontWeight: 600, fontSize: "14px", color: "#F8FAFC" }}>
                       {app.name}
                     </span>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
                       <span style={{ fontSize: "11px", color: "#94A3B8" }}>
                         {app.publisher} • v{app.version}
                       </span>
@@ -359,10 +407,25 @@ export const UninstallerPanel: React.FC = () => {
                             : "Registro"}
                         </span>
                       )}
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: 500,
+                          color: usageInfo.isOld ? "#F59E0B" : "#67E8F9",
+                          background: usageInfo.isOld ? "rgba(245, 158, 11, 0.1)" : "rgba(6, 182, 212, 0.1)",
+                          padding: "1px 6px",
+                          borderRadius: "4px",
+                          border: usageInfo.isOld
+                            ? "1px solid rgba(245, 158, 11, 0.25)"
+                            : "1px solid rgba(6, 182, 212, 0.2)",
+                        }}
+                      >
+                        {usageInfo.text}
+                      </span>
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
                     <span style={{ fontSize: "13px", fontWeight: 600, color: "#CBD5E1" }}>
                       {app.size_bytes ? formatBytes(app.size_bytes) : "—"}
                     </span>
@@ -428,6 +491,22 @@ export const UninstallerPanel: React.FC = () => {
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <span style={{ color: "#94A3B8" }}>Instalado:</span>
                     <span style={{ color: "#F8FAFC" }}>{selectedApp.install_date}</span>
+                  </div>
+                )}
+                {typeof selectedApp.last_used_days === "number" && (
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: "#94A3B8" }}>Última vez usado:</span>
+                    <span style={{ color: selectedApp.last_used_days >= 90 ? "#F59E0B" : "#00E5FF", fontWeight: 600 }}>
+                      {selectedApp.last_used_at
+                        ? `${new Date(selectedApp.last_used_at).toLocaleDateString()} (hace ${selectedApp.last_used_days} días)`
+                        : `Hace ${selectedApp.last_used_days} días`}
+                    </span>
+                  </div>
+                )}
+                {typeof selectedApp.usage_count === "number" && selectedApp.usage_count > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: "#94A3B8" }}>Ejecuciones registradas:</span>
+                    <span style={{ color: "#F8FAFC" }}>{selectedApp.usage_count} veces</span>
                   </div>
                 )}
               </div>

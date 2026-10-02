@@ -44,11 +44,11 @@ export const SmartCareResults: React.FC<SmartCareResultsProps> = ({
     drive_letter: "C:",
     drive_label: "Disco local (C:)",
     drive_path: "C:",
-    total_bytes: 1024 * 1024 * 1024 * 1024,
-    free_bytes: 512 * 1024 * 1024 * 1024,
-    used_bytes: 512 * 1024 * 1024 * 1024,
-    usage_percent: 50,
-    disk_type: "SSD",
+    total_bytes: 1999372283904,
+    free_bytes: 1219098361856,
+    used_bytes: 780273922048,
+    usage_percent: 39,
+    disk_type: "SSD_NVMe",
     filesystem: "NTFS",
     smart_status: "Healthy",
   };
@@ -82,7 +82,14 @@ export const SmartCareResults: React.FC<SmartCareResultsProps> = ({
         onReview={onReview}
       />
 
-      {/* 3. Botón circular Ejecutar estilo CleanMyMac */}
+      {/* 3. Barra de recuperación de espacio */}
+      <SpaceRecoveryBar
+        totalBytes={totalBytes}
+        usedBytes={usedBytes}
+        recoverableBytes={recoverableBytes}
+      />
+
+      {/* 4. Botón circular Ejecutar estilo CleanMyMac (debajo de la barra) */}
       <div className="smartcare-execute-wrapper">
         <button
           className="smartcare-execute-btn"
@@ -92,13 +99,6 @@ export const SmartCareResults: React.FC<SmartCareResultsProps> = ({
           Ejecutar
         </button>
       </div>
-
-      {/* 4. Barra de recuperación de espacio */}
-      <SpaceRecoveryBar
-        totalBytes={totalBytes}
-        usedBytes={usedBytes}
-        recoverableBytes={recoverableBytes}
-      />
     </div>
   );
 };

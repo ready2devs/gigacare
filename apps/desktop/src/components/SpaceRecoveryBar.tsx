@@ -36,108 +36,115 @@ export const SpaceRecoveryBar: React.FC<SpaceRecoveryBarProps> = ({
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "12px",
+        gap: "10px",
         width: "100%",
         boxSizing: "border-box",
       }}
       data-testid="space-recovery-bar"
     >
-      {/* Barra con 3 segmentos */}
+      {/* Barra estilizada ultra-fina estilo CleanMyMac */}
       <div
         style={{
           width: "100%",
-          height: "24px",
-          borderRadius: "12px",
+          height: "6px",
+          borderRadius: "999px",
           overflow: "hidden",
           display: "flex",
-          background: "#1E293B",
+          background: "#080C14",
           border: "1px solid rgba(255, 255, 255, 0.08)",
+          boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.6)",
         }}
         data-testid="bar-track"
       >
-        {/* Segmento permanente usado */}
+        {/* Segmento permanente usado (blanco flúor delicado) */}
         <div
           data-testid="segment-permanent"
           style={{
             width: `${permanentPct}%`,
-            background: "#CBD5E1",
-            transition: "width 0.5s ease",
+            background: "#FFFFFF",
+            boxShadow: "0 0 8px rgba(255, 255, 255, 0.45)",
+            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
           title={`Ocupado: ${formatBytes(permanentUsedBytes)} (${permanentPct}%)`}
         />
 
-        {/* Segmento recuperable (verde esmeralda brillante) */}
+        {/* Segmento recuperable (turquesa flúor brillante como el botón Revisar) */}
         <div
           data-testid="segment-recoverable"
           style={{
             width: `${recoverablePct}%`,
-            background: "#4ADE80",
-            transition: "width 0.5s ease",
+            background: "#00E5FF",
+            boxShadow: "0 0 12px rgba(0, 229, 255, 0.8)",
+            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
           title={`Recuperable: ${formatBytes(clampedRecoverable)} (${recoverablePct}%)`}
         />
 
-        {/* Segmento libre */}
+        {/* Segmento libre (negro/transparente de fondo) */}
         <div
           data-testid="segment-free"
           style={{
             width: `${freePct}%`,
             background: "transparent",
-            transition: "width 0.5s ease",
+            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
           title={`Libre: ${formatBytes(freeBytes)} (${freePct}%)`}
         />
       </div>
 
-      {/* Leyenda inferior */}
+      {/* Leyenda inferior delicada y elegante */}
       <div
         style={{
           display: "flex",
           justifyContent: "center",
-          gap: "24px",
-          fontSize: "13px",
+          gap: "28px",
+          fontSize: "12px",
+          letterSpacing: "-0.1px",
         }}
         data-testid="bar-legend"
       >
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span
             style={{
-              width: "10px",
-              height: "10px",
+              width: "7px",
+              height: "7px",
               borderRadius: "50%",
-              background: "#CBD5E1",
+              background: "#FFFFFF",
+              boxShadow: "0 0 6px rgba(255, 255, 255, 0.5)",
             }}
           />
           <span style={{ color: "#94A3B8" }}>
-            Ocupado: <strong style={{ color: "#F8FAFC" }}>{formatBytes(permanentUsedBytes)}</strong> ({permanentPct}%)
+            Ocupado: <strong style={{ color: "#FFFFFF", fontWeight: 600 }}>{formatBytes(permanentUsedBytes)}</strong> ({permanentPct}%)
           </span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span
             style={{
-              width: "10px",
-              height: "10px",
+              width: "7px",
+              height: "7px",
               borderRadius: "50%",
-              background: "#4ADE80",
+              background: "#00E5FF",
+              boxShadow: "0 0 8px rgba(0, 229, 255, 0.85)",
             }}
           />
           <span style={{ color: "#94A3B8" }}>
-            Recuperable: <strong style={{ color: "#4ADE80" }}>{formatBytes(clampedRecoverable)}</strong> ({recoverablePct}%)
+            Recuperable: <strong style={{ color: "#00E5FF", fontWeight: 600 }}>{formatBytes(clampedRecoverable)}</strong> ({recoverablePct}%)
           </span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span
             style={{
-              width: "10px",
-              height: "10px",
+              width: "7px",
+              height: "7px",
               borderRadius: "50%",
-              border: "1px solid rgba(255, 255, 255, 0.4)",
+              background: "#080C14",
+              border: "1px solid rgba(255, 255, 255, 0.35)",
             }}
           />
           <span style={{ color: "#94A3B8" }}>
-            Libre: <strong style={{ color: "#F8FAFC" }}>{formatBytes(freeBytes)}</strong> ({freePct}%)
+            Libre: <strong style={{ color: "#E2E8F0", fontWeight: 600 }}>{formatBytes(freeBytes)}</strong> ({freePct}%)
           </span>
         </div>
       </div>
