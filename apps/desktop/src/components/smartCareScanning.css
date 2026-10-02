@@ -1,0 +1,135 @@
+.smartcare-scanning-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 80vh;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.smartcare-scanning-title {
+  font-size: 20px;
+  color: #F8FAFC;
+  font-weight: 600;
+  margin: 0 0 28px 0;
+}
+
+.smartcare-scanning-drive {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.smartcare-spinning-disk {
+  animation: spinDisk 3s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+@keyframes spinDisk {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.smartcare-file-ticker {
+  width: 100%;
+  max-width: 480px;
+  max-height: 160px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 24px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+}
+
+.smartcare-file-ticker-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: scrollFiles 10s linear infinite;
+}
+
+@keyframes scrollFiles {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.smartcare-file-ticker-item {
+  font-family: monospace, "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 12px;
+}
+
+.smartcare-progress-section {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.smartcare-progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.smartcare-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00E5FF, #7C3AED);
+  border-radius: 4px;
+  transition: width 0.3s ease-out;
+}
+
+.smartcare-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #94A3B8;
+}
+
+.smartcare-phase-text {
+  font-size: 14px;
+  color: #00E5FF;
+  font-weight: 500;
+}
+
+.smartcare-stop-btn {
+  padding: 8px 24px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #F87171;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.smartcare-stop-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #EF4444;
+  color: #FFFFFF;
+}

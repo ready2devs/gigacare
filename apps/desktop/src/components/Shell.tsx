@@ -5,8 +5,8 @@ import {
   BroomRegular,
   ShieldCheckmarkRegular,
   ImageMultipleRegular,
-  AppsListDetailRegular,
-  PowerRegular,
+  DeleteRegular,
+  ToolboxRegular,
   DataPieRegular,
   SettingsRegular,
   CodeRegular,
@@ -39,8 +39,8 @@ export const Shell: React.FC<ShellProps> = ({
   const modules = [
     {
       id: "smartcare",
-      title: t("modules.smartcare.title", "SmartCare"),
-      subtitle: t("modules.smartcare.subtitle", "Limpieza del Sistema"),
+      title: t("modules.smartcare.title", "Cuidado Inteligente"),
+      subtitle: t("modules.smartcare.subtitle", "Análisis y limpieza del sistema"),
       icon: <BroomRegular />,
     },
     {
@@ -56,16 +56,16 @@ export const Shell: React.FC<ShellProps> = ({
       icon: <ImageMultipleRegular />,
     },
     {
-      id: "uninstaller",
-      title: t("modules.uninstaller.title", "Desinstalador"),
-      subtitle: t("modules.uninstaller.subtitle", "Limpieza Profunda"),
-      icon: <AppsListDetailRegular />,
+      id: "junk_files",
+      title: t("modules.junk_files.title", "Archivos Basura"),
+      subtitle: t("modules.junk_files.subtitle", "Temporales, Cachés y Residuales"),
+      icon: <DeleteRegular />,
     },
     {
-      id: "startup",
-      title: t("modules.startup.title", "Inicio de Windows"),
-      subtitle: t("modules.startup.subtitle", "Optimizar Arranque"),
-      icon: <PowerRegular />,
+      id: "system_management",
+      title: t("modules.system_management.title", "Gestión del Sistema"),
+      subtitle: t("modules.system_management.subtitle", "Desinstalador e Inicio"),
+      icon: <ToolboxRegular />,
     },
     {
       id: "space_map",

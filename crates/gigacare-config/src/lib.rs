@@ -242,6 +242,28 @@ impl Default for I18nConfig {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SmartCareConfig {
+    pub model_unused_threshold_days: u32,
+    pub python_unused_threshold_days: u32,
+    pub app_unused_threshold_days: u32,
+    pub analysis_cache_hours: u32,
+    pub enable_drive_health: bool,
+}
+
+impl Default for SmartCareConfig {
+    fn default() -> Self {
+        Self {
+            model_unused_threshold_days: 730,
+            python_unused_threshold_days: 730,
+            app_unused_threshold_days: 365,
+            analysis_cache_hours: 1,
+            enable_drive_health: true,
+        }
+    }
+}
+
+
 // ─────────────────────────── AppConfig ────────────────────────
 
 /// Configuración principal de la aplicación GigaCare.
@@ -258,12 +280,14 @@ pub struct AppConfig {
     pub android: AndroidConfig,
     pub ui: UiConfig,
     pub i18n: I18nConfig,
+    #[serde(default)]
+    pub smartcare: SmartCareConfig,
 }
 
 impl Default for AppConfig {
     fn default() -> Self {
         Self {
-            version: 1,
+            version: 2,
             quarantine: QuarantineConfig::default(),
             scanning: ScanningConfig::default(),
             photos: PhotosConfig::default(),
@@ -274,6 +298,7 @@ impl Default for AppConfig {
             android: AndroidConfig::default(),
             ui: UiConfig::default(),
             i18n: I18nConfig::default(),
+            smartcare: SmartCareConfig::default(),
         }
     }
 }
@@ -286,7 +311,8 @@ impl AppConfig {
             return Ok(Self::default());
         }
         let content = std::fs::read_to_string(path)?;
-        let config: Self = serde_json::from_str(&content)?;
+        let mut config: Self = serde_json::from_str(&content)?;
+        config.migrate();
         config.validate()?;
         Ok(config)
     }
@@ -322,18 +348,26 @@ impl AppConfig {
     }
 
     /// Importa una configuración desde un string JSON.
+    /// Migra versiones previas de la configuración a la versión actual.
+    pub fn migrate(&mut self) {
+        if self.version == 1 {
+            self.version = 2;
+        }
+    }
+
     pub fn import_config(json: &str) -> Result<Self> {
-        let config: Self = serde_json::from_str(json)?;
+        let mut config: Self = serde_json::from_str(json)?;
+        config.migrate();
         config.validate()?;
         Ok(config)
     }
 
     /// Valida que todos los campos estén dentro de rangos aceptables.
     pub fn validate(&self) -> Result<()> {
-        // version debe ser 1
-        if self.version != 1 {
+        // version debe ser 2
+        if self.version != 2 {
             return Err(ConfigError::Validation(format!(
-                "version debe ser 1, se encontró {}",
+                "version debe ser 2, se encontró {}",
                 self.version
             )));
         }
@@ -504,11 +538,36 @@ mod tests {
     use super::*;
     use std::path::PathBuf;
 
-    // ── Test: Default tiene version == 1 ──
+    // ── Test: Default tiene version == 2 ──
     #[test]
     fn test_default_version() {
         let config = AppConfig::default();
-        assert_eq!(config.version, 1);
+        assert_eq!(config.version, 2);
+    }
+
+    #[test]
+    fn test_v1_to_v2_migration() {
+        let v1_json = r#"{
+            "version": 1,
+            "quarantine": {"retention_days": 7, "max_size_gb": 50.0},
+            "scanning": {"dev_inactive_threshold_days": 90, "temp_min_age_days": 1, "schedule": "weekly", "schedule_time": "03:00", "excluded_paths": []},
+            "photos": {"keep_count": 1, "phash_threshold": 8, "thumbnail_max_px": 512, "thumbnail_quality": 60, "thumbnail_max_kb": 100},
+            "ai_providers": {"enabled": ["google_ai_studio"], "priority_order": ["google_ai_studio"], "rate_limits": {"google_ai_studio": 10, "freellmapi": 30, "ollama": 0}, "byok_keys": {}},
+            "license": {"tier": "free"},
+            "uninstaller": {"scan_residuals_after_uninstall": true, "uninstaller_timeout_sec": 30, "known_footprints_version": "1.0.0"},
+            "startup_manager": {"protected_services_whitelist_version": "1.0.0", "show_system_services": false},
+            "android": {"shizuku_enabled": false, "root_enabled": false, "saf_granted_uris": []},
+            "ui": {"preview_min_size_mb": 50, "theme": "dark", "language": "es"},
+            "i18n": {"available_locales": ["es", "en"], "fallback_locale": "en"}
+        }"#;
+
+        let imported = AppConfig::import_config(v1_json).expect("Fallo al importar config v1");
+        assert_eq!(imported.version, 2);
+        assert_eq!(imported.smartcare.model_unused_threshold_days, 730);
+        assert_eq!(imported.smartcare.python_unused_threshold_days, 730);
+        assert_eq!(imported.smartcare.app_unused_threshold_days, 365);
+        assert_eq!(imported.smartcare.analysis_cache_hours, 1);
+        assert!(imported.smartcare.enable_drive_health);
     }
 
     // ── Test: Default valida correctamente ──
@@ -658,7 +717,7 @@ mod tests {
         assert!((config.quarantine.max_size_gb - 50.0).abs() < f64::EPSILON);
         // Otros módulos intactos
         assert_eq!(config.photos.keep_count, 1);
-        assert_eq!(config.version, 1);
+        assert_eq!(config.version, 2);
     }
 
     // ── Test: Merge parcial - cambiar múltiples secciones ──
@@ -713,9 +772,9 @@ mod tests {
     }
 
     #[test]
-    fn test_validation_version_2_invalid() {
+    fn test_validation_version_99_invalid() {
         let mut config = AppConfig::default();
-        config.version = 2;
+        config.version = 99;
         let err = config.validate().unwrap_err();
         assert!(err.to_string().contains("version"));
     }
@@ -925,7 +984,8 @@ mod tests {
         let config = AppConfig::default();
         let json: serde_json::Value = serde_json::to_value(&config).unwrap();
 
-        assert_eq!(json["version"], 1);
+        assert_eq!(json["version"], 2);
+        assert_eq!(json["smartcare"]["analysis_cache_hours"], 1);
         assert_eq!(json["quarantine"]["retention_days"], 7);
         assert_eq!(json["scanning"]["schedule"], "weekly");
         assert_eq!(json["photos"]["keep_count"], 1);
@@ -1016,14 +1076,14 @@ mod tests {
         let mut config = AppConfig::default();
         let partial = serde_json::json!({"ui": {"language": "en"}});
         config.merge_partial(&partial).unwrap();
-        assert_eq!(config.version, 1);
+        assert_eq!(config.version, 2);
     }
 
     // ── Test: Merge con version distinta rechaza ──
     #[test]
     fn test_merge_wrong_version_rejects() {
         let mut config = AppConfig::default();
-        let partial = serde_json::json!({"version": 2});
+        let partial = serde_json::json!({"version": 99});
         let result = config.merge_partial(&partial);
         assert!(result.is_err());
     }
@@ -1096,6 +1156,7 @@ mod tests {
         let _ = I18nConfig::default();
         let _ = AiRateLimits::default();
         let _ = AiByokKeys::default();
+        let _ = SmartCareConfig::default();
     }
 
     // ── Test: Clone funciona ──
@@ -1112,6 +1173,6 @@ mod tests {
         let config = AppConfig::default();
         let debug_str = format!("{:?}", config);
         assert!(debug_str.contains("AppConfig"));
-        assert!(debug_str.contains("version: 1"));
+        assert!(debug_str.contains("version: 2"));
     }
 }

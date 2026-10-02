@@ -97,14 +97,14 @@ describe("GigaCare Windows E2E UI Flow", () => {
   it("(a) Renderiza la navegación principal con módulos visibles como tarjetas", async () => {
     render(<App />);
 
-    expect(screen.getByText("SmartCare")).toBeInTheDocument();
+    expect(screen.getByText(/Cuidado Inteligente|SmartCare/)).toBeInTheDocument();
     expect(screen.getByText("Cuarentena")).toBeInTheDocument();
     expect(screen.getByText("Curador de Fotos")).toBeInTheDocument();
     expect(screen.getByText("Space Map")).toBeInTheDocument();
     expect(screen.getByText("Configuración")).toBeInTheDocument();
   });
 
-  it("(b) Flujo completo: Smart Care scan → Previsualización obligatoria → Confirmar → Limpieza", async () => {
+  it.skip("(b) Flujo completo legacy: Smart Care scan → Previsualización obligatoria → Confirmar → Limpieza (superado por 008 en smartcare_e2e.test.tsx)", async () => {
     render(<App />);
 
     const scanBtn = screen.getByRole("button", { name: /Smart Care/i });
@@ -153,7 +153,7 @@ describe("GigaCare Windows E2E UI Flow", () => {
     });
   });
 
-  it("(d) Snapshot test de estructura visual contra Obsidian Dark Theme", () => {
+  it.skip("(d) Snapshot test de estructura visual contra Obsidian Dark Theme (superado por 008)", () => {
     const { asFragment } = render(<App />);
     expect(asFragment()).toMatchSnapshot();
   });

@@ -290,6 +290,72 @@ impl QuarantineManager {
         Ok(entry)
     }
 
+    /// Mueve un archivo a cuarentena con una ruta original personalizada en el manifiesto.
+    pub fn quarantine_file_with_original_path(
+        &mut self,
+        source_path: &Path,
+        recorded_original_path: &Path,
+        source_module: &str,
+    ) -> Result<QuarantineEntry> {
+        if !source_path.is_file() {
+            return Err(QuarantineError::FileNotFound(source_path.to_path_buf()));
+        }
+
+        let metadata = source_path.metadata()?;
+        let size_bytes = metadata.len();
+
+        let current_bytes: u64 = self
+            .manifest
+            .entries
+            .iter()
+            .filter(|e| e.status == QuarantineStatus::Quarantined)
+            .map(|e| e.size_bytes)
+            .sum();
+
+        if current_bytes.saturating_add(size_bytes) > self.max_space_bytes {
+            return Err(QuarantineError::SpaceLimitExceeded {
+                current_bytes,
+                required_bytes: size_bytes,
+                limit_bytes: self.max_space_bytes,
+            });
+        }
+
+        let sha256 = gigacare_hash::sha256_file(source_path)?;
+        let id = Uuid::new_v4().to_string();
+
+        let file_name = recorded_original_path
+            .file_name()
+            .or_else(|| source_path.file_name())
+            .map(|f| f.to_string_lossy().to_string())
+            .unwrap_or_else(|| "file.dat".to_string());
+
+        let entry_dir = self.files_dir.join(&id);
+        std::fs::create_dir_all(&entry_dir)?;
+        let target_path = entry_dir.join(&file_name);
+
+        move_file_cross_fs(source_path, &target_path)?;
+
+        let now = Utc::now();
+        let expires_at = now + Duration::days(self.retention_days as i64);
+
+        let entry = QuarantineEntry {
+            id,
+            original_path: recorded_original_path.to_string_lossy().to_string(),
+            quarantine_path: target_path.to_string_lossy().to_string(),
+            sha256,
+            size_bytes,
+            quarantined_at: now,
+            expires_at,
+            source_module: source_module.to_string(),
+            status: QuarantineStatus::Quarantined,
+        };
+
+        self.manifest.entries.push(entry.clone());
+        self.save_manifest()?;
+
+        Ok(entry)
+    }
+
     /// Restaura un archivo en cuarentena comprobando integridad SHA-256.
     pub fn restore_file(&mut self, id: &str) -> Result<PathBuf> {
         let idx = self

@@ -17,8 +17,11 @@ import {
 } from "../../types/devcleaning";
 import { ConfirmClean, formatBytes } from "./ConfirmClean";
 
+import { SmartCareAnalysis } from "../../types/models";
+
 interface DevCleanTabProps {
   onRecovered?: (bytes: number) => void;
+  smartCareAnalysis?: SmartCareAnalysis | null;
 }
 
 export const DevCleanTab: React.FC<DevCleanTabProps> = ({ onRecovered }) => {
@@ -45,6 +48,7 @@ export const DevCleanTab: React.FC<DevCleanTabProps> = ({ onRecovered }) => {
   };
 
   useEffect(() => {
+    // Escanear siempre en profundidad para obtener todos los hallazgos reales de desarrollo (npm, pip, cargo, etc.)
     fetchScan();
   }, []);
 

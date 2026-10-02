@@ -25,7 +25,7 @@
   "modules": {
     "smartcare": {
       "title": "SmartCare",
-      "subtitle": "System Cleanup"
+      "subtitle": "System analysis and cleanup"
     },
     "quarantine": {
       "title": "Quarantine",
@@ -54,6 +54,14 @@
     "settings": {
       "title": "Settings",
       "subtitle": "Preferences & License"
+    },
+    "junk_files": {
+      "title": "Junk Files",
+      "subtitle": "Temporary, Caches & Leftovers"
+    },
+    "system_management": {
+      "title": "System Management",
+      "subtitle": "Uninstaller & Startup"
     }
   },
   "smartcare": {
@@ -340,5 +348,102 @@
       "confirmRemoveBtn": "Yes, remove ({{size}})",
       "movingBtn": "Moving to quarantine..."
     }
+  },
+  "junk_files": {
+    "header": "Junk Files",
+    "description": "Not caches — forgotten files silently taking up space",
+    "rescan": "Re-scan",
+    "junkFound": "Junk found",
+    "cleanSafe": "Clean safe items",
+    "categories": {
+      "temp_files": "Temporary Files",
+      "windows_leftovers": "Windows Leftovers",
+      "download_installers": "Download Installers",
+      "browser_caches": "Browser Caches",
+      "messaging_cache": "Messaging Caches",
+      "app_residuals": "App Leftovers",
+      "prefetch": "Prefetch"
+    },
+    "badges": {
+      "safe": "Safe",
+      "review": "Review"
+    },
+    "browserWarning": "Close your browser before clearing its cache; running browsers can recreate or lock files.",
+    "prefetchWarning": "Windows uses this data to speed up app startup. GigaCare does not remove it to prevent slowing down your system."
+  },
+  "system_management": {
+    "title": "System Management",
+    "subtitle": "Uninstaller & Startup",
+    "tabs": {
+      "uninstaller": "Deep Uninstaller",
+      "startup": "Windows Startup"
+    }
+  },
+  "smartcare": {
+      "welcome": {
+          "title": "SmartCare",
+          "subtitle": "Analyze your PC for junk files, drive health, and unused applications.",
+          "analyze": "Analyze",
+          "lastAnalysis": "Last analyzed {{hours}} hours ago"
+      },
+      "scanning": {
+          "title": "Gathering system information...",
+          "stop": "Stop"
+      },
+      "results": {
+          "driveHealth": "Drive Health",
+          "cleanup": {
+              "title": "Cleanup",
+              "subtitle": "of useless files and programs to clean"
+          },
+          "execute": "Execute",
+          "review": "Review",
+          "restart": "Start Over"
+      },
+      "review": {
+          "title": "Cleanup Manager",
+          "back": "Back",
+          "accept": "Accept",
+          "selectAll": "Select all",
+          "selectedCount": "{{count}} items selected | {{size}}",
+          "sortBy": "Sort by",
+          "categories": {
+              "junk": "Junk files",
+              "dev": "Dev Cleaning",
+              "apps": "Unused applications",
+              "media": "Senseless multimedia"
+          },
+          "subcategories": {
+              "temp_files": "Temporary Files",
+              "windows_leftovers": "Windows Leftovers",
+              "download_installers": "Download Installers",
+              "browser_caches": "Browser Caches",
+              "messaging_cache": "Messaging Caches",
+              "recycle_bin": "Recycle Bin",
+              "dev_caches": "Dev Caches",
+              "dev_models": "AI Models",
+              "dev_python": "Python Environments"
+          }
+      },
+      "execution": {
+          "completed": "Cleanup completed",
+          "confirmUninstall": "Uninstalling {{name}} is permanent and cannot be undone from quarantine. Do you want to continue?",
+          "uninstall": "Uninstall",
+          "skip": "Skip",
+          "cancelAll": "Cancel all"
+      },
+      "settings": {
+          "sectionTitle": "SmartCare",
+          "modelThreshold": "AI models unused threshold (days)",
+          "modelThresholdDesc": "Days of inactivity to suggest deleting downloaded AI models.",
+          "pythonThreshold": "Python environments unused threshold (days)",
+          "pythonThresholdDesc": "Days of inactivity in virtual environment to suggest cleanup.",
+          "appThreshold": "Application unused threshold (days)",
+          "appThresholdDesc": "Days without launching an app to mark it as unused.",
+          "cacheHours": "Analysis cache validity (hours)",
+          "cacheHoursDesc": "Time duration to reuse previous analysis results.",
+          "enableDriveHealth": "Enable SMART drive health check",
+          "enableDriveHealthDesc": "Reads temperature, wear, and physical health via WMI / MSFT_PhysicalDisk."
+      }
   }
 }

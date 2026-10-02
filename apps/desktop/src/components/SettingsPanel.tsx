@@ -16,17 +16,23 @@ import {
   ArrowDownloadRegular,
   CheckmarkCircleRegular,
   DismissCircleRegular,
+  DismissRegular,
   SettingsRegular,
   KeyRegular,
   ShieldRegular,
   TimerRegular,
   BrainCircuitRegular,
+  BroomRegular,
 } from "@fluentui/react-icons";
 import { invoke } from "@tauri-apps/api/core";
-import { AppConfig, ValidationResult } from "../types/models";
+import { AppConfig, ValidationResult, SmartCareConfig } from "../types/models";
 import "./settingsPanel.css";
 
-export const SettingsPanel: React.FC = () => {
+export interface SettingsPanelProps {
+  onClose?: () => void;
+}
+
+export const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
@@ -34,6 +40,31 @@ export const SettingsPanel: React.FC = () => {
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [validating, setValidating] = useState<boolean>(false);
   const [isCustomQuarantine, setIsCustomQuarantine] = useState<boolean>(false);
+  const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+
+  const handleSmartCareChange = async (updates: Partial<SmartCareConfig>) => {
+    if (!config) return;
+    const currentSmartcare = config.smartcare || {
+      model_unused_threshold_days: 730,
+      python_unused_threshold_days: 730,
+      app_unused_threshold_days: 730,
+      analysis_cache_hours: 1,
+      enable_drive_health: true,
+    };
+    const updated = {
+      ...config,
+      smartcare: {
+        ...currentSmartcare,
+        ...updates,
+      },
+    };
+    setConfig(updated);
+    try {
+      await invoke("update_config", { config: updated });
+    } catch (err) {
+      console.error("Error al actualizar configuración de SmartCare:", err);
+    }
+  };
 
   const handleQuarantineSizeChange = async (val: number) => {
     if (!config) return;
@@ -47,11 +78,7 @@ export const SettingsPanel: React.FC = () => {
     setConfig(updated);
     try {
       await invoke("update_config", {
-        config: {
-          quarantine: {
-            max_size_gb: val,
-          },
-        },
+        config: updated,
       });
     } catch (err) {
       console.error("Error al actualizar límite de cuarentena:", err);
@@ -66,8 +93,14 @@ export const SettingsPanel: React.FC = () => {
     setLoading(true);
     try {
       const cfg = await invoke<AppConfig>("get_config");
+      if (cfg && cfg.quarantine && (cfg.quarantine.max_size_gb === 5 || !cfg.quarantine.max_size_gb)) {
+        cfg.quarantine.max_size_gb = 50;
+      }
       setConfig(cfg);
       setByokKey(cfg.byok?.google_ai_studio || "");
+      if (cfg && cfg.quarantine && ![50, 100, 200].includes(cfg.quarantine.max_size_gb)) {
+        setIsCustomQuarantine(true);
+      }
       setLoading(false);
     } catch (err) {
       console.error("Error al cargar configuración:", err);
@@ -117,7 +150,7 @@ export const SettingsPanel: React.FC = () => {
     if (!config) return;
     setSaving(true);
     try {
-      const updated = {
+      const updated: AppConfig = {
         ...config,
         byok: {
           ...config.byok,
@@ -125,8 +158,15 @@ export const SettingsPanel: React.FC = () => {
         },
       };
       const res = await invoke<AppConfig>("update_config", { config: updated });
-      setConfig(res);
+      setConfig(res || updated);
       setSaving(false);
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setSaveSuccess(false);
+        if (onClose) {
+          onClose();
+        }
+      }, 700);
     } catch (err) {
       console.error("Error al guardar config:", err);
       setSaving(false);
@@ -189,15 +229,25 @@ export const SettingsPanel: React.FC = () => {
       {/* Botones Globales */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <Text weight="bold" size={500} style={{ color: "#F8FAFC", display: "block" }}>
-            Configuración del Sistema
-          </Text>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {onClose && (
+              <Button
+                appearance="subtle"
+                icon={<DismissRegular />}
+                onClick={onClose}
+                title="Cerrar configuración y volver"
+              />
+            )}
+            <Text weight="bold" size={500} style={{ color: "#F8FAFC", display: "block" }}>
+              Configuración del Sistema
+            </Text>
+          </div>
           <Text size={200} style={{ color: "#94A3B8" }}>
             Parámetros globales de escaneo, cuarentena, privacidad y modelos de IA.
           </Text>
         </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <Button appearance="subtle" icon={<ArrowUploadRegular />} onClick={handleExport}>
             Exportar
           </Button>
@@ -216,8 +266,35 @@ export const SettingsPanel: React.FC = () => {
           >
             {saving ? "Guardando..." : "Guardar Cambios"}
           </Button>
+          {onClose && (
+            <Button appearance="subtle" onClick={onClose}>
+              Cerrar
+            </Button>
+          )}
         </div>
       </div>
+
+      {saveSuccess && (
+        <div
+          style={{
+            padding: "12px 18px",
+            borderRadius: "10px",
+            background: "rgba(0, 229, 255, 0.15)",
+            border: "1px solid #00E5FF",
+            color: "#00E5FF",
+            fontSize: "13px",
+            fontWeight: 600,
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            boxShadow: "0 0 15px rgba(0, 229, 255, 0.25)",
+            animation: "gc-fade-slide 0.2s ease-out",
+          }}
+        >
+          <CheckmarkCircleRegular style={{ fontSize: "20px" }} />
+          <span>Configuración guardada correctamente. Los cambios se han aplicado al sistema.</span>
+        </div>
+      )}
 
       {/* 1. Umbrales de Escaneo */}
       <div className="settings-section-card">
@@ -443,6 +520,87 @@ export const SettingsPanel: React.FC = () => {
               )
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Cuidado Inteligente */}
+      <div className="settings-section-card" data-testid="settings-smartcare-section">
+        <div className="settings-section-title">
+          <BroomRegular />
+          <span>Cuidado Inteligente</span>
+        </div>
+
+        <div className="settings-field-row">
+          <div className="settings-field-info">
+            <span className="settings-field-label">Umbral de no uso de modelos IA (días)</span>
+            <span className="settings-field-desc">Días sin uso para sugerir eliminación de modelos IA descargados.</span>
+          </div>
+          <SpinButton
+            value={config.smartcare?.model_unused_threshold_days ?? 730}
+            min={30}
+            max={1825}
+            onChange={(_, data) =>
+              handleSmartCareChange({ model_unused_threshold_days: data.value ?? 730 })
+            }
+          />
+        </div>
+
+        <div className="settings-field-row">
+          <div className="settings-field-info">
+            <span className="settings-field-label">Umbral de no uso de entornos Python (días)</span>
+            <span className="settings-field-desc">Días sin actividad en el entorno virtual para sugerir limpieza.</span>
+          </div>
+          <SpinButton
+            value={config.smartcare?.python_unused_threshold_days ?? 730}
+            min={30}
+            max={1825}
+            onChange={(_, data) =>
+              handleSmartCareChange({ python_unused_threshold_days: data.value ?? 730 })
+            }
+          />
+        </div>
+
+        <div className="settings-field-row">
+          <div className="settings-field-info">
+            <span className="settings-field-label">Umbral de no uso de aplicaciones (días)</span>
+            <span className="settings-field-desc">Días sin ejecutar la aplicación para catalogarla como no utilizada.</span>
+          </div>
+          <SpinButton
+            value={config.smartcare?.app_unused_threshold_days ?? 730}
+            min={30}
+            max={1825}
+            onChange={(_, data) =>
+              handleSmartCareChange({ app_unused_threshold_days: data.value ?? 730 })
+            }
+          />
+        </div>
+
+        <div className="settings-field-row">
+          <div className="settings-field-info">
+            <span className="settings-field-label">Validez del análisis (horas)</span>
+            <span className="settings-field-desc">Tiempo durante el cual se reutilizan los resultados del análisis previo.</span>
+          </div>
+          <SpinButton
+            value={config.smartcare?.analysis_cache_hours ?? 1}
+            min={1}
+            max={168}
+            onChange={(_, data) =>
+              handleSmartCareChange({ analysis_cache_hours: data.value ?? 1 })
+            }
+          />
+        </div>
+
+        <div className="settings-field-row">
+          <div className="settings-field-info">
+            <span className="settings-field-label">Habilitar lectura SMART del disco</span>
+            <span className="settings-field-desc">Lee temperatura, desgaste y salud física mediante WMI / MSFT_PhysicalDisk.</span>
+          </div>
+          <Switch
+            checked={config.smartcare?.enable_drive_health ?? true}
+            onChange={(_, data) =>
+              handleSmartCareChange({ enable_drive_health: Boolean(data.checked) })
+            }
+          />
         </div>
       </div>
 

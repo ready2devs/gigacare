@@ -5,6 +5,57 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [1.2.0] - 2026-10-05
+
+### Añadido
+- **Rediseño Integral de Cuidado Inteligente (SmartCare Redesign)**:
+  - Pantalla de bienvenida con monitor animado SVG, indicador de último análisis y botón 'Analizar'.
+  - Pantalla de escaneo activo con animación de disco giratorio (spin), ticker de archivos dinámico y botón de detención 'Detener'.
+  - Panel de telemetría de disco estilo Jharu (`DriveHealthPanel`) con gráfico doughnut SVG, badges de salud SMART, métricas de hardware (temperatura, desgaste, sectores reasignados, horas de encendido) y pronóstico de llenado (`FillForecast`).
+  - Tarjeta de limpieza (`CleanupCard`) con total de bytes recuperables y acceso a revisión detallada.
+  - Barra de recuperación de espacio (`SpaceRecoveryBar`) con 3 segmentos porcentuales (ocupado permanente, recuperable en verde, libre).
+  - Modal de revisión CleanMyMac (`CleanupReviewModal`) con 3 paneles verticales: categorías (180px), subcategorías/filtros (250px) y lista de archivos con checkboxes individuales y ordenamiento (tamaño, nombre, fecha).
+  - Filtro estricto de seguridad: preselección y visualización por defecto exclusiva de elementos seguros (`safe: true`), excluyendo ítems riesgosos o de precaución.
+  - Escaneo y limpieza de Papelera de Reciclaje con Win32 (`SHQueryRecycleBinW`) y parsing de `$Recycle.Bin`, enviando ítems a cuarentena preservando su ruta original.
+  - Rastreo de actividad de aplicaciones mediante parsing de archivos Prefetch (`.pf`) y claves UserAssist decodificadas con ROT-13 en el Registro de Windows.
+  - Persistencia de análisis en disco (`~/.gigacare/last_analysis.json`) y cache en memoria compartido con Space Map, Archivos Basura y Dev Cleaning.
+  - Nueva sección 'Cuidado Inteligente' en Configuración (`SettingsPanel`) con controles para umbrales de inactividad, validez del cache y lectura SMART.
+  - Internacionalización i18n completa en español (`es.json`) e inglés (`en.json`).
+
+### Modificado
+- **Shell y Módulos**:
+  - Renombrado del módulo en la navegación a 'Cuidado Inteligente' con subtítulo 'Análisis y limpieza del sistema'.
+  - Reemplazo de las tarjetas estáticas previas por la máquina de estados del flujo de análisis completo.
+  - Actualización de versión de configuración a v2 con migración automática.
+
+---
+## [1.1.0] - 2026-09-20
+
+### Añadido
+- **Módulo Unificado "Archivos Basura" (Junk Files)**:
+  - Orquestador de escaneo en Rust (`JunkFilesScanner`) con agrupación en 7 categorías: temporales de usuario/sistema, restos de Windows (SoftwareDistribution, WER, Windows.old), instaladores en descargas, cachés de navegadores, cachés de mensajería, residuales de aplicaciones y Prefetch.
+  - Escáner especializado de cachés de navegadores (`BrowserScanner`) con detección de Chromium (Google Chrome, Microsoft Edge, Brave, Opera, Vivaldi) y Mozilla Firefox mediante parsing automático de `profiles.ini`.
+  - Clasificación rigurosa de seguridad (`safe: true` para aislamiento reversible en 1-clic y `safe: false` con badge "Revisar" para ítems que requieren verificación del usuario).
+  - Sección informativa y preventiva para Prefetch con advertencia de impacto en arranque y diálogo de precaución.
+  - Banner interactivo de recomendación para cerrar navegadores en ejecución antes de la limpieza de cachés.
+- **Módulo Unificado "Gestión del Sistema" (System Management)**:
+  - Fusión integrada de **Desinstalador Profundo** e **Inicio de Windows** en un contenedor unificado con tabs de Fluent UI React v9 y preservación de estado de búsqueda/filtros entre pestañas.
+  - Expansión de cobertura en desinstalación: detección en Registro HKLM/HKCU 64-bit, compatibilidad con aplicaciones de 32 bits vía `WOW6432Node`, y enumeración de aplicaciones UWP / MSIX de Microsoft Store mediante PowerShell `Get-AppxPackage`.
+  - Badges informativos de fuente (`Registro`, `WOW64`, `UWP`, `Store`) en cada aplicación instalada.
+
+### Modificado
+- **Reestructuración de la Navegación (Shell)**:
+  - Reducción limpia a 8 módulos principales: SmartCare, Cuarentena, Curador de Fotos, Archivos Basura, Gestión del Sistema, Space Map, Dev Cleaning y Configuración.
+  - Eliminación de accesos independientes redundantes de "Desinstalador" e "Inicio de Windows".
+  - Soporte de redirección transparente para deep-links legacy (`?module=uninstaller` y `?module=startup`).
+  - Tarjetas de resumen de SmartCare interactivas con navegación directa a categorías de Archivos Basura con foco expandido.
+
+### Calidad y Testing
+- Suite de pruebas de escritorio ampliada a **48 archivos de test y 147 tests automatizados** (100% pasando en Vitest).
+- Nuevos tests de integración en Rust para simulación de perfiles y cachés de navegadores (`browser_cache_test.rs`).
+
+---
+
 ## [1.0.1] - 2026-09-19
 
 ### Añadido y Mejorado

@@ -1,7 +1,16 @@
-import React, { useState } from "react";
-import { Input, Spinner, Button } from "@fluentui/react-components";
-import { SparkleRegular, DismissRegular, BotRegular } from "@fluentui/react-icons";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { Input, Spinner } from "@fluentui/react-components";
+import {
+  SparkleRegular,
+  DismissRegular,
+  BotRegular,
+  CopyRegular,
+  CheckmarkRegular,
+} from "@fluentui/react-icons";
 import { useNLQuery, FileFilterResult } from "../hooks/useNLQuery";
+import { AIMarkdownView } from "./AIMarkdownView";
+import "./spaceMapNLBar.css";
 
 export interface SpaceMapNLBarProps {
   onResults?: (result: FileFilterResult) => void;
@@ -10,10 +19,28 @@ export interface SpaceMapNLBarProps {
   currentPath?: string;
 }
 
-export const SpaceMapNLBar: React.FC<SpaceMapNLBarProps> = ({ onResults, onClear, nodes, currentPath }) => {
-  const { query, setQuery, loading, error, executeQuery, clearQuery } = useNLQuery();
+export const SpaceMapNLBar: React.FC<SpaceMapNLBarProps> = ({
+  onResults,
+  onClear,
+  nodes,
+  currentPath,
+}) => {
+  const { query, setQuery, loading, executeQuery, clearQuery } = useNLQuery();
   const [activeResult, setActiveResult] = useState<FileFilterResult | null>(null);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
+
+  // Cerrar modal con la tecla Escape
+  useEffect(() => {
+    if (!modalOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [modalOpen]);
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && query.trim() && !loading) {
@@ -36,19 +63,28 @@ export const SpaceMapNLBar: React.FC<SpaceMapNLBarProps> = ({ onResults, onClear
     if (onClear) onClear();
   };
 
+  const handleCopy = async () => {
+    if (activeResult?.answer) {
+      try {
+        await navigator.clipboard.writeText(activeResult.answer);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        // Fallback en caso de que navigator.clipboard no esté disponible
+      }
+    }
+  };
+
+  // Extraer el nombre legible de la carpeta actual para mostrar en el encabezado
+  const folderName = currentPath
+    ? currentPath.split(/[\\/]/).filter(Boolean).pop() || currentPath
+    : "Carpeta actual";
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        position: "relative",
-      }}
-      data-testid="spacemap-nl-bar-container"
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+    <div className="spacemap-nl-bar-root" data-testid="spacemap-nl-bar-container">
+      <div className="nl-input-row">
         <Input
-          contentBefore={<SparkleRegular style={{ color: "#00E5FF" }} />}
+          contentBefore={<SparkleRegular style={{ color: "#00E5FF", fontSize: "16px" }} />}
           contentAfter={
             loading ? (
               <Spinner size="extra-tiny" />
@@ -57,6 +93,7 @@ export const SpaceMapNLBar: React.FC<SpaceMapNLBarProps> = ({ onResults, onClear
                 style={{ cursor: "pointer", color: "#94A3B8" }}
                 onClick={handleClear}
                 data-testid="nl-clear-btn"
+                title="Limpiar búsqueda"
               />
             ) : null
           }
@@ -65,152 +102,152 @@ export const SpaceMapNLBar: React.FC<SpaceMapNLBarProps> = ({ onResults, onClear
           onChange={(_e, data) => setQuery(data.value)}
           onKeyDown={handleKeyDown}
           input={{ id: "nl-query-input-element" }}
-          style={{
-            minWidth: "380px",
-            background: "#111827",
-            borderRadius: "999px",
-            color: "#F8FAFC",
-            border: "1px solid rgba(0, 229, 255, 0.3)",
-            boxShadow: "0 0 10px rgba(0, 229, 255, 0.1)",
-          }}
+          className="nl-search-input"
           data-testid="nl-query-input"
         />
+
         {activeResult?.answer && !modalOpen && (
-          <Button
-            size="small"
-            appearance="subtle"
-            icon={<BotRegular />}
+          <button
+            type="button"
+            className="nl-view-analysis-pill"
             onClick={() => setModalOpen(true)}
-            style={{ color: "#00E5FF", border: "1px solid rgba(0, 229, 255, 0.4)", borderRadius: "999px" }}
+            data-testid="nl-view-analysis-btn"
+            title="Abrir el informe y análisis detallado de la IA"
           >
-            Ver análisis
-          </Button>
+            <BotRegular style={{ fontSize: "15px" }} />
+            <span>Ver análisis IA</span>
+          </button>
         )}
       </div>
 
-      {/* Banner resumen que SIEMPRE contiene el resumen y el data-testid requerido por las pruebas */}
+      {/* Popover / Toast flotante con el resumen de resultados */}
       {activeResult && (
         <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            background: "rgba(0, 229, 255, 0.12)",
-            border: "1px solid #00E5FF",
-            borderRadius: "8px",
-            padding: "6px 12px",
-            color: "#F8FAFC",
-            fontSize: "12px",
-            boxShadow: "0 0 12px rgba(0, 229, 255, 0.2)",
-            cursor: activeResult.answer ? "pointer" : "default",
-          }}
+          className="nl-results-dropdown"
           onClick={() => activeResult.answer && setModalOpen(true)}
+          style={{ cursor: activeResult.answer ? "pointer" : "default" }}
           data-testid="nl-results-toast"
+          role="status"
         >
-          <span>✨ {activeResult.summary} {activeResult.answer && !modalOpen && "(Clic para ver análisis IA)"}</span>
+          <div className="nl-dropdown-left">
+            <span>
+              ✨ {activeResult.summary}{" "}
+              {activeResult.answer && !modalOpen && (
+                <span style={{ color: "#00E5FF", fontWeight: 600 }}>
+                  (Clic para ver análisis IA)
+                </span>
+              )}
+            </span>
+          </div>
           <button
+            type="button"
+            className="nl-dropdown-close"
             onClick={(e) => {
               e.stopPropagation();
               handleClear();
             }}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "#94A3B8",
-              cursor: "pointer",
-            }}
+            title="Descartar resultados"
           >
             ✕
           </button>
         </div>
       )}
 
-      {/* Tarjeta Modal Centrada con Backdrop para que NUNCA quede tapada */}
-      {modalOpen && activeResult && activeResult.answer && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.75)",
-            backdropFilter: "blur(8px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 99999,
-            padding: "20px",
-          }}
-          onClick={() => setModalOpen(false)}
-        >
+      {/* Tarjeta Modal montada en Portal en document.body para evitar recortes de CSS y backdrop-filter */}
+      {modalOpen &&
+        activeResult &&
+        activeResult.answer &&
+        typeof document !== "undefined" &&
+        createPortal(
           <div
-            style={{
-              width: "100%",
-              maxWidth: "760px",
-              maxHeight: "85vh",
-              display: "flex",
-              flexDirection: "column",
-              background: "#0B0F19",
-              border: "1px solid #00E5FF",
-              borderRadius: "16px",
-              padding: "24px",
-              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 229, 255, 0.35)",
-              color: "#E2E8F0",
-              fontSize: "14px",
-              lineHeight: "1.7",
-            }}
-            onClick={(e) => e.stopPropagation()}
-            data-testid="nl-ai-modal"
+            className="nl-modal-backdrop"
+            onClick={() => setModalOpen(false)}
+            role="dialog"
+            aria-modal="true"
           >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", borderBottom: "1px solid rgba(255, 255, 255, 0.1)", paddingBottom: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 600, color: "#00E5FF" }}>
-              <BotRegular style={{ fontSize: "20px" }} />
-              <span>Análisis de IA GigaCare • {activeResult.provider || "Modelo Local"}</span>
-            </div>
-            <button
-              onClick={() => setModalOpen(false)}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "#94A3B8",
-                cursor: "pointer",
-                fontSize: "16px",
-              }}
+            <div
+              className="nl-modal-container"
+              onClick={(e) => e.stopPropagation()}
+              data-testid="nl-ai-modal"
             >
-              ✕
-            </button>
-          </div>
+              {/* Header del Modal */}
+              <div className="nl-modal-header">
+                <div className="nl-modal-title-group">
+                  <div className="nl-modal-icon-badge">
+                    <SparkleRegular />
+                  </div>
+                  <div>
+                    <div className="nl-modal-title-text">
+                      Análisis de Espacio con IA
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#94A3B8" }}>
+                      Carpeta: <span style={{ color: "#E2E8F0" }}>{folderName}</span>
+                    </div>
+                  </div>
+                </div>
 
-          <div
-            style={{
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-              maxHeight: "360px",
-              overflowY: "auto",
-              paddingRight: "6px",
-            }}
-          >
-            {activeResult.answer}
-          </div>
+                <div className="nl-modal-header-actions">
+                  <span className="nl-modal-provider-tag">
+                    {activeResult.provider || "GigaCare AI"}
+                  </span>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px", paddingTop: "12px", borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}>
-            <Button appearance="primary" style={{ backgroundColor: "#00E5FF", color: "#0B0F19", fontWeight: 600 }} onClick={() => setModalOpen(false)}>
-              Entendido
-            </Button>
-          </div>
-        </div>
-        </div>
-      )}
+                  <button
+                    type="button"
+                    className="nl-modal-copy-btn"
+                    onClick={handleCopy}
+                    title="Copiar texto del análisis al portapapeles"
+                  >
+                    {copied ? (
+                      <>
+                        <CheckmarkRegular style={{ color: "#10B981" }} />
+                        <span style={{ color: "#10B981" }}>Copiado</span>
+                      </>
+                    ) : (
+                      <>
+                        <CopyRegular />
+                        <span>Copiar</span>
+                      </>
+                    )}
+                  </button>
 
-      {error && (
-        <div
-          style={{
-            color: "#EF4444",
-            fontSize: "11px",
-            paddingLeft: "8px",
-          }}
-        >
-          {error}
-        </div>
-      )}
+                  <button
+                    type="button"
+                    className="nl-modal-close-btn"
+                    onClick={() => setModalOpen(false)}
+                    title="Cerrar modal (Esc)"
+                    aria-label="Cerrar"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              {/* Cuerpo del Modal con Renderizador Markdown */}
+              <div className="nl-modal-body">
+                <AIMarkdownView content={activeResult.answer} />
+              </div>
+
+              {/* Footer del Modal */}
+              <div className="nl-modal-footer">
+                <div className="nl-modal-footer-tip">
+                  <span>💡</span>
+                  <span>
+                    Puedes usar el Treemap o Sunburst para ubicar visualmente estos archivos y enviarlos a cuarentena.
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="nl-modal-primary-btn"
+                  onClick={() => setModalOpen(false)}
+                >
+                  Entendido
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
