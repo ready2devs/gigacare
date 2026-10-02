@@ -24,7 +24,7 @@ interface DevCleanTabProps {
   smartCareAnalysis?: SmartCareAnalysis | null;
 }
 
-export const DevCleanTab: React.FC<DevCleanTabProps> = ({ onRecovered, smartCareAnalysis }) => {
+export const DevCleanTab: React.FC<DevCleanTabProps> = ({ onRecovered }) => {
   const { t } = useTranslation();
   const [report, setReport] = useState<DevCleanReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,31 +48,9 @@ export const DevCleanTab: React.FC<DevCleanTabProps> = ({ onRecovered, smartCare
   };
 
   useEffect(() => {
-    if (smartCareAnalysis && smartCareAnalysis.is_valid && smartCareAnalysis.dev_summary) {
-      setReport({
-        disk_total: smartCareAnalysis.drive_health.total_bytes,
-        disk_free: smartCareAnalysis.drive_health.free_bytes,
-        findings: [
-          {
-            name: "Cachés de desarrollo (SmartCare)",
-            rule_id: "smartcare-cache",
-            description: "Cachés seguros identificados en análisis previo.",
-            category: "dev_cache",
-            safety: "safe",
-            path: "C:\\",
-            size_bytes: smartCareAnalysis.dev_summary.safe_caches_bytes,
-            file_count: smartCareAnalysis.dev_summary.item_count,
-            stale_days: 0,
-            children: [],
-            read_error: null,
-          }
-        ],
-      });
-      setLoading(false);
-    } else {
-      fetchScan();
-    }
-  }, [smartCareAnalysis]);
+    // Escanear siempre en profundidad para obtener todos los hallazgos reales de desarrollo (npm, pip, cargo, etc.)
+    fetchScan();
+  }, []);
 
   const toggleExpand = (ruleId: string) => {
     setExpandedRules((prev) => {

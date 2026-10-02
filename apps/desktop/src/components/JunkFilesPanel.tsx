@@ -41,7 +41,6 @@ const formatBytes = (bytes: number): string => {
 
 export const JunkFilesPanel: React.FC<JunkFilesPanelProps> = ({
   focusCategory,
-  smartCareAnalysis,
 }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [scanResult, setScanResult] = useState<JunkFilesScanResult | null>(null);
@@ -65,63 +64,9 @@ export const JunkFilesPanel: React.FC<JunkFilesPanelProps> = ({
   }, []);
 
   useEffect(() => {
-    if (smartCareAnalysis && smartCareAnalysis.is_valid && smartCareAnalysis.junk_summary) {
-      const summary = smartCareAnalysis.junk_summary;
-      const cachedResult: JunkFilesScanResult = {
-        total_junk_bytes: summary.total_bytes,
-        categories: [
-          {
-            category_id: "temp_files",
-            display_name: "Archivos Temporales",
-            total_bytes: summary.temp_files_bytes,
-            safe_bytes: summary.temp_files_bytes,
-            items: [],
-          },
-          {
-            category_id: "windows_leftovers",
-            display_name: "Restos de Windows",
-            total_bytes: summary.windows_leftovers_bytes,
-            safe_bytes: summary.windows_leftovers_bytes,
-            items: [],
-          },
-          {
-            category_id: "download_installers",
-            display_name: "Instaladores en Descargas",
-            total_bytes: summary.installers_bytes,
-            safe_bytes: summary.installers_bytes,
-            items: [],
-          },
-          {
-            category_id: "browser_caches",
-            display_name: "Cachés de Navegadores",
-            total_bytes: summary.browser_caches_bytes,
-            safe_bytes: summary.browser_caches_bytes,
-            items: [],
-          },
-          {
-            category_id: "messaging_cache",
-            display_name: "Cachés de Mensajería",
-            total_bytes: summary.messaging_caches_bytes,
-            safe_bytes: summary.messaging_caches_bytes,
-            items: [],
-          },
-          {
-            category_id: "recycle_bin",
-            display_name: "Papelera de Reciclaje",
-            total_bytes: summary.recycle_bin_bytes,
-            safe_bytes: summary.recycle_bin_bytes,
-            items: [],
-          },
-        ],
-        browsers: [],
-        scan_timestamp: smartCareAnalysis.timestamp,
-      };
-      setScanResult(cachedResult);
-      setLoading(false);
-    } else {
-      fetchScan();
-    }
-  }, [smartCareAnalysis, fetchScan]);
+    // Siempre ejecutar el escaneo detallado para cargar la lista completa de archivos por subsección
+    fetchScan();
+  }, [fetchScan]);
 
   useEffect(() => {
     if (focusCategory) {

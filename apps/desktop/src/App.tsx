@@ -128,10 +128,12 @@ export default function App() {
     try {
       const updatedHealth = await invoke<any>("get_drive_health", { drive: "C:" });
       if (smartCareAnalysis) {
-        setSmartCareAnalysis({
+        const refreshed = {
           ...smartCareAnalysis,
           drive_health: updatedHealth,
-        });
+        };
+        setSmartCareAnalysis(refreshed);
+        await invoke("save_smartcare_analysis", { analysis: refreshed }).catch(() => {});
       }
     } catch (err) {
       console.warn("Error al actualizar salud del disco:", err);
@@ -218,6 +220,66 @@ export default function App() {
       }
     }
 
+    // Si se ejecutó directamente sin revisar, preguntar por apps no utilizadas si existen
+    if (appsToClean.length === 0 && !customSelectedPaths) {
+      try {
+        let detectedApps = appsData;
+        if (!detectedApps || detectedApps.length === 0) {
+          detectedApps = await invoke<InstalledApp[]>("list_installed_apps").catch(() => []);
+        }
+        const oldApps = (detectedApps || []).filter(
+          (a) => (typeof a.last_used_days === "number" && a.last_used_days >= 365) || a.usage_count === 0
+        );
+        if (oldApps.length > 0) {
+          setAppsData(detectedApps);
+          setPendingAppsQueue(oldApps.slice(1));
+          setCurrentAppToUninstall(oldApps[0]);
+        }
+      } catch (err) {
+        console.warn("Error al buscar apps para desinstalar tras escaneo:", err);
+      }
+    }
+
+    // Actualizar inmediatamente la telemetría del disco y poner el total recuperable a 0
+    try {
+      const freshHealth = await invoke<any>("get_drive_health", { drive: "C:" });
+      if (smartCareAnalysis) {
+        const updatedAnalysis: SmartCareAnalysis = {
+          ...smartCareAnalysis,
+          total_recoverable_bytes: 0,
+          drive_health: freshHealth && freshHealth.total_bytes > 0 ? {
+            ...freshHealth,
+            used_bytes: Math.max(0, (freshHealth.used_bytes || 0) - bytesFreed),
+            free_bytes: (freshHealth.free_bytes || 0) + bytesFreed,
+          } : {
+            ...smartCareAnalysis.drive_health,
+            used_bytes: Math.max(0, smartCareAnalysis.drive_health.used_bytes - bytesFreed),
+            free_bytes: smartCareAnalysis.drive_health.free_bytes + bytesFreed,
+          },
+          junk_summary: {
+            ...smartCareAnalysis.junk_summary,
+            total_bytes: 0,
+            temp_files_bytes: 0,
+            windows_leftovers_bytes: 0,
+            installers_bytes: 0,
+            browser_caches_bytes: 0,
+            messaging_caches_bytes: 0,
+            recycle_bin_bytes: 0,
+            item_count: 0,
+          },
+          dev_summary: {
+            ...smartCareAnalysis.dev_summary,
+            safe_caches_bytes: 0,
+            item_count: 0,
+          },
+        };
+        setSmartCareAnalysis(updatedAnalysis);
+        await invoke("save_smartcare_analysis", { analysis: updatedAnalysis }).catch(() => {});
+      }
+    } catch (e) {
+      console.warn("Error actualizando análisis tras limpieza:", e);
+    }
+
     setCleanSummary(
       `Limpieza completada: ${filesMoved} archivos aislados en cuarentena (${formatBytes(bytesFreed)} liberados).`
     );
@@ -280,7 +342,19 @@ export default function App() {
                 analysis={smartCareAnalysis}
                 onReview={handleOpenReview}
                 onExecute={() => executeSmartCareClean()}
-                onRestart={() => setSmartcarePhase("welcome")}
+                onRestart={async () => {
+                  setCleanSummary(null);
+                  setCustomSelectedPaths(null);
+                  setCustomAppsToUninstall(null);
+                  setSmartCareAnalysis(null);
+                  try {
+                    await invoke("save_smartcare_analysis", { analysis: null });
+                    if (typeof localStorage !== "undefined") {
+                      localStorage.removeItem("gigacare_last_smartcare_analysis");
+                    }
+                  } catch {}
+                  setSmartcarePhase("welcome");
+                }}
                 onRefreshDrive={handleRefreshDrive}
               />
               {cleanSummary && (
