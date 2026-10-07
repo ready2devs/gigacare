@@ -14,6 +14,7 @@ pub struct AppState {
     pub quarantine: Mutex<QuarantineManager>,
     pub cancel_flag: Arc<AtomicBool>,
     pub cached_photo_groups: Mutex<Vec<PhotoGroup>>,
+    pub smartcare_analysis: Mutex<Option<commands::smartcare_persistence::SmartCareAnalysis>>,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -30,6 +31,7 @@ pub fn run() {
         quarantine: Mutex::new(quarantine),
         cancel_flag: Arc::new(AtomicBool::new(false)),
         cached_photo_groups: Mutex::new(Vec::new()),
+        smartcare_analysis: Mutex::new(None),
     };
 
     tauri::Builder::default()
@@ -75,6 +77,17 @@ pub fn run() {
             commands::devcleaning::python_env_scan,
             commands::devcleaning::dev_clean_remove,
             commands::devcleaning::dev_clean_reveal,
+            commands::junk_files::scan_junk_files,
+            commands::junk_files::scan_browser_caches,
+            commands::junk_files::clean_browser_cache,
+            commands::drive_health::get_drive_health,
+            commands::recycle_bin::scan_recycle_bin,
+            commands::recycle_bin::clean_recycle_bin,
+            commands::app_usage::get_app_usage,
+            commands::apps::list_installed_apps_with_usage,
+            commands::smartcare_persistence::get_smartcare_analysis,
+            commands::smartcare_persistence::save_smartcare_analysis,
+            commands::smartcare_persistence::run_full_smartcare_analysis,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

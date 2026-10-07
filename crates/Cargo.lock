@@ -834,7 +834,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-ai"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "async-trait",
  "chrono",
@@ -851,7 +851,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-config"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -861,7 +861,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-core"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
@@ -891,7 +891,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-devcleaning"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "dirs",
  "jwalk",
@@ -903,7 +903,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-fs"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "globset",
  "tempfile",
@@ -913,7 +913,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-hash"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "image 0.25.10",
  "sha2",
@@ -923,7 +923,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-license"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "chrono",
  "jsonwebtoken",
@@ -934,7 +934,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-quarantine"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "chrono",
  "gigacare-hash",
@@ -947,7 +947,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-registry"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "dirs",
  "jwalk",
@@ -960,7 +960,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-treemap"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -968,7 +968,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-uniffi"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "chrono",
  "gigacare-config",
@@ -984,7 +984,7 @@ dependencies = [
 
 [[package]]
 name = "gigacare-vision"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "image 0.25.10",
  "num-complex 0.4.6",

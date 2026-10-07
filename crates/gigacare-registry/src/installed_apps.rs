@@ -76,12 +76,12 @@ pub fn get_installed_apps() -> Vec<AppInfo> {
     let mut apps_map: HashMap<String, AppInfo> = HashMap::new();
 
     let hives = [
-        (HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"),
-        (HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"),
-        (HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"),
+        (HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", "registry"),
+        (HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall", "registry_wow64"),
+        (HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", "registry"),
     ];
 
-    for (root, subkey_path) in hives {
+    for (root, subkey_path, source_tag) in hives {
         let key = match RegKey::predef(root).open_subkey(subkey_path) {
             Ok(k) => k,
             Err(_) => continue,
@@ -139,6 +139,7 @@ pub fn get_installed_apps() -> Vec<AppInfo> {
                 data_bytes: 0, // Calculable bajo demanda o residual sweeper
                 uninstall_command,
                 install_date,
+                source: Some(source_tag.to_string()),
             };
 
             // Dedup por nombre lowercase: conservar el que tenga comando de desinstalación o más datos

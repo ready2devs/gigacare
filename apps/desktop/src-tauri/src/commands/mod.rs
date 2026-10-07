@@ -11,3 +11,8 @@ pub mod license;
 pub mod treemap;
 pub mod ai_query;
 pub mod devcleaning;
+pub mod junk_files;
+pub mod drive_health;
+pub mod recycle_bin;
+pub mod app_usage;
+pub mod smartcare_persistence;

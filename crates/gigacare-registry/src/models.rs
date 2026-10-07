@@ -11,6 +11,7 @@ pub struct AppInfo {
     pub data_bytes: u64, // Acumulado en AppData
     pub uninstall_command: Option<String>,
     pub install_date: Option<String>,
+    pub source: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

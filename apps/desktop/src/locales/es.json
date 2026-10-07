@@ -24,8 +24,8 @@
   },
   "modules": {
     "smartcare": {
-      "title": "SmartCare",
-      "subtitle": "Limpieza del Sistema"
+      "title": "Cuidado Inteligente",
+      "subtitle": "Análisis y limpieza del sistema"
     },
     "quarantine": {
       "title": "Cuarentena",
@@ -34,6 +34,14 @@
     "photos": {
       "title": "Curador de Fotos",
       "subtitle": "IA & Nitidez Local"
+    },
+    "junk_files": {
+      "title": "Archivos Basura",
+      "subtitle": "Temporales, Cachés y Residuales"
+    },
+    "system_management": {
+      "title": "Gestión del Sistema",
+      "subtitle": "Desinstalador e Inicio"
     },
     "uninstaller": {
       "title": "Desinstalador",
@@ -340,5 +348,102 @@
       "confirmRemoveBtn": "Sí, eliminar ({{size}})",
       "movingBtn": "Moviendo a cuarentena..."
     }
+  },
+  "junk_files": {
+    "header": "Archivos Basura",
+    "description": "No cachés — archivos olvidados que ocupan espacio silenciosamente",
+    "rescan": "Re-escanear",
+    "junkFound": "Basura encontrada",
+    "cleanSafe": "Limpiar elementos seguros",
+    "categories": {
+      "temp_files": "Archivos Temporales",
+      "windows_leftovers": "Restos de Windows",
+      "download_installers": "Instaladores en Descargas",
+      "browser_caches": "Cachés de Navegadores",
+      "messaging_cache": "Cachés de Mensajería",
+      "app_residuals": "Residuales de Aplicaciones",
+      "prefetch": "Prefetch"
+    },
+    "badges": {
+      "safe": "Seguro",
+      "review": "Revisar"
+    },
+    "browserWarning": "Cierra el navegador antes de borrar su caché; los navegadores abiertos pueden recrear o bloquear archivos.",
+    "prefetchWarning": "Windows usa estos datos para acelerar el inicio de tus programas. GigaCare no los borra para no ralentizar el sistema."
+  },
+  "system_management": {
+    "title": "Gestión del Sistema",
+    "subtitle": "Desinstalador e Inicio",
+    "tabs": {
+      "uninstaller": "Desinstalador Profundo",
+      "startup": "Inicio de Windows"
+    }
+  },
+  "smartcare": {
+      "welcome": {
+          "title": "Cuidado Inteligente",
+          "subtitle": "Analiza tu PC en busca de archivos residuales, estado del disco y aplicaciones sin uso.",
+          "analyze": "Analizar",
+          "lastAnalysis": "Último análisis hace {{hours}} horas"
+      },
+      "scanning": {
+          "title": "Recopilando información del sistema...",
+          "stop": "Detener"
+      },
+      "results": {
+          "driveHealth": "Salud del Disco",
+          "cleanup": {
+              "title": "Limpieza",
+              "subtitle": "de archivos y programas inútiles para limpiar"
+          },
+          "execute": "Ejecutar",
+          "review": "Revisar",
+          "restart": "Volver a empezar"
+      },
+      "review": {
+          "title": "Gestor de Limpieza",
+          "back": "Atrás",
+          "accept": "Aceptar",
+          "selectAll": "Seleccionar todos",
+          "selectedCount": "{{count}} elementos seleccionados | {{size}}",
+          "sortBy": "Ordenar por",
+          "categories": {
+              "junk": "Archivos basura",
+              "dev": "Limpieza Dev",
+              "apps": "Aplicaciones sin uso",
+              "media": "Multimedia sin sentido"
+          },
+          "subcategories": {
+              "temp_files": "Archivos Temporales",
+              "windows_leftovers": "Restos de Windows",
+              "download_installers": "Instaladores en Descargas",
+              "browser_caches": "Cachés de Navegadores",
+              "messaging_cache": "Cachés de Mensajería",
+              "recycle_bin": "Papelera de Reciclaje",
+              "dev_caches": "Cachés Dev",
+              "dev_models": "Modelos IA",
+              "dev_python": "Entornos Python"
+          }
+      },
+      "execution": {
+          "completed": "Limpieza completada",
+          "confirmUninstall": "La desinstalación de {{name}} es permanente y no se puede revertir desde la cuarentena. ¿Deseas continuar?",
+          "uninstall": "Desinstalar",
+          "skip": "Omitir",
+          "cancelAll": "Cancelar todo"
+      },
+      "settings": {
+          "sectionTitle": "Cuidado Inteligente",
+          "modelThreshold": "Umbral de no uso de modelos IA (días)",
+          "modelThresholdDesc": "Días sin uso para sugerir eliminación de modelos IA descargados.",
+          "pythonThreshold": "Umbral de no uso de entornos Python (días)",
+          "pythonThresholdDesc": "Días sin actividad en el entorno virtual para sugerir limpieza.",
+          "appThreshold": "Umbral de no uso de aplicaciones (días)",
+          "appThresholdDesc": "Días sin ejecutar la aplicación para catalogarla como no utilizada.",
+          "cacheHours": "Validez del análisis (horas)",
+          "cacheHoursDesc": "Tiempo durante el cual se reutilizan los resultados del análisis previo.",
+          "enableDriveHealth": "Habilitar lectura SMART del disco",
+          "enableDriveHealthDesc": "Lee temperatura, desgaste y salud física mediante WMI / MSFT_PhysicalDisk."
+      }
   }
 }

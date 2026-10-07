@@ -23,6 +23,11 @@ import {
   ActivationResult,
   StartupItem,
   InstalledApp,
+  JunkFilesScanResult,
+  SmartCareAnalysis,
+  DriveHealthInfo,
+  RecycleBinScanResult,
+  AppUsageInfo,
 } from "./types/models";
 import { LayoutNode, Rect, Point, TreemapRect, SunburstArc } from "./types/treemap";
 import {
@@ -52,7 +57,7 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     },
     quarantine: {
       retention_days: 7,
-      max_size_gb: 5,
+      max_size_gb: 50,
     },
     photos: {
       keep_count: 1,
@@ -82,7 +87,22 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
   const getStoredConfig = (): AppConfig => {
     try {
       const data = localStorage.getItem("gigacare_config");
-      return data ? JSON.parse(data) : DEFAULT_CONFIG;
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (parsed?.quarantine && (parsed.quarantine.max_size_gb === 5 || !parsed.quarantine.max_size_gb)) {
+          parsed.quarantine.max_size_gb = 50;
+          try { localStorage.setItem("gigacare_config", JSON.stringify(parsed)); } catch {}
+        }
+        return {
+          ...DEFAULT_CONFIG,
+          ...parsed,
+          quarantine: {
+            ...DEFAULT_CONFIG.quarantine,
+            ...(parsed.quarantine || {}),
+          },
+        };
+      }
+      return DEFAULT_CONFIG;
     } catch {
       return DEFAULT_CONFIG;
     }
@@ -102,32 +122,8 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
       if (data) return JSON.parse(data);
     } catch {}
     
-    // Entradas iniciales de ejemplo
-    const now = Date.now();
-    const initial: QuarantineEntry[] = [
-      {
-        id: "quar-item-1",
-        original_path: "C:\\Users\\Luciano\\AppData\\Local\\Temp\\dump_crash_2024.tmp",
-        quarantine_path: "C:\\Users\\Luciano\\.gigacare\\quarantine\\files\\dump_crash_2024.tmp",
-        sha256: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-        size_bytes: 450 * 1024 * 1024,
-        quarantined_at: new Date(now - 2 * 86400000).toISOString(),
-        expires_at: new Date(now + 5 * 86400000).toISOString(),
-        source_module: "system_temp",
-        status: "quarantined",
-      },
-      {
-        id: "quar-item-2",
-        original_path: "C:\\Users\\Luciano\\AppData\\Roaming\\WhatsApp\\Cache\\video_cache_old.mp4",
-        quarantine_path: "C:\\Users\\Luciano\\.gigacare\\quarantine\\files\\video_cache_old.mp4",
-        sha256: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
-        size_bytes: 280 * 1024 * 1024,
-        quarantined_at: new Date(now - 4 * 86400000).toISOString(),
-        expires_at: new Date(now + 3 * 86400000).toISOString(),
-        source_module: "messaging_cache",
-        status: "quarantined",
-      }
-    ];
+    // La cuarentena empieza limpia sin elementos artificiales
+    const initial: QuarantineEntry[] = [];
     setStoredQuarantine(initial);
     return initial;
   };
@@ -155,6 +151,10 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
   };
 
   let scanCancelRequested = false;
+
+  // Cache del último escaneo de junk files para resolver tamaños reales en clean_items
+  let lastJunkScanItems: Map<string, number> = new Map();
+  let lastDevScanItems: Map<string, number> = new Map();
 
   // Miniaturas SVG en base64 para el Curador de Fotos
   const svgPhoto1 = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00E5FF"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient></defs><rect width="400" height="300" fill="#0F172A"/><circle cx="200" cy="120" r="60" fill="url(#g1)"/><path d="M50 280 L180 180 L250 230 L350 150 L400 280 Z" fill="#1E293B"/><text x="200" y="260" font-family="sans-serif" font-size="16" fill="#F8FAFC" text-anchor="middle">IMG_20240915_142010.jpg (Nítida)</text></svg>`);
@@ -276,7 +276,684 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
       return true;
     }
 
+    // Manejo de apertura de rutas en el Explorador de Windows (plugin:opener / open_path)
+    if (
+      cmd === "plugin:opener|open_path" ||
+      cmd === "open_path" ||
+      cmd === "plugin:opener|reveal_item_in_dir" ||
+      cmd === "reveal_item_in_dir"
+    ) {
+      const targetPath = args?.path || args?.item;
+      if (targetPath) {
+        try {
+          const resp = await fetch(`/api/reveal-path?path=${encodeURIComponent(targetPath)}`);
+          if (resp.ok) {
+            return await resp.json();
+          }
+        } catch (err) {
+          console.warn("[Bridge] Fallback reveal-path error:", err);
+        }
+      }
+      return { success: true };
+    }
+
     // 2. Comandos de SmartCare y Escaneo
+    const getRealOrFallbackDriveHealth = async (driveLetter: string = "C:"): Promise<DriveHealthInfo> => {
+      try {
+        if (typeof window !== "undefined" && typeof fetch !== "undefined") {
+          const resp = await fetch("/api/real-drive-health");
+          if (resp.ok) {
+            const data: DriveHealthInfo = await resp.json();
+            if (data && data.total_bytes > 0) {
+              return data;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("[Bridge] Fallback al leer /api/real-drive-health:", e);
+      }
+
+      const total = 1999372283904; // 2 TB nominal (1.82 TB NTFS Samsung SSD 980 PRO)
+      const free = 1219098361856; // 1.11 TB libres reales
+      const used = total - free; // 726.7 GB usados reales
+      const usagePct = Math.round((used / total) * 100); // 39% real
+
+      return {
+        drive_letter: driveLetter,
+        drive_label: `Samsung SSD 980 PRO 2TB (${driveLetter})`,
+        drive_path: driveLetter,
+        total_bytes: total,
+        used_bytes: used,
+        free_bytes: free,
+        usage_percent: usagePct,
+        disk_type: "SSD_NVMe",
+        filesystem: "NTFS",
+        smart_status: "Healthy",
+        temperature_celsius: 38,
+        drive_wear_percent: 4,
+        reallocated_sectors: 0,
+        power_on_hours: 1420,
+        fill_forecast: {
+          gb_per_day: 1.2,
+          full_in_weeks: 48,
+          readings_count: 5,
+          readings_period_days: 30,
+        },
+      };
+    };
+
+    if (cmd === "get_drive_health") {
+      const drive = (args?.drive || "C:").toUpperCase();
+      const driveLetter = drive.endsWith(":") ? drive : `${drive}:`;
+      return await getRealOrFallbackDriveHealth(driveLetter);
+    }
+
+    if (cmd === "get_smartcare_analysis") {
+      try {
+        const stored = localStorage.getItem("gigacare_last_smartcare_analysis");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.is_valid && parsed.drive_health) {
+            // Actualizar siempre la salud del disco con la información de hardware real más reciente
+            const freshHealth = await getRealOrFallbackDriveHealth(parsed.drive_health.drive_letter || "C:");
+            parsed.drive_health = freshHealth;
+            return parsed;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Error leyendo last_smartcare_analysis:", err);
+      }
+      return null;
+    }
+
+    if (cmd === "save_smartcare_analysis") {
+      try {
+        if (args?.analysis) {
+          localStorage.setItem("gigacare_last_smartcare_analysis", JSON.stringify(args.analysis));
+        }
+      } catch (err) {
+        console.warn("[Bridge] Error guardando smartcare_analysis:", err);
+      }
+      return true;
+    }
+
+    if (cmd === "run_full_smartcare_analysis") {
+      scanCancelRequested = false;
+
+      const progressSteps = [
+        { phase: "Analizando salud física de discos y telemetría SMART...", percent: 15 },
+        { phase: "Escaneando archivos temporales y restos del sistema...", percent: 35 },
+        { phase: "Analizando papelera de reciclaje y cachés de navegadores...", percent: 55 },
+        { phase: "Analizando uso de aplicaciones e inactividad en registro...", percent: 75 },
+        { phase: "Escaneando cachés de desarrollo y modelos de IA...", percent: 90 },
+        { phase: "Consolidando resultados del análisis inteligente...", percent: 100 },
+      ];
+
+      for (const step of progressSteps) {
+        if (scanCancelRequested) {
+          throw new Error("Análisis cancelado por el usuario");
+        }
+        emitEvent("smartcare-analysis-progress", {
+          phase: step.phase,
+          percent: step.percent,
+        });
+        await new Promise((r) => setTimeout(r, 380));
+      }
+
+      const driveHealth: DriveHealthInfo = await getRealOrFallbackDriveHealth("C:");
+
+      // Obtener datos reales ejecutando los MISMOS escaneos que el Gestor de Limpieza usará
+      // Esto garantiza que total_recoverable_bytes coincida exactamente con el footer del Gestor
+      const [junkResult, devResult, mlResult, pyResult, appsResult] = await Promise.all([
+        mockInvoke("scan_junk_files"),
+        mockInvoke("dev_clean_scan"),
+        mockInvoke("ml_model_scan").catch(() => ({ models: [] })),
+        mockInvoke("python_env_scan").catch(() => ({ envs: [] })),
+        mockInvoke("list_installed_apps_with_usage")
+          .catch(() => mockInvoke("list_installed_apps").catch(() => [])),
+      ]);
+
+      // Calcular totales de junk desde items safe reales (solo lo que se puede limpiar)
+      let safeJunkTotal = 0;
+      let junkItemCount = 0;
+      const junkByCategory: Record<string, number> = {};
+      for (const cat of junkResult.categories) {
+        let catSafeBytes = 0;
+        for (const item of cat.items) {
+          if (item.safe) {
+            catSafeBytes += item.size_bytes;
+            junkItemCount++;
+          }
+        }
+        junkByCategory[cat.category_id] = catSafeBytes;
+        safeJunkTotal += catSafeBytes;
+      }
+
+      // Calcular totales de dev: caches safe + modelos sin uso + python envs stale
+      // DEBE usar los MISMOS criterios que CleanupReviewModal.devItemsBySubcat
+      let safeDevTotal = 0;
+      let devItemCount = 0;
+      let safeCachesBytes = 0;
+      let unusedModelsBytes = 0;
+      let stalePythonBytes = 0;
+
+      // 1. Dev caches (safety === "safe" || safety === 0)
+      const devFindings = devResult?.findings || [];
+      for (const f of devFindings) {
+        if (f.safety === "safe" || f.safety === 0) {
+          safeCachesBytes += (f.size_bytes || 0);
+          devItemCount++;
+        }
+      }
+
+      // 2. ML Models (unused: !used_since_download || last_used_days > 730)
+      const mlModels = mlResult?.models || [];
+      for (const m of mlModels) {
+        const isUnused = !m.used_since_download ||
+          (m.last_used_days !== null && m.last_used_days !== undefined && m.last_used_days > 730);
+        if (isUnused) {
+          unusedModelsBytes += (m.size_bytes || 0);
+          devItemCount++;
+        }
+      }
+
+      // 3. Python envs (stale: stale_days > 730)
+      const pyEnvs = pyResult?.envs || [];
+      for (const env of pyEnvs) {
+        const isStale = env.stale_days !== null && env.stale_days !== undefined && env.stale_days > 730;
+        if (isStale) {
+          stalePythonBytes += (env.size_bytes || 0);
+          devItemCount++;
+        }
+      }
+
+      safeDevTotal = safeCachesBytes + unusedModelsBytes + stalePythonBytes;
+
+      // Calcular total de apps sin uso usando el MISMO criterio exacto que CleanupReviewModal (filtro por defecto: > 2 años)
+      const unusedApps = (appsResult || []).filter((app: any) => {
+        const days = typeof app.last_used_days === "number" ? app.last_used_days : null;
+        return (days !== null && days >= 730) || (days === null && !app.last_used_at);
+      });
+      const appsTotal = unusedApps.reduce((sum: number, a: any) => sum + (a.size_bytes || 0), 0);
+
+      // total_recoverable_bytes = junk safe + dev safe (caches+models+python) + apps sin uso
+      const totalRec = safeJunkTotal + safeDevTotal + appsTotal;
+
+      const analysis: SmartCareAnalysis = {
+        id: `smartcare-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        drive_health: driveHealth,
+        junk_summary: {
+          temp_files_bytes: junkByCategory["temp_files"] || 0,
+          windows_leftovers_bytes: junkByCategory["windows_leftovers"] || 0,
+          installers_bytes: junkByCategory["download_installers"] || 0,
+          browser_caches_bytes: junkByCategory["browser_caches"] || 0,
+          messaging_caches_bytes: junkByCategory["messaging_cache"] || 0,
+          recycle_bin_bytes: junkByCategory["recycle_bin"] || 0,
+          total_bytes: safeJunkTotal,
+          item_count: junkItemCount,
+        },
+        dev_summary: {
+          safe_caches_bytes: safeCachesBytes,
+          unused_models_bytes: unusedModelsBytes,
+          stale_python_bytes: stalePythonBytes,
+          total_bytes: safeDevTotal,
+          item_count: devItemCount,
+        },
+        apps_summary: {
+          unused_apps_count: unusedApps.length,
+          unused_apps_bytes: appsTotal,
+        },
+        total_recoverable_bytes: totalRec,
+        is_valid: true,
+      };
+
+      try {
+        localStorage.setItem("gigacare_last_smartcare_analysis", JSON.stringify(analysis));
+      } catch (err) {
+        console.warn("[Bridge] Error guardando análisis en localStorage:", err);
+      }
+
+      return analysis;
+    }
+
+    if (cmd === "scan_recycle_bin") {
+      try {
+        const resp = await fetch("/api/real-recycle-bin");
+        if (resp.ok) {
+          const realData = await resp.json();
+          if (realData && Array.isArray(realData.items)) {
+            const result: RecycleBinScanResult = {
+              drives: [
+                {
+                  drive_letter: "C:",
+                  drive_label: "Disco local (C:)",
+                  item_count: realData.total_items || realData.items.length,
+                  total_bytes: realData.total_bytes || 0,
+                },
+              ],
+              items: realData.items.map((it: any) => ({
+                original_path: it.original_path || it.path || it.name,
+                name: it.name,
+                size_bytes: it.size_bytes || 0,
+                deleted_at: it.deleted_at || new Date().toISOString(),
+                file_type: it.file_type || "",
+                recycle_path: it.recycle_path || it.original_path,
+                i_path: it.recycle_path || it.original_path,
+              })),
+              total_items: realData.total_items || realData.items.length,
+              total_bytes: realData.total_bytes || 0,
+            };
+            return result;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real-recycle-bin:", err);
+      }
+
+      const result: RecycleBinScanResult = {
+        drives: [
+          {
+            drive_letter: "C:",
+            drive_label: "Disco local (C:)",
+            item_count: 4,
+            total_bytes: 6591,
+          },
+        ],
+        items: [
+          {
+            original_path: "C:\\Users\\Luciano\\OneDrive\\Escritorio\\Gemini",
+            name: "Gemini",
+            size_bytes: 2128,
+            deleted_at: new Date(Date.now() - 2 * 86400000).toISOString(),
+            file_type: "lnk",
+            recycle_path: "C:\\$Recycle.Bin\\$RKZMC9S.lnk",
+            i_path: "C:\\$Recycle.Bin\\$IKZMC9S.lnk",
+          },
+          {
+            original_path: "C:\\Users\\Public\\Desktop\\GigaCare",
+            name: "GigaCare",
+            size_bytes: 1032,
+            deleted_at: new Date(Date.now() - 11 * 86400000).toISOString(),
+            file_type: "lnk",
+            recycle_path: "C:\\$Recycle.Bin\\$R8YSO1M.lnk",
+            i_path: "C:\\$Recycle.Bin\\$I8YSO1M.lnk",
+          },
+          {
+            original_path: "C:\\Users\\Luciano\\Workspace\\antigravity\\subir.bat",
+            name: "subir.bat",
+            size_bytes: 1303,
+            deleted_at: new Date(Date.now() - 10 * 86400000).toISOString(),
+            file_type: "bat",
+            recycle_path: "C:\\$Recycle.Bin\\$R4HX5XA.bat",
+            i_path: "C:\\$Recycle.Bin\\$I4HX5XA.bat",
+          },
+        ],
+        total_items: 3,
+        total_bytes: 4463,
+      };
+      return result;
+    }
+
+    if (cmd === "clean_recycle_bin") {
+      const rbPaths: string[] = args?.items || [];
+      let rbBytesFreed = 0;
+      for (const p of rbPaths) {
+        rbBytesFreed += lastJunkScanItems.get(p) || 1500;
+      }
+      const cleanRes: CleanResult = {
+        scan_id: "rb-clean-" + Date.now(),
+        timestamp: new Date().toISOString(),
+        items_moved: rbPaths.length,
+        items_failed: 0,
+        bytes_freed: rbBytesFreed,
+        errors: [],
+      };
+      return cleanRes;
+    }
+
+    if (cmd === "list_installed_apps_with_usage") {
+      try {
+        const resp = await fetch("/api/real-installed-apps");
+        if (resp.ok) {
+          const realApps: InstalledApp[] = await resp.json();
+          if (Array.isArray(realApps) && realApps.length > 0) {
+            return realApps;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real installed apps:", err);
+      }
+      return [];
+    }
+
+    if (cmd === "get_app_usage") {
+      const names: string[] = args?.app_names || [];
+      const result: AppUsageInfo[] = names.map((name) => ({
+        app_id: name,
+        last_used_days: 30,
+        last_used_at: new Date(Date.now() - 30 * 86400000).toISOString(),
+        usage_count: 10,
+        source: "prefetch",
+      }));
+      return result;
+    }
+
+    if (cmd === "scan_junk_files") {
+      let realTempItems: any[] = [];
+      let realTempBytes = 2580000000;
+
+      try {
+        const resp = await fetch("/api/real-temp-files");
+        if (resp.ok) {
+          const tData = await resp.json();
+          if (tData && Array.isArray(tData.items) && tData.items.length > 0) {
+            realTempItems = tData.items;
+            realTempBytes = tData.total_bytes || realTempBytes;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real temp files:", err);
+      }
+
+      const tempCategoryItems = realTempItems.length > 0 ? realTempItems : [
+        {
+          id: "C:\\Users\\Luciano\\AppData\\Local\\Temp\\tmp_001.tmp",
+          display_name: "tmp_001.tmp",
+          path: "C:\\Users\\Luciano\\AppData\\Local\\Temp\\tmp_001.tmp",
+          size_bytes: 1450000000,
+          safe: true,
+          age_days: 14,
+          age_display: "2 semanas",
+          source_type: "temp_user",
+        },
+        {
+          id: "C:\\Windows\\Temp\\system_log.tmp",
+          display_name: "system_log.tmp",
+          path: "C:\\Windows\\Temp\\system_log.tmp",
+          size_bytes: 1000000000,
+          safe: true,
+          age_days: 60,
+          age_display: "2 meses",
+          source_type: "temp_system",
+        },
+      ];
+
+      const computedTempTotal = tempCategoryItems.reduce((s: number, i: any) => s + (i.size_bytes || 0), 0);
+      const computedTempSafe = tempCategoryItems.filter((i: any) => i.safe).reduce((s: number, i: any) => s + (i.size_bytes || 0), 0);
+
+      const junkCategories: any[] = [
+          {
+            category_id: "temp_files",
+            display_name: "Archivos Temporales",
+            total_bytes: computedTempTotal,
+            safe_bytes: computedTempSafe,
+            items: tempCategoryItems,
+          },
+          {
+            category_id: "windows_leftovers",
+            display_name: "Restos de Windows",
+            total_bytes: 1800000000,
+            safe_bytes: 1800000000,
+            items: [
+              {
+                id: "C:\\Windows\\SoftwareDistribution\\Download\\cab_update.cab",
+                display_name: "cab_update.cab",
+                path: "C:\\Windows\\SoftwareDistribution\\Download\\cab_update.cab",
+                size_bytes: 1800000000,
+                safe: true,
+                age_days: 30,
+                age_display: "1 mes",
+                source_type: "windows_update",
+              },
+            ],
+          },
+          {
+            category_id: "download_installers",
+            display_name: "Instaladores en Descargas",
+            total_bytes: 750000000,
+            safe_bytes: 750000000,
+            items: [
+              {
+                id: "C:\\Users\\Luciano\\Downloads\\Git-2.46.0-64-bit.exe",
+                display_name: "Git-2.46.0-64-bit.exe",
+                path: "C:\\Users\\Luciano\\Downloads\\Git-2.46.0-64-bit.exe",
+                size_bytes: 750000000,
+                safe: true,
+                age_days: 90,
+                age_display: "3 meses",
+                source_type: "download_installer",
+              },
+            ],
+          },
+          {
+            category_id: "browser_caches",
+            display_name: "Cachés de Navegadores",
+            total_bytes: 2520000000,
+            safe_bytes: 2520000000,
+            items: [
+              {
+                id: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache_Data",
+                display_name: "Google Chrome (Caché principal)",
+                path: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache_Data",
+                size_bytes: 1800000000,
+                safe: true,
+                source_type: "browser_cache",
+              },
+              {
+                id: "C:\\Users\\Luciano\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Cache_Data",
+                display_name: "Microsoft Edge (Caché principal)",
+                path: "C:\\Users\\Luciano\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Cache_Data",
+                size_bytes: 720000000,
+                safe: true,
+                source_type: "browser_cache",
+              },
+            ],
+          },
+          {
+            category_id: "messaging_cache",
+            display_name: "Cachés de Mensajería",
+            total_bytes: 600000000,
+            safe_bytes: 600000000,
+            items: [
+              {
+                id: "C:\\WhatsApp\\Cache\\media_1.mp4",
+                display_name: "media_1.mp4",
+                path: "C:\\WhatsApp\\Cache\\media_1.mp4",
+                size_bytes: 600000000,
+                safe: true,
+                age_days: 45,
+                age_display: "1 mes",
+                source_type: "messaging_cache",
+              },
+            ],
+          },
+          {
+            category_id: "app_residuals",
+            display_name: "Residuales de Aplicaciones",
+            total_bytes: 400000000,
+            safe_bytes: 0,
+            items: [
+              {
+                id: "C:\\Users\\Luciano\\AppData\\Local\\OldApp",
+                display_name: "OldApp",
+                path: "C:\\Users\\Luciano\\AppData\\Local\\OldApp",
+                size_bytes: 400000000,
+                safe: false,
+                source_type: "app_residual",
+              },
+            ],
+          },
+          {
+            category_id: "recycle_bin",
+            display_name: "Papelera de Reciclaje",
+            total_bytes: 4463,
+            safe_bytes: 4463,
+            items: [
+              {
+                id: "C:\\$Recycle.Bin\\$RKZMC9S.lnk",
+                display_name: "Gemini",
+                path: "C:\\$Recycle.Bin\\$RKZMC9S.lnk",
+                size_bytes: 2128,
+                safe: true,
+                age_days: 2,
+                age_display: "2 días",
+                source_type: "recycle_bin",
+              },
+              {
+                id: "C:\\$Recycle.Bin\\$R4HX5XA.bat",
+                display_name: "subir.bat",
+                path: "C:\\$Recycle.Bin\\$R4HX5XA.bat",
+                size_bytes: 1303,
+                safe: true,
+                age_days: 10,
+                age_display: "1 semana",
+                source_type: "recycle_bin",
+              },
+              {
+                id: "C:\\$Recycle.Bin\\$R8YSO1M.lnk",
+                display_name: "GigaCare",
+                path: "C:\\$Recycle.Bin\\$R8YSO1M.lnk",
+                size_bytes: 1032,
+                safe: true,
+                age_days: 11,
+                age_display: "1 semana",
+                source_type: "recycle_bin",
+              },
+            ],
+          },
+          {
+            category_id: "prefetch",
+            display_name: "Prefetch",
+            total_bytes: 120000000,
+            safe_bytes: 0,
+            informational: true,
+            items: [
+              {
+                id: "C:\\Windows\\Prefetch\\APP.EXE-12345.pf",
+                display_name: "APP.EXE-12345.pf",
+                path: "C:\\Windows\\Prefetch\\APP.EXE-12345.pf",
+                size_bytes: 120000000,
+                safe: false,
+                source_type: "prefetch",
+              },
+            ],
+          },
+        ];
+
+      // Calcular total_junk_bytes dinámicamente desde las categorías reales
+      const computedJunkTotal = junkCategories.reduce((sum: number, cat: any) => {
+        return sum + cat.items.reduce((s: number, item: any) => s + (item.safe ? item.size_bytes : 0), 0);
+      }, 0);
+
+      const mockResult: JunkFilesScanResult = {
+        total_junk_bytes: computedJunkTotal,
+        scan_timestamp: new Date().toISOString(),
+        categories: junkCategories,
+        browsers: [
+          {
+            browser_name: "Google Chrome",
+            browser_id: "chrome",
+            installed: true,
+            total_all_profiles_bytes: 1800000000,
+            profiles: [
+              {
+                profile_name: "Default",
+                profile_path: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default",
+                total_size_bytes: 1800000000,
+                cache_entries: [
+                  {
+                    cache_type: "cache",
+                    display_name: "Caché principal",
+                    path: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache_Data",
+                    size_bytes: 1200000000,
+                    safe: true,
+                  },
+                  {
+                    cache_type: "code_cache",
+                    display_name: "Caché de código",
+                    path: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Code Cache",
+                    size_bytes: 400000000,
+                    safe: true,
+                  },
+                  {
+                    cache_type: "gpu_cache",
+                    display_name: "GPUCache",
+                    path: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\GPUCache",
+                    size_bytes: 200000000,
+                    safe: true,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            browser_name: "Microsoft Edge",
+            browser_id: "edge",
+            installed: true,
+            total_all_profiles_bytes: 720000000,
+            profiles: [
+              {
+                profile_name: "Default",
+                profile_path: "C:\\Users\\Luciano\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default",
+                total_size_bytes: 720000000,
+                cache_entries: [
+                  {
+                    cache_type: "cache",
+                    display_name: "Caché principal",
+                    path: "C:\\Users\\Luciano\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Cache_Data",
+                    size_bytes: 500000000,
+                    safe: true,
+                  },
+                  {
+                    cache_type: "gpu_cache",
+                    display_name: "GPUCache",
+                    path: "C:\\Users\\Luciano\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\GPUCache",
+                    size_bytes: 220000000,
+                    safe: true,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      // Cachear tamaños reales de items para que clean_items los use
+      lastJunkScanItems = new Map();
+      for (const cat of mockResult.categories) {
+        for (const item of cat.items) {
+          if (item.path && item.size_bytes) {
+            lastJunkScanItems.set(item.path, item.size_bytes);
+          }
+        }
+      }
+
+      return mockResult;
+    }
+
+    if (cmd === "scan_browser_caches") {
+      return [
+        {
+          browser_name: "Google Chrome",
+          browser_id: "chrome",
+          installed: true,
+          total_all_profiles_bytes: 1800000000,
+          profiles: [],
+        },
+      ];
+    }
+
+    if (cmd === "clean_browser_cache") {
+      return {
+        scan_id: "browser-clean-" + args?.browser_id,
+        timestamp: new Date().toISOString(),
+        items_moved: 142,
+        items_failed: 0,
+        bytes_freed: 1800000000,
+        errors: [],
+      };
+    }
+
     if (cmd === "scan_smart_care" || cmd === "scan_module") {
       scanCancelRequested = false;
 
@@ -474,7 +1151,8 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
       for (let i = 0; i < itemIds.length; i++) {
         const path = itemIds[i];
         const fileName = path.split(/[\\/]/).pop() || "item";
-        const size = Math.floor(Math.random() * 80000000) + 15000000;
+        // Resolver el tamaño real del item desde los cachés de escaneo
+        const size = lastJunkScanItems.get(path) || lastDevScanItems.get(path) || 800000000;
         bytesFreed += size;
 
         const newEntry: QuarantineEntry = {
@@ -525,10 +1203,12 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     if (cmd === "quarantine_stats") {
       const entries = getStoredQuarantine();
       const totalBytes = entries.reduce((acc, e) => acc + (e.size_bytes || 0), 0);
+      const cfg = getStoredConfig();
+      const maxGb = cfg?.quarantine?.max_size_gb || 50;
       const stats: QuarantineStats = {
         total_items: entries.length,
         total_bytes: totalBytes,
-        max_space_bytes: 5368709120, // 5 GB
+        max_space_bytes: Math.round(maxGb * 1024 * 1024 * 1024),
         oldest_quarantined_at: entries.length > 0 ? entries[entries.length - 1].quarantined_at : undefined,
       };
       return stats;
@@ -562,6 +1242,7 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               initialDir: args?.options?.defaultPath || "",
+              title: args?.options?.title || "Selecciona la carpeta para analizar en GigaCare",
             }),
           });
           if (resp.ok) {
@@ -1946,7 +2627,34 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     if (cmd === "update_config") {
       const updated = args?.config || {};
       const current = getStoredConfig();
-      const merged = { ...current, ...updated };
+      const merged: AppConfig = {
+        ...current,
+        ...updated,
+        scanning: {
+          ...current.scanning,
+          ...(updated.scanning || {}),
+        },
+        quarantine: {
+          ...current.quarantine,
+          ...(updated.quarantine || {}),
+        },
+        photos: {
+          ...current.photos,
+          ...(updated.photos || {}),
+        },
+        ai_providers: {
+          ...current.ai_providers,
+          ...(updated.ai_providers || {}),
+        },
+        byok: {
+          ...current.byok,
+          ...(updated.byok || {}),
+        },
+        space_map: {
+          ...current.space_map,
+          ...(updated.space_map || {}),
+        },
+      };
       setStoredConfig(merged);
       return merged;
     }
@@ -1987,17 +2695,35 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
 
     // 8. Elementos de Inicio & Apps
     if (cmd === "list_startup_items") {
+      try {
+        const resp = await fetch("/api/real-startup-items");
+        if (resp.ok) {
+          const realItems: StartupItem[] = await resp.json();
+          if (Array.isArray(realItems) && realItems.length > 0) {
+            return realItems;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real startup items:", err);
+      }
+
       const items: StartupItem[] = [
         { id: "st-1", name: "Microsoft OneDrive", path: "C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe", source: "registry_hkcu", impact: "high", enabled: true, protected: false },
-        { id: "st-2", name: "Discord", path: "C:\\Users\\Luciano\\AppData\\Local\\Discord\\app-1.0.9142\\Discord.exe", source: "registry_hkcu", impact: "medium", enabled: true, protected: false },
-        { id: "st-3", name: "Spotify", path: "C:\\Users\\Luciano\\AppData\\Roaming\\Spotify\\Spotify.exe", source: "registry_hkcu", impact: "low", enabled: false, protected: false },
-        { id: "st-4", name: "Seguridad de Windows", path: "C:\\Windows\\System32\\SecurityHealthSystray.exe", source: "registry_hklm", impact: "low", enabled: true, protected: true },
+        { id: "st-2", name: "Docker Desktop", path: "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe -Autostart", source: "registry_hkcu", impact: "high", enabled: true, protected: false },
+        { id: "st-3", name: "Discord", path: "C:\\Users\\Luciano\\AppData\\Local\\Discord\\app-1.0.9142\\Discord.exe", source: "registry_hkcu", impact: "medium", enabled: true, protected: false },
+        { id: "st-4", name: "Spotify", path: "C:\\Users\\Luciano\\AppData\\Roaming\\Spotify\\Spotify.exe", source: "registry_hkcu", impact: "low", enabled: false, protected: false },
+        { id: "st-5", name: "Steam Client Bootstrapper", path: "C:\\Program Files (x86)\\Steam\\steam.exe -silent", source: "registry_hkcu", impact: "medium", enabled: false, protected: false },
+        { id: "st-6", name: "Epic Games Launcher", path: "C:\\Program Files (x86)\\Epic Games\\Launcher\\Portal\\Binaries\\Win64\\EpicGamesLauncher.exe -silent", source: "registry_hkcu", impact: "medium", enabled: false, protected: false },
+        { id: "st-7", name: "Ollama", path: "C:\\Users\\Luciano\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Ollama.lnk", source: "startup_folder", impact: "medium", enabled: true, protected: false },
+        { id: "st-8", name: "Google Chrome Auto Launch", path: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe --no-startup-window", source: "registry_hkcu", impact: "low", enabled: true, protected: false },
+        { id: "st-9", name: "Seguridad de Windows", path: "C:\\Windows\\System32\\SecurityHealthSystray.exe", source: "registry_hklm", impact: "high", enabled: true, protected: true },
+        { id: "st-10", name: "AMD Software Notification", path: "C:\\Program Files\\AMD\\CNext\\CNext\\RadeonSoftware.exe", source: "registry_hklm", impact: "low", enabled: true, protected: false },
       ];
       return items;
     }
 
     if (cmd === "toggle_startup_item") {
-      if (args?.item_id === "st-4") {
+      if (args?.item_id === "st-4" || String(args?.item_id).toLowerCase().includes("securityhealth")) {
         throw new Error("El servicio de Seguridad de Windows está protegido y no se puede desactivar.");
       }
       return { success: true };
@@ -2319,17 +3045,59 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
       return arcs;
     }
 
-    if (cmd === "list_installed_apps") {
+    if (cmd === "list_installed_apps" || cmd === "list_installed_apps_with_usage") {
+      try {
+        const resp = await fetch("/api/real-installed-apps");
+        if (resp.ok) {
+          const realApps: InstalledApp[] = await resp.json();
+          if (Array.isArray(realApps) && realApps.length > 0) {
+            return realApps;
+          }
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real installed apps:", err);
+      }
+
+      const nowMs = Date.now();
       const apps: InstalledApp[] = [
-        { id: "app-1", name: "Visual Studio Code", version: "1.92.2", publisher: "Microsoft Corporation", size_bytes: 480 * 1024 * 1024 },
-        { id: "app-2", name: "Google Chrome", version: "128.0.6613.120", publisher: "Google LLC", size_bytes: 650 * 1024 * 1024 },
-        { id: "app-3", name: "Node.js (LTS)", version: "20.17.0", publisher: "OpenJS Foundation", size_bytes: 280 * 1024 * 1024 },
-        { id: "app-4", name: "Git for Windows", version: "2.46.0", publisher: "The Git Development Community", size_bytes: 310 * 1024 * 1024 },
+        { id: "app-1", name: "Visual Studio Code", version: "1.92.2", publisher: "Microsoft Corporation", size_bytes: 480 * 1024 * 1024, source: "registry", last_used_days: 1, last_used_at: new Date(nowMs - 86400000).toISOString(), usage_count: 140 },
+        { id: "app-2", name: "Google Chrome", version: "128.0.6613.120", publisher: "Google LLC", size_bytes: 650 * 1024 * 1024, source: "registry", last_used_days: 0, last_used_at: new Date(nowMs).toISOString(), usage_count: 420 },
+        { id: "app-3", name: "Node.js (LTS)", version: "20.17.0", publisher: "OpenJS Foundation", size_bytes: 280 * 1024 * 1024, source: "registry", last_used_days: 2, last_used_at: new Date(nowMs - 2 * 86400000).toISOString(), usage_count: 55 },
+        { id: "app-4", name: "Git for Windows", version: "2.46.0", publisher: "The Git Development Community", size_bytes: 310 * 1024 * 1024, source: "registry", last_used_days: 5, last_used_at: new Date(nowMs - 5 * 86400000).toISOString(), usage_count: 80 },
+        { id: "app-5", name: "Steam", version: "2.10.91.91", publisher: "Valve Corporation", size_bytes: 2500 * 1024 * 1024, source: "registry_wow64", last_used_days: 410, last_used_at: new Date(nowMs - 410 * 86400000).toISOString(), usage_count: 4 },
+        { id: "app-6", name: "Spotify Music", version: "1.2.45.454", publisher: "Spotify AB", size_bytes: 320 * 1024 * 1024, source: "store", last_used_days: 95, last_used_at: new Date(nowMs - 95 * 86400000).toISOString(), usage_count: 15 },
+        { id: "app-7", name: "Discord", version: "1.0.9142", publisher: "Discord Inc.", size_bytes: 290 * 1024 * 1024, source: "registry", last_used_days: 12, last_used_at: new Date(nowMs - 12 * 86400000).toISOString(), usage_count: 32 },
+        { id: "app-8", name: "Docker Desktop", version: "4.34.2", publisher: "Docker Inc.", size_bytes: 1400 * 1024 * 1024, source: "registry", last_used_days: 380, last_used_at: new Date(nowMs - 380 * 86400000).toISOString(), usage_count: 2 },
+        { id: "app-9", name: "Windows Terminal", version: "1.21.2361.0", publisher: "Microsoft Corporation", size_bytes: 85 * 1024 * 1024, source: "uwp", last_used_days: 0, last_used_at: new Date(nowMs).toISOString(), usage_count: 95 },
+        { id: "app-10", name: "Microsoft Teams", version: "24215.1007.3073.3323", publisher: "Microsoft Corporation", size_bytes: 410 * 1024 * 1024, source: "uwp", last_used_days: 180, last_used_at: new Date(nowMs - 180 * 86400000).toISOString(), usage_count: 6 },
+        { id: "app-11", name: "7-Zip 24.08 (x64)", version: "24.08", publisher: "Igor Pavlov", size_bytes: 15 * 1024 * 1024, source: "registry", last_used_days: 20, last_used_at: new Date(nowMs - 20 * 86400000).toISOString(), usage_count: 11 },
+        { id: "app-12", name: "VLC Media Player", version: "3.0.21", publisher: "VideoLAN", size_bytes: 180 * 1024 * 1024, source: "registry", last_used_days: 450, last_used_at: new Date(nowMs - 450 * 86400000).toISOString(), usage_count: 1 },
+        { id: "app-13", name: "PowerToys (Preview) x64", version: "0.84.1", publisher: "Microsoft Corporation", size_bytes: 520 * 1024 * 1024, source: "registry", last_used_days: 4, last_used_at: new Date(nowMs - 4 * 86400000).toISOString(), usage_count: 45 },
+        { id: "app-14", name: "Postman", version: "11.10.0", publisher: "Postman, Inc.", size_bytes: 490 * 1024 * 1024, source: "registry", last_used_days: 395, last_used_at: new Date(nowMs - 395 * 86400000).toISOString(), usage_count: 3 },
+        { id: "app-15", name: "Obsidian", version: "1.6.7", publisher: "Dynalist Inc.", size_bytes: 260 * 1024 * 1024, source: "registry", last_used_days: 3, last_used_at: new Date(nowMs - 3 * 86400000).toISOString(), usage_count: 88 },
+        { id: "app-16", name: "Blender 4.2 LTS", version: "4.2.1", publisher: "Blender Foundation", size_bytes: 980 * 1024 * 1024, source: "registry", last_used_days: 740, last_used_at: new Date(nowMs - 740 * 86400000).toISOString(), usage_count: 1 },
+        { id: "app-17", name: "Figma Agent", version: "0.4.0", publisher: "Figma, Inc.", size_bytes: 110 * 1024 * 1024, source: "registry", last_used_days: 7, last_used_at: new Date(nowMs - 7 * 86400000).toISOString(), usage_count: 24 },
+        { id: "app-18", name: "Notepad++ (64-bit x64)", version: "8.6.9", publisher: "Don HO", size_bytes: 25 * 1024 * 1024, source: "registry", last_used_days: 8, last_used_at: new Date(nowMs - 8 * 86400000).toISOString(), usage_count: 19 },
+        { id: "app-19", name: "WhatsApp Desktop", version: "2.2435.6.0", publisher: "Meta Platforms, Inc.", size_bytes: 350 * 1024 * 1024, source: "uwp", last_used_days: 0, last_used_at: new Date(nowMs).toISOString(), usage_count: 110 },
+        { id: "app-20", name: "Telegram Desktop", version: "5.4.1", publisher: "Telegram FZ-LLC", size_bytes: 145 * 1024 * 1024, source: "registry", last_used_days: 2, last_used_at: new Date(nowMs - 2 * 86400000).toISOString(), usage_count: 60 },
       ];
       return apps;
     }
     if (cmd === "uninstall_app") {
-      return { success: true, message: `Desinstalación completada para ${args?.app_id}` };
+      try {
+        const resp = await fetch("/api/real-uninstall-app", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ app_id: args?.app_id }),
+        });
+        if (resp.ok) {
+          const res = await resp.json();
+          return res;
+        }
+      } catch (err) {
+        console.warn("[Bridge] Fallback real-uninstall-app:", err);
+      }
+      return { success: true, message: `Desinstalador iniciado para ${args?.app_id}` };
     }
 
     if (cmd === "scan_residuals") {
@@ -2351,6 +3119,14 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
         const resp = await fetch(url);
         if (resp.ok) {
           const realData: DevCleanReport = await resp.json();
+          // Cachear tamaños reales de findings dev para que clean_items los use
+          if (realData?.findings) {
+            for (const f of realData.findings) {
+              if (f.path && f.size_bytes) {
+                lastDevScanItems.set(f.path, f.size_bytes);
+              }
+            }
+          }
           return realData;
         }
       } catch (err) {
@@ -2365,6 +3141,15 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
         const resp = await fetch(url);
         if (resp.ok) {
           const realData: MlModelReport = await resp.json();
+          // Cachear paths de modelos para que clean_items resuelva tamaños reales
+          if (realData?.models) {
+            for (const m of realData.models) {
+              const p = m.paths?.[0] || m.name;
+              if (p && m.size_bytes) {
+                lastDevScanItems.set(p, m.size_bytes);
+              }
+            }
+          }
           return realData;
         }
       } catch (err) {
@@ -2379,6 +3164,14 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
         const resp = await fetch(url);
         if (resp.ok) {
           const realData: PyReport = await resp.json();
+          // Cachear paths de entornos Python para que clean_items resuelva tamaños reales
+          if (realData?.envs) {
+            for (const env of realData.envs) {
+              if (env.path && env.size_bytes) {
+                lastDevScanItems.set(env.path, env.size_bytes);
+              }
+            }
+          }
           return realData;
         }
       } catch (err) {

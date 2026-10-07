@@ -66,7 +66,7 @@ export const StartupPanel: React.FC = () => {
   const filteredItems = items.filter((it) => {
     const matchesSearch =
       it.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      it.path.toLowerCase().includes(searchQuery.toLowerCase());
+      (it.path ? it.path.toLowerCase().includes(searchQuery.toLowerCase()) : false);
     const matchesImpact =
       filterImpact === "all" || it.impact.toLowerCase() === filterImpact;
     return matchesSearch && matchesImpact;

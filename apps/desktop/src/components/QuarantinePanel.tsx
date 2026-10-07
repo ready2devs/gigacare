@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import {
   Button,
   Checkbox,
@@ -19,6 +20,9 @@ import {
   FolderOpenRegular,
   BrainCircuitRegular,
   BroomRegular,
+  EyeRegular,
+  CopyRegular,
+  CheckmarkRegular,
 } from "@fluentui/react-icons";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -58,6 +62,44 @@ export const QuarantinePanel: React.FC = () => {
   const [analyzingAi, setAnalyzingAi] = useState<boolean>(false);
   const [keepCount, setKeepCount] = useState<number>(1);
   const [movingToQuarantine, setMovingToQuarantine] = useState<boolean>(false);
+
+  // Estado para modal de visualización de origen
+  const [selectedOriginEntry, setSelectedOriginEntry] = useState<QuarantineEntry | null>(null);
+  const [copiedOriginalPath, setCopiedOriginalPath] = useState<boolean>(false);
+  const [copiedSha, setCopiedSha] = useState<boolean>(false);
+
+  // Ayudante para extraer nombre de archivo y carpeta contenedora original
+  const getFileOriginInfo = (pathStr: string) => {
+    const normalized = pathStr.replace(/\\/g, "/");
+    const parts = normalized.split("/").filter(Boolean);
+    const fileName = parts.pop() || pathStr;
+    const parentDir = parts.length > 0 ? (pathStr.includes("\\") ? parts.join("\\") : parts.join("/")) : "Raíz del sistema";
+    return { fileName, parentDir };
+  };
+
+  // Mapeo amigable de módulos de procedencia
+  const getSourceModuleLabel = (mod: string) => {
+    switch (mod) {
+      case "system_temp":
+        return "Archivos Temporales del Sistema";
+      case "system_cache":
+        return "Caché del Sistema";
+      case "browser_cache":
+        return "Caché de Navegadores Web";
+      case "messaging_cache":
+        return "Caché de Aplicaciones de Mensajería (WhatsApp/Telegram)";
+      case "installers":
+        return "Instaladores Residuales Antiguos";
+      case "photo_curator":
+        return "Curador de Fotos (Tomas duplicadas o descartadas)";
+      case "dev_cleaning":
+        return "Dev Cleaning (Dependencias/Entornos inactivos)";
+      case "app_residuals":
+        return "Archivos Residuales de Desinstalación";
+      default:
+        return mod || "Limpieza SmartCare";
+    }
+  };
 
   useEffect(() => {
     loadQuarantineData();
@@ -101,7 +143,7 @@ export const QuarantinePanel: React.FC = () => {
       setStats({
         total_items: 2,
         total_bytes: 1024 * 1024 * 165,
-        max_space_bytes: 1024 * 1024 * 1024 * 5,
+        max_space_bytes: 1024 * 1024 * 1024 * 50,
       });
     } finally {
       setLoading(false);
@@ -438,6 +480,7 @@ export const QuarantinePanel: React.FC = () => {
               ) : (
                 filteredEntries.map((entry) => {
                   const isChecked = selectedIds.has(entry.id);
+                  const { fileName } = getFileOriginInfo(entry.original_path);
                   return (
                     <div key={entry.id} className="quarantine-item-row" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                       <Checkbox
@@ -446,22 +489,48 @@ export const QuarantinePanel: React.FC = () => {
                       />
 
                       <div className="quarantine-item-info" style={{ flex: 1 }}>
-                        <span className="quarantine-item-path" title={entry.original_path}>
-                          {entry.original_path}
-                        </span>
-                        <div className="quarantine-item-meta">
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span className="quarantine-item-name" title={fileName}>
+                            {fileName}
+                          </span>
                           <Badge size="small" appearance="tint">
                             {entry.source_module}
                           </Badge>
+                          <Text weight="semibold" style={{ color: "#38BDF8", fontSize: "12px" }}>
+                            {formatBytes(entry.size_bytes)}
+                          </Text>
+                        </div>
+
+                        {/* Indicador visible de origen original del archivo */}
+                        <div className="quarantine-item-origin-row" title={`Ubicación original: ${entry.original_path}`}>
+                          <span className="quarantine-origin-tag">Origen:</span>
+                          <span className="quarantine-origin-path-text">{entry.original_path}</span>
+                        </div>
+
+                        <div className="quarantine-item-meta">
                           <span>Ingreso: {new Date(entry.quarantined_at).toLocaleDateString()}</span>
+                          <span>•</span>
                           <span>Expira: {new Date(entry.expires_at).toLocaleDateString()}</span>
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "16px" }}>
-                        <Text weight="semibold" style={{ color: "#38BDF8" }}>
-                          {formatBytes(entry.size_bytes)}
-                        </Text>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "12px" }}>
+                        <Button
+                          size="small"
+                          appearance="subtle"
+                          icon={<EyeRegular />}
+                          onClick={() => {
+                            setSelectedOriginEntry(entry);
+                            setCopiedOriginalPath(false);
+                            setCopiedSha(false);
+                          }}
+                          title="Visualizar detalles completos de origen y procedencia de este archivo"
+                          data-testid={`view-origin-btn-${entry.id}`}
+                          style={{ color: "#00E5FF", borderColor: "rgba(0, 229, 255, 0.3)" }}
+                        >
+                          Ver origen
+                        </Button>
+
                         <Button
                           size="small"
                           appearance="subtle"
@@ -474,6 +543,7 @@ export const QuarantinePanel: React.FC = () => {
                               console.error("Error al restaurar:", err);
                             }
                           }}
+                          title="Restaurar a su ubicación original"
                         >
                           Restaurar
                         </Button>
@@ -704,6 +774,197 @@ export const QuarantinePanel: React.FC = () => {
           )}
         </div>
       )}
+      {/* Modal de Detalles de Origen del Archivo */}
+      {selectedOriginEntry && typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="quarantine-origin-modal-backdrop"
+            onClick={() => setSelectedOriginEntry(null)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="quarantine-origin-modal-card"
+              onClick={(e) => e.stopPropagation()}
+              data-testid="quarantine-origin-modal"
+            >
+              {/* Header */}
+              <div className="quarantine-origin-modal-header">
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div className="quarantine-origin-icon-badge">
+                    <FolderOpenRegular />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "16px", fontWeight: 700, color: "#F8FAFC" }}>
+                      Detalles de Origen del Archivo
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#94A3B8" }}>
+                      Trazabilidad, procedencia y estado de aislamiento seguro
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="quarantine-origin-close-btn"
+                  onClick={() => setSelectedOriginEntry(null)}
+                  title="Cerrar modal"
+                  aria-label="Cerrar"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="quarantine-origin-modal-body">
+                {/* 1. Nombre y Tamaño */}
+                <div className="quarantine-origin-field">
+                  <span className="quarantine-origin-field-label">Nombre del Archivo</span>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: "14px", fontWeight: 700, color: "#F8FAFC" }}>
+                      {getFileOriginInfo(selectedOriginEntry.original_path).fileName}
+                    </span>
+                    <Badge size="medium" appearance="tint" style={{ color: "#00E5FF", borderColor: "rgba(0, 229, 255, 0.4)" }}>
+                      {formatBytes(selectedOriginEntry.size_bytes)}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* 2. Ruta Original Completa (De donde se eliminó) */}
+                <div className="quarantine-origin-field">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                    <span className="quarantine-origin-field-label" style={{ color: "#00E5FF" }}>
+                      📍 Ruta de Origen Original (Fuente de eliminación)
+                    </span>
+                    <button
+                      type="button"
+                      className="quarantine-origin-copy-btn"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(selectedOriginEntry.original_path);
+                          setCopiedOriginalPath(true);
+                          setTimeout(() => setCopiedOriginalPath(false), 2000);
+                        } catch {}
+                      }}
+                      title="Copiar ruta de origen al portapapeles"
+                    >
+                      {copiedOriginalPath ? (
+                        <>
+                          <CheckmarkRegular style={{ color: "#10B981" }} />
+                          <span style={{ color: "#10B981" }}>Copiado</span>
+                        </>
+                      ) : (
+                        <>
+                          <CopyRegular />
+                          <span>Copiar ruta</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="quarantine-origin-code-box">
+                    {selectedOriginEntry.original_path}
+                  </div>
+                </div>
+
+                {/* 3. Carpeta Contenedora Original */}
+                <div className="quarantine-origin-field">
+                  <span className="quarantine-origin-field-label">📁 Carpeta Contenedora Original</span>
+                  <div className="quarantine-origin-code-box" style={{ color: "#CBD5E1" }}>
+                    {getFileOriginInfo(selectedOriginEntry.original_path).parentDir}
+                  </div>
+                </div>
+
+                {/* 4. Fuente / Módulo que lo eliminó */}
+                <div className="quarantine-origin-field">
+                  <span className="quarantine-origin-field-label">🛡️ Fuente / Módulo de Detección</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                    <Badge size="medium" appearance="filled" style={{ backgroundColor: "rgba(0, 229, 255, 0.15)", color: "#00E5FF", border: "1px solid rgba(0, 229, 255, 0.4)" }}>
+                      {selectedOriginEntry.source_module}
+                    </Badge>
+                    <span style={{ fontSize: "12.5px", color: "#CBD5E1" }}>
+                      {getSourceModuleLabel(selectedOriginEntry.source_module)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 5. Ubicación en Aislamiento Cuarentena */}
+                <div className="quarantine-origin-field">
+                  <span className="quarantine-origin-field-label">🔒 Ubicación Actual en Aislamiento Seguro</span>
+                  <div className="quarantine-origin-code-box" style={{ fontSize: "11.5px", color: "#94A3B8" }}>
+                    {selectedOriginEntry.quarantine_path}
+                  </div>
+                </div>
+
+                {/* 6. Hash SHA-256 */}
+                <div className="quarantine-origin-field">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                    <span className="quarantine-origin-field-label">🔑 Hash de Verificación Criptográfica (SHA-256)</span>
+                    <button
+                      type="button"
+                      className="quarantine-origin-copy-btn"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(selectedOriginEntry.sha256);
+                          setCopiedSha(true);
+                          setTimeout(() => setCopiedSha(false), 2000);
+                        } catch {}
+                      }}
+                    >
+                      {copiedSha ? "Copiado" : "Copiar Hash"}
+                    </button>
+                  </div>
+                  <div className="quarantine-origin-code-box" style={{ fontSize: "11px", color: "#94A3B8" }}>
+                    {selectedOriginEntry.sha256}
+                  </div>
+                </div>
+
+                {/* 7. Fechas */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "4px" }}>
+                  <div className="quarantine-origin-subcard">
+                    <span style={{ fontSize: "11px", color: "#64748B", textTransform: "uppercase" }}>Fecha de Aislamiento</span>
+                    <span style={{ fontSize: "13px", color: "#E2E8F0", fontWeight: 500 }}>
+                      {new Date(selectedOriginEntry.quarantined_at).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="quarantine-origin-subcard">
+                    <span style={{ fontSize: "11px", color: "#64748B", textTransform: "uppercase" }}>Purga Automática</span>
+                    <span style={{ fontSize: "13px", color: "#E2E8F0", fontWeight: 500 }}>
+                      {new Date(selectedOriginEntry.expires_at).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="quarantine-origin-modal-footer">
+                <Button
+                  appearance="subtle"
+                  onClick={() => setSelectedOriginEntry(null)}
+                >
+                  Cerrar
+                </Button>
+
+                <Button
+                  appearance="primary"
+                  icon={<ArrowUndoRegular />}
+                  style={{ backgroundColor: "#00E5FF", color: "#0B0F19", fontWeight: 700 }}
+                  onClick={async () => {
+                    try {
+                      await invoke("restore_items", { entry_ids: [selectedOriginEntry.id] });
+                      setSelectedOriginEntry(null);
+                      await loadQuarantineData();
+                    } catch (err) {
+                      console.error("Error al restaurar:", err);
+                    }
+                  }}
+                >
+                  Restaurar a Ubicación Original
+                </Button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
