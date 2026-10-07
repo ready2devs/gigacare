@@ -46,7 +46,7 @@ export const CleanupReviewModal: React.FC<CleanupReviewModalProps> = ({
 
   const [selectedCategory, setSelectedCategory] = useState<string>("junk");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("temp_files");
-  const [appFilter, setAppFilter] = useState<string>("1_year");
+  const [appFilter, setAppFilter] = useState<string>("2_years");
   const [sortBy, setSortBy] = useState<"size" | "name" | "date">("size");
 
   // Filter Safe Junk Items

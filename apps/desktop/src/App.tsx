@@ -154,19 +154,41 @@ export default function App() {
     let pathsToClean = explicitPaths || customSelectedPaths;
     let appsToClean = explicitApps || customAppsToUninstall || [];
 
-    // Si el usuario no revisó manualmente, limpiar automáticamente todos los items seguros de junk + dev caches
+    // Si el usuario no revisó manualmente, limpiar automáticamente todos los items seguros
+    // Debe recoger las MISMAS fuentes que el Gestor de Limpieza para consistencia:
+    // junk safe + dev caches safe + ml models sin uso + python envs stale
     if (!pathsToClean) {
       const paths: string[] = [];
       try {
-        const junk = await invoke<JunkFilesScanResult>("scan_junk_files");
+        const [junk, devCaches, mlModels, pyEnvs] = await Promise.all([
+          invoke<JunkFilesScanResult>("scan_junk_files"),
+          invoke<any>("dev_clean_scan"),
+          invoke<any>("ml_model_scan").catch(() => ({ models: [] })),
+          invoke<any>("python_env_scan").catch(() => ({ envs: [] })),
+        ]);
+        // Junk files safe
         for (const cat of junk.categories) {
           for (const item of cat.items) {
             if (item.safe) paths.push(item.path);
           }
         }
-        const devCaches = await invoke<any>("dev_clean_scan");
+        // Dev caches safe
         for (const finding of devCaches.findings || []) {
-          if (finding.safety === "safe") paths.push(finding.path);
+          if (finding.safety === "safe" || finding.safety === 0) paths.push(finding.path);
+        }
+        // ML models sin uso (mismos criterios que CleanupReviewModal)
+        for (const model of mlModels?.models || []) {
+          const isUnused = !model.used_since_download ||
+            (model.last_used_days !== null && model.last_used_days !== undefined && model.last_used_days > 730);
+          if (isUnused) {
+            const p = model.paths?.[0] || model.name;
+            if (p) paths.push(p);
+          }
+        }
+        // Python envs stale (mismos criterios que CleanupReviewModal)
+        for (const env of pyEnvs?.envs || []) {
+          const isStale = env.stale_days !== null && env.stale_days !== undefined && env.stale_days > 730;
+          if (isStale && env.path) paths.push(env.path);
         }
       } catch (e) {
         console.warn("Error al recolectar items por defecto:", e);
@@ -224,9 +246,10 @@ export default function App() {
         if (!detectedApps || detectedApps.length === 0) {
           detectedApps = await invoke<InstalledApp[]>("list_installed_apps").catch(() => []);
         }
-        const oldApps = (detectedApps || []).filter(
-          (a) => (typeof a.last_used_days === "number" && a.last_used_days >= 365) || a.usage_count === 0
-        );
+        const oldApps = (detectedApps || []).filter((a) => {
+          const days = typeof a.last_used_days === "number" ? a.last_used_days : null;
+          return (days !== null && days >= 730) || (days === null && !a.last_used_at);
+        });
         if (oldApps.length > 0) {
           setAppsData(detectedApps);
           setPendingAppsQueue(oldApps.slice(1));

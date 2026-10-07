@@ -122,32 +122,8 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
       if (data) return JSON.parse(data);
     } catch {}
     
-    // Entradas iniciales de ejemplo
-    const now = Date.now();
-    const initial: QuarantineEntry[] = [
-      {
-        id: "quar-item-1",
-        original_path: "C:\\Users\\Luciano\\AppData\\Local\\Temp\\dump_crash_2024.tmp",
-        quarantine_path: "C:\\Users\\Luciano\\.gigacare\\quarantine\\files\\dump_crash_2024.tmp",
-        sha256: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-        size_bytes: 450 * 1024 * 1024,
-        quarantined_at: new Date(now - 2 * 86400000).toISOString(),
-        expires_at: new Date(now + 5 * 86400000).toISOString(),
-        source_module: "system_temp",
-        status: "quarantined",
-      },
-      {
-        id: "quar-item-2",
-        original_path: "C:\\Users\\Luciano\\AppData\\Roaming\\WhatsApp\\Cache\\video_cache_old.mp4",
-        quarantine_path: "C:\\Users\\Luciano\\.gigacare\\quarantine\\files\\video_cache_old.mp4",
-        sha256: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
-        size_bytes: 280 * 1024 * 1024,
-        quarantined_at: new Date(now - 4 * 86400000).toISOString(),
-        expires_at: new Date(now + 3 * 86400000).toISOString(),
-        source_module: "messaging_cache",
-        status: "quarantined",
-      }
-    ];
+    // La cuarentena empieza limpia sin elementos artificiales
+    const initial: QuarantineEntry[] = [];
     setStoredQuarantine(initial);
     return initial;
   };
@@ -175,6 +151,10 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
   };
 
   let scanCancelRequested = false;
+
+  // Cache del último escaneo de junk files para resolver tamaños reales en clean_items
+  let lastJunkScanItems: Map<string, number> = new Map();
+  let lastDevScanItems: Map<string, number> = new Map();
 
   // Miniaturas SVG en base64 para el Curador de Fotos
   const svgPhoto1 = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00E5FF"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient></defs><rect width="400" height="300" fill="#0F172A"/><circle cx="200" cy="120" r="60" fill="url(#g1)"/><path d="M50 280 L180 180 L250 230 L350 150 L400 280 Z" fill="#1E293B"/><text x="200" y="260" font-family="sans-serif" font-size="16" fill="#F8FAFC" text-anchor="middle">IMG_20240915_142010.jpg (Nítida)</text></svg>`);
@@ -422,56 +402,106 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
 
       const driveHealth: DriveHealthInfo = await getRealOrFallbackDriveHealth("C:");
 
-      // Obtener datos reales de los módulos o calcular valores exactos consistentes
-      let junkTotal = 6900000000; // 6.9 GB exactos de Archivos Basura
-      let devTotal = 17500000000; // 17.5 GB exactos de Limpieza Dev
-      let appsTotal = 6600000000; // 6.6 GB exactos de Aplicaciones sin uso
+      // Obtener datos reales ejecutando los MISMOS escaneos que el Gestor de Limpieza usará
+      // Esto garantiza que total_recoverable_bytes coincida exactamente con el footer del Gestor
+      const [junkResult, devResult, mlResult, pyResult, appsResult] = await Promise.all([
+        mockInvoke("scan_junk_files"),
+        mockInvoke("dev_clean_scan"),
+        mockInvoke("ml_model_scan").catch(() => ({ models: [] })),
+        mockInvoke("python_env_scan").catch(() => ({ envs: [] })),
+        mockInvoke("list_installed_apps_with_usage")
+          .catch(() => mockInvoke("list_installed_apps").catch(() => [])),
+      ]);
 
-      try {
-        const [realJunk, realDev, realApps] = await Promise.all([
-          fetch("/api/real-junk-scan").then((r) => r.ok ? r.json() : null).catch(() => null),
-          fetch("/api/real-dev-clean-scan").then((r) => r.ok ? r.json() : null).catch(() => null),
-          fetch("/api/real-installed-apps").then((r) => r.ok ? r.json() : null).catch(() => null),
-        ]);
-
-        if (realJunk?.total_junk_bytes) junkTotal = realJunk.total_junk_bytes;
-        if (realDev?.findings) {
-          devTotal = realDev.findings
-            .filter((f: any) => f.safety === "safe" || f.safety === 0)
-            .reduce((sum: number, f: any) => sum + (f.size_bytes || 0), 0) || devTotal;
+      // Calcular totales de junk desde items safe reales (solo lo que se puede limpiar)
+      let safeJunkTotal = 0;
+      let junkItemCount = 0;
+      const junkByCategory: Record<string, number> = {};
+      for (const cat of junkResult.categories) {
+        let catSafeBytes = 0;
+        for (const item of cat.items) {
+          if (item.safe) {
+            catSafeBytes += item.size_bytes;
+            junkItemCount++;
+          }
         }
-        if (Array.isArray(realApps)) {
-          appsTotal = realApps
-            .filter((a: any) => (typeof a.last_used_days === "number" && a.last_used_days >= 365) || a.usage_count === 0)
-            .reduce((sum: number, a: any) => sum + (a.size_bytes || 0), 0) || appsTotal;
-        }
-      } catch {}
+        junkByCategory[cat.category_id] = catSafeBytes;
+        safeJunkTotal += catSafeBytes;
+      }
 
-      const totalRec = junkTotal + devTotal + appsTotal; // 31.0 GB reales sincronizados
+      // Calcular totales de dev: caches safe + modelos sin uso + python envs stale
+      // DEBE usar los MISMOS criterios que CleanupReviewModal.devItemsBySubcat
+      let safeDevTotal = 0;
+      let devItemCount = 0;
+      let safeCachesBytes = 0;
+      let unusedModelsBytes = 0;
+      let stalePythonBytes = 0;
+
+      // 1. Dev caches (safety === "safe" || safety === 0)
+      const devFindings = devResult?.findings || [];
+      for (const f of devFindings) {
+        if (f.safety === "safe" || f.safety === 0) {
+          safeCachesBytes += (f.size_bytes || 0);
+          devItemCount++;
+        }
+      }
+
+      // 2. ML Models (unused: !used_since_download || last_used_days > 730)
+      const mlModels = mlResult?.models || [];
+      for (const m of mlModels) {
+        const isUnused = !m.used_since_download ||
+          (m.last_used_days !== null && m.last_used_days !== undefined && m.last_used_days > 730);
+        if (isUnused) {
+          unusedModelsBytes += (m.size_bytes || 0);
+          devItemCount++;
+        }
+      }
+
+      // 3. Python envs (stale: stale_days > 730)
+      const pyEnvs = pyResult?.envs || [];
+      for (const env of pyEnvs) {
+        const isStale = env.stale_days !== null && env.stale_days !== undefined && env.stale_days > 730;
+        if (isStale) {
+          stalePythonBytes += (env.size_bytes || 0);
+          devItemCount++;
+        }
+      }
+
+      safeDevTotal = safeCachesBytes + unusedModelsBytes + stalePythonBytes;
+
+      // Calcular total de apps sin uso usando el MISMO criterio exacto que CleanupReviewModal (filtro por defecto: > 2 años)
+      const unusedApps = (appsResult || []).filter((app: any) => {
+        const days = typeof app.last_used_days === "number" ? app.last_used_days : null;
+        return (days !== null && days >= 730) || (days === null && !app.last_used_at);
+      });
+      const appsTotal = unusedApps.reduce((sum: number, a: any) => sum + (a.size_bytes || 0), 0);
+
+      // total_recoverable_bytes = junk safe + dev safe (caches+models+python) + apps sin uso
+      const totalRec = safeJunkTotal + safeDevTotal + appsTotal;
 
       const analysis: SmartCareAnalysis = {
         id: `smartcare-${Date.now()}`,
         timestamp: new Date().toISOString(),
         drive_health: driveHealth,
         junk_summary: {
-          temp_files_bytes: 2300000000,
-          windows_leftovers_bytes: 1700000000,
-          installers_bytes: 715300000,
-          browser_caches_bytes: 1700000000,
-          messaging_caches_bytes: 572200000,
-          recycle_bin_bytes: 4463,
-          total_bytes: junkTotal,
-          item_count: 64,
+          temp_files_bytes: junkByCategory["temp_files"] || 0,
+          windows_leftovers_bytes: junkByCategory["windows_leftovers"] || 0,
+          installers_bytes: junkByCategory["download_installers"] || 0,
+          browser_caches_bytes: junkByCategory["browser_caches"] || 0,
+          messaging_caches_bytes: junkByCategory["messaging_cache"] || 0,
+          recycle_bin_bytes: junkByCategory["recycle_bin"] || 0,
+          total_bytes: safeJunkTotal,
+          item_count: junkItemCount,
         },
         dev_summary: {
-          safe_caches_bytes: 16800000000,
-          unused_models_bytes: 0,
-          stale_python_bytes: 700400000,
-          total_bytes: devTotal,
-          item_count: 14,
+          safe_caches_bytes: safeCachesBytes,
+          unused_models_bytes: unusedModelsBytes,
+          stale_python_bytes: stalePythonBytes,
+          total_bytes: safeDevTotal,
+          item_count: devItemCount,
         },
         apps_summary: {
-          unused_apps_count: 22,
+          unused_apps_count: unusedApps.length,
           unused_apps_bytes: appsTotal,
         },
         total_recoverable_bytes: totalRec,
@@ -566,12 +596,20 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
     }
 
     if (cmd === "clean_recycle_bin") {
-      return {
-        success: true,
-        cleaned_count: 12,
-        freed_bytes: 900000000,
+      const rbPaths: string[] = args?.items || [];
+      let rbBytesFreed = 0;
+      for (const p of rbPaths) {
+        rbBytesFreed += lastJunkScanItems.get(p) || 1500;
+      }
+      const cleanRes: CleanResult = {
+        scan_id: "rb-clean-" + Date.now(),
+        timestamp: new Date().toISOString(),
+        items_moved: rbPaths.length,
+        items_failed: 0,
+        bytes_freed: rbBytesFreed,
         errors: [],
       };
+      return cleanRes;
     }
 
     if (cmd === "list_installed_apps_with_usage") {
@@ -641,17 +679,15 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
         },
       ];
 
-      const mockResult: JunkFilesScanResult = {
-        total_junk_bytes: realTempItems.length > 0
-          ? realTempBytes + 1800000000 + 750000000 + 2520000000 + 600000000 + 4463
-          : 8520000000,
-        scan_timestamp: new Date().toISOString(),
-        categories: [
+      const computedTempTotal = tempCategoryItems.reduce((s: number, i: any) => s + (i.size_bytes || 0), 0);
+      const computedTempSafe = tempCategoryItems.filter((i: any) => i.safe).reduce((s: number, i: any) => s + (i.size_bytes || 0), 0);
+
+      const junkCategories: any[] = [
           {
             category_id: "temp_files",
             display_name: "Archivos Temporales",
-            total_bytes: realTempItems.length > 0 ? realTempBytes : 2450000000,
-            safe_bytes: realTempItems.length > 0 ? realTempBytes : 2450000000,
+            total_bytes: computedTempTotal,
+            safe_bytes: computedTempSafe,
             items: tempCategoryItems,
           },
           {
@@ -697,10 +733,18 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
             safe_bytes: 2520000000,
             items: [
               {
-                id: "C:\\Chrome\\Default\\Cache_Data",
+                id: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache_Data",
                 display_name: "Google Chrome (Caché principal)",
-                path: "C:\\Chrome\\Default\\Cache_Data",
+                path: "C:\\Users\\Luciano\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache_Data",
                 size_bytes: 1800000000,
+                safe: true,
+                source_type: "browser_cache",
+              },
+              {
+                id: "C:\\Users\\Luciano\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Cache_Data",
+                display_name: "Microsoft Edge (Caché principal)",
+                path: "C:\\Users\\Luciano\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Cache_Data",
+                size_bytes: 720000000,
                 safe: true,
                 source_type: "browser_cache",
               },
@@ -795,7 +839,17 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
               },
             ],
           },
-        ],
+        ];
+
+      // Calcular total_junk_bytes dinámicamente desde las categorías reales
+      const computedJunkTotal = junkCategories.reduce((sum: number, cat: any) => {
+        return sum + cat.items.reduce((s: number, item: any) => s + (item.safe ? item.size_bytes : 0), 0);
+      }, 0);
+
+      const mockResult: JunkFilesScanResult = {
+        total_junk_bytes: computedJunkTotal,
+        scan_timestamp: new Date().toISOString(),
+        categories: junkCategories,
         browsers: [
           {
             browser_name: "Google Chrome",
@@ -864,6 +918,16 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
           },
         ],
       };
+      // Cachear tamaños reales de items para que clean_items los use
+      lastJunkScanItems = new Map();
+      for (const cat of mockResult.categories) {
+        for (const item of cat.items) {
+          if (item.path && item.size_bytes) {
+            lastJunkScanItems.set(item.path, item.size_bytes);
+          }
+        }
+      }
+
       return mockResult;
     }
 
@@ -1087,8 +1151,8 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
       for (let i = 0; i < itemIds.length; i++) {
         const path = itemIds[i];
         const fileName = path.split(/[\\/]/).pop() || "item";
-        // Asignar tamaño realista proporcional al volumen del análisis completo (~16.78 GB distribuidos)
-        const size = Math.floor(16780000000 / Math.max(1, itemIds.length));
+        // Resolver el tamaño real del item desde los cachés de escaneo
+        const size = lastJunkScanItems.get(path) || lastDevScanItems.get(path) || 800000000;
         bytesFreed += size;
 
         const newEntry: QuarantineEntry = {
@@ -3055,6 +3119,14 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
         const resp = await fetch(url);
         if (resp.ok) {
           const realData: DevCleanReport = await resp.json();
+          // Cachear tamaños reales de findings dev para que clean_items los use
+          if (realData?.findings) {
+            for (const f of realData.findings) {
+              if (f.path && f.size_bytes) {
+                lastDevScanItems.set(f.path, f.size_bytes);
+              }
+            }
+          }
           return realData;
         }
       } catch (err) {
@@ -3069,6 +3141,15 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
         const resp = await fetch(url);
         if (resp.ok) {
           const realData: MlModelReport = await resp.json();
+          // Cachear paths de modelos para que clean_items resuelva tamaños reales
+          if (realData?.models) {
+            for (const m of realData.models) {
+              const p = m.paths?.[0] || m.name;
+              if (p && m.size_bytes) {
+                lastDevScanItems.set(p, m.size_bytes);
+              }
+            }
+          }
           return realData;
         }
       } catch (err) {
@@ -3083,6 +3164,14 @@ if (typeof window !== "undefined" && !(window as any).__TAURI_INTERNALS__) {
         const resp = await fetch(url);
         if (resp.ok) {
           const realData: PyReport = await resp.json();
+          // Cachear paths de entornos Python para que clean_items resuelva tamaños reales
+          if (realData?.envs) {
+            for (const env of realData.envs) {
+              if (env.path && env.size_bytes) {
+                lastDevScanItems.set(env.path, env.size_bytes);
+              }
+            }
+          }
           return realData;
         }
       } catch (err) {
